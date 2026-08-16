@@ -1,0 +1,130 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Authenticated user profile and metadata in ShiftForce",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Auth UID" },
+        "email": { "type": "string", "description": "Email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "role": { "type": "string", "description": "System role" },
+        "isHostOrAdmin": { "type": "boolean", "description": "Whether user is a host or admin" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["userId", "email", "role"]
+    },
+    "Employee": {
+      "title": "Employee",
+      "description": "Hospitality team member record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Employee ID" },
+        "name": { "type": "string", "description": "Full name" },
+        "role": { "type": "string", "description": "Job title/role" },
+        "department": { "type": "string", "description": "Assigned department" },
+        "hourlyRate": { "type": "number", "description": "Hourly wage" },
+        "email": { "type": "string", "description": "Email address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "status": { "type": "string", "description": "Employment status" },
+        "adpEmployeeId": { "type": "string", "description": "ADP or POS payroll ID" },
+        "avatarUrl": { "type": "string", "description": "Profile picture" },
+        "updatedAt": { "type": "string", "description": "Timestamp" }
+      },
+      "required": ["id", "name", "role", "department"]
+    },
+    "Shift": {
+      "title": "Shift",
+      "description": "Scheduled restaurant shift",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Shift ID" },
+        "employeeId": { "type": "string", "description": "Assigned employee ID" },
+        "date": { "type": "string", "description": "Shift date YYYY-MM-DD" },
+        "startTime": { "type": "string", "description": "Start time HH:mm" },
+        "endTime": { "type": "string", "description": "End time HH:mm" },
+        "role": { "type": "string", "description": "Role on shift" },
+        "department": { "type": "string", "description": "Department" },
+        "status": { "type": "string", "description": "Shift status" },
+        "totalHours": { "type": "number", "description": "Duration in hours" },
+        "estimatedCost": { "type": "number", "description": "Calculated wage cost" },
+        "notes": { "type": "string", "description": "Shift notes" },
+        "updatedAt": { "type": "string", "description": "Timestamp" }
+      },
+      "required": ["id", "employeeId", "date", "startTime", "endTime"]
+    },
+    "AttendancePunch": {
+      "title": "Attendance Punch",
+      "description": "Clock in and clock out timestamp records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Punch event ID" },
+        "employeeId": { "type": "string", "description": "Employee ID" },
+        "employeeName": { "type": "string", "description": "Employee Name" },
+        "punchType": { "type": "string", "description": "CLOCK_IN or CLOCK_OUT" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" },
+        "location": { "type": "string", "description": "Punch location or terminal" },
+        "isOfflineQueued": { "type": "boolean", "description": "Whether synced from offline cache" }
+      },
+      "required": ["id", "employeeId", "punchType", "timestamp"]
+    },
+    "ShiftTrade": {
+      "title": "Shift Trade Request",
+      "description": "Staff peer-to-peer shift trade or drop request",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Trade ID" },
+        "shiftId": { "type": "string", "description": "Shift ID being traded" },
+        "requestingEmployeeId": { "type": "string", "description": "Requesting employee" },
+        "targetEmployeeId": { "type": "string", "description": "Target employee or open pool" },
+        "status": { "type": "string", "description": "pending, approved, rejected" },
+        "reason": { "type": "string", "description": "Trade reason" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "shiftId", "requestingEmployeeId", "status"]
+    },
+    "Announcement": {
+      "title": "Broadcast Announcement",
+      "description": "Restaurant-wide or department announcement",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Announcement ID" },
+        "title": { "type": "string", "description": "Announcement heading" },
+        "content": { "type": "string", "description": "Body message" },
+        "category": { "type": "string", "description": "Announcement category" },
+        "priority": { "type": "string", "description": "normal, urgent, critical" },
+        "author": { "type": "string", "description": "Author name or role" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "title", "content", "priority"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document keyed by auth UID"
+    },
+    "/employees/{employeeId}": {
+      "schema": "Employee",
+      "description": "Restaurant employee roster members"
+    },
+    "/shifts/{shiftId}": {
+      "schema": "Shift",
+      "description": "Scheduled shifts"
+    },
+    "/punches/{punchId}": {
+      "schema": "AttendancePunch",
+      "description": "Timeclock attendance punch records"
+    },
+    "/shiftTrades/{tradeId}": {
+      "schema": "ShiftTrade",
+      "description": "Shift trade and drop marketplace requests"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Restaurant broadcast announcements"
+    }
+  }
+}
