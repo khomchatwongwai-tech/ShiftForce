@@ -1,0 +1,10 @@
+{
+  "name": "ShiftForce - Restaurant Workforce & Smart Schedule",
+  "description": "Comprehensive restaurant workforce management with Firebase Cloud Firestore realtime sync, Service Worker offline mode & roster cache, AI paper schedule photo OCR, 50-state tax withholding engine, autonomous AI Swarm, omni-channel hiring integrations, 8-tier hierarchy, and smart scheduling.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
