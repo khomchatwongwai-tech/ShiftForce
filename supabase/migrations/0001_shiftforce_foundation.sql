@@ -329,9 +329,9 @@ do $$
 declare t text;
 begin
   foreach t in array array['shift_trades','time_off_requests','shift_swap_requests','sick_reports','availability_requests','shift_slot_requests'] loop
-    execute format('create policy %L on public.%I for select to authenticated using (private.can_access_employee(organization_id, employee_id))', t || ' assigned read', t);
+    execute format('create policy %I on public.%I for select to authenticated using (private.can_access_employee(organization_id, employee_id))', t || ' assigned read', t);
     execute format($p$
-      create policy %L on public.%I for insert to authenticated
+      create policy %I on public.%I for insert to authenticated
       with check (
         private.can_manage_employee(organization_id, employee_id)
         or exists (
@@ -341,7 +341,7 @@ begin
         )
       )
     $p$, t || ' own or admin insert', t);
-    execute format('create policy %L on public.%I for update to authenticated using (private.can_manage_employee(organization_id, employee_id)) with check (private.can_manage_employee(organization_id, employee_id))', t || ' assigned admin update', t);
+    execute format('create policy %I on public.%I for update to authenticated using (private.can_manage_employee(organization_id, employee_id)) with check (private.can_manage_employee(organization_id, employee_id))', t || ' assigned admin update', t);
   end loop;
 end $$;
 
