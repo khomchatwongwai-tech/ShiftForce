@@ -6,7 +6,7 @@ ShiftForce is a restaurant workforce scheduling and operations platform built wi
 
 1. Install dependencies: `pnpm install --frozen-lockfile`
 2. Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY`.
-3. For backend Firebase token verification, authenticate Application Default Credentials or set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account file stored outside this repository.
+3. For backend Firebase token verification, authenticate Application Default Credentials, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account file stored outside this repository, or set `FIREBASE_SERVICE_ACCOUNT_KEY` to the complete service-account JSON on hosts such as Render.
 4. Configure the dedicated ShiftForce Supabase project as described in `SUPABASE_SETUP.md`.
 5. Run `pnpm run dev`.
 

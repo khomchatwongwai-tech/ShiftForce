@@ -12,7 +12,7 @@ The application now passes all dependency-light security, enterprise-pricing, en
 - Privileged labor mutations create server-authored audit events.
 - Stripe Checkout and Customer Portal remain server-created.
 - Stripe webhook signature verification uses the raw body and event IDs are idempotently recorded to prevent duplicate reconciliation.
-- Production readiness endpoint reports Firestore, Gemini, Stripe secret/webhook, app URL, and all Stripe Price configuration without exposing secret values.
+- Production readiness endpoint reports Firebase Admin/Firestore, Supabase, Gemini, Stripe secret/webhook, app URL, and all Stripe Price configuration without exposing secret values or crashing when credentials are absent.
 - Security headers and request IDs are applied by the server.
 - Scheduler/reminder previews no longer claim SMS/WhatsApp delivery when no provider is connected.
 - Company/store tenant isolation, invitations, store entitlements, employee plan limits, and server-side billing state remain enforced.

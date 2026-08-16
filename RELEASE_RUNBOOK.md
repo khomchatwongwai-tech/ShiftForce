@@ -15,7 +15,8 @@ npm run build
 The first four gates are dependency-light policy regressions. Typecheck and build are mandatory once dependencies are installed in CI/staging.
 
 ## Required production configuration
-- Firebase Admin via Application Default Credentials and correct `FIREBASE_PROJECT_ID`.
+- Firebase Admin via Application Default Credentials or a valid `FIREBASE_SERVICE_ACCOUNT_KEY`, with the correct `FIREBASE_PROJECT_ID`.
+- Supabase `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` available during the production build and runtime readiness check.
 - Deploy the included Firestore security rules and required indexes.
 - Set `APP_URL` to the HTTPS production origin.
 - Set `GEMINI_API_KEY` only on the server.

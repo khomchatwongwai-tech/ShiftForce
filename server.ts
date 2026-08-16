@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import rateLimit from "express-rate-limit";
 import Stripe from "stripe";
 import crypto from "crypto";
-import { applicationDefault, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
+import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
 
@@ -51,10 +51,43 @@ app.use((req, res, next) => {
   next();
 });
 
-const firebaseProjectId = process.env.FIREBASE_PROJECT_ID || "gen-lang-client-0282286222";
+const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "gen-lang-client-0282286222";
+const rawFirebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
+
+function parseFirebaseServiceAccount(raw?: string) {
+  if (!raw) return null;
+  let value: Record<string, unknown>;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY must contain valid JSON");
+  }
+
+  const projectId = typeof value.project_id === "string" ? value.project_id.trim() : "";
+  const clientEmail = typeof value.client_email === "string" ? value.client_email.trim() : "";
+  const privateKey = typeof value.private_key === "string" ? value.private_key.replace(/\\n/g, "\n").trim() : "";
+  if (!projectId || !clientEmail || !privateKey.includes("BEGIN PRIVATE KEY")) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is missing project_id, client_email, or a valid private_key");
+  }
+  if (projectId !== firebaseProjectId) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY project_id must match FIREBASE_PROJECT_ID");
+  }
+  return { projectId, clientEmail, privateKey };
+}
+
+const firebaseServiceAccount = parseFirebaseServiceAccount(rawFirebaseServiceAccount);
+const firebaseAdminCredentialConfigured = Boolean(
+  firebaseServiceAccount ||
+  process.env.GOOGLE_APPLICATION_CREDENTIALS?.trim() ||
+  process.env.K_SERVICE?.trim() ||
+  process.env.GAE_SERVICE?.trim() ||
+  process.env.FUNCTION_TARGET?.trim() ||
+  process.env.GOOGLE_CLOUD_PROJECT?.trim()
+);
+
 if (getAdminApps().length === 0) {
   initializeAdminApp({
-    credential: applicationDefault(),
+    credential: firebaseServiceAccount ? cert(firebaseServiceAccount) : applicationDefault(),
     projectId: firebaseProjectId,
   });
 }
@@ -672,17 +705,42 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", service: "shiftforce", timestamp: new Date().toISOString() });
 });
 
+function hasValidUrl(value: string | undefined, requireHttps = false) {
+  if (!value?.trim()) return false;
+  try {
+    const url = new URL(value);
+    return requireHttps ? url.protocol === "https:" : ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+async function isFirestoreReady() {
+  if (!firebaseAdminCredentialConfigured || !process.env.FIREBASE_PROJECT_ID?.trim()) return false;
+  try {
+    await Promise.race([
+      getAdminFirestore().collection("systemHealth").limit(1).get(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Firestore readiness check timed out")), 5_000)),
+    ]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 app.get("/api/health/ready", async (_req, res) => {
   const required = {
-    firebaseProjectId: Boolean(process.env.FIREBASE_PROJECT_ID || firebaseProjectId),
-    appUrl: Boolean(process.env.APP_URL),
-    gemini: Boolean(process.env.GEMINI_API_KEY),
-    stripeSecret: Boolean(process.env.STRIPE_SECRET_KEY),
-    stripeWebhook: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+    firebaseProjectId: Boolean(process.env.FIREBASE_PROJECT_ID?.trim()),
+    firebaseAdminCredential: firebaseAdminCredentialConfigured,
+    appUrl: hasValidUrl(process.env.APP_URL, process.env.NODE_ENV === "production"),
+    gemini: Boolean(process.env.GEMINI_API_KEY?.trim()),
+    stripeSecret: Boolean(process.env.STRIPE_SECRET_KEY?.trim()),
+    stripeWebhook: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
+    supabaseUrl: hasValidUrl(process.env.VITE_SUPABASE_URL, true),
+    supabasePublishableKey: Boolean(process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()),
   };
   const stripePricesConfigured = Object.values(STRIPE_PRICE_ENV).every(cycles => Boolean(cycles.monthly && process.env[cycles.monthly] && cycles.annual && process.env[cycles.annual]));
-  let firestore = false;
-  try { await getAdminFirestore().collection("systemHealth").limit(1).get(); firestore = true; } catch { firestore = false; }
+  const firestore = await isFirestoreReady();
   const ready = firestore && Object.values(required).every(Boolean) && stripePricesConfigured;
   return res.status(ready ? 200 : 503).json({ status: ready ? "ready" : "not_ready", firestore, required, stripePricesConfigured, timestamp: new Date().toISOString() });
 });
