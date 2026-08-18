@@ -17,6 +17,7 @@ The application now passes all dependency-light security, enterprise-pricing, en
 - Scheduler/reminder previews no longer claim SMS/WhatsApp delivery when no provider is connected.
 - Company/store tenant isolation, invitations, store entitlements, employee plan limits, and server-side billing state remain enforced.
 - AI remains authenticated, server-only, configured-required, and fail-closed.
+- Firestore is the single authoritative workforce/billing store; the Supabase browser integration is read-only, preventing split-brain writes and bypass of server audit or plan controls.
 
 ### Validation results in this package
 - Security gate: **17/17 PASS**.

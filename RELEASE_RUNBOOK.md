@@ -17,6 +17,7 @@ The first four gates are dependency-light policy regressions. Typecheck and buil
 ## Required production configuration
 - Firebase Admin via Application Default Credentials or a valid `FIREBASE_SERVICE_ACCOUNT_KEY`, with the correct `FIREBASE_PROJECT_ID`.
 - Supabase `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` available during the production build and runtime readiness check.
+- Keep `src/supabase/workforceService.ts` read-only. All workforce writes must continue through `src/firebase/firestoreService.ts` and authenticated `/api/workforce/*` endpoints.
 - Deploy the included Firestore security rules and required indexes.
 - Set `APP_URL` to the HTTPS production origin.
 - Set `GEMINI_API_KEY` only on the server.

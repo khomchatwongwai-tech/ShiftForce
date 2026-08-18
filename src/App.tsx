@@ -84,7 +84,7 @@ import {
 } from './firebase/FirebaseContext';
 import {
   firestoreService
-} from './supabase/workforceService';
+} from './firebase/firestoreService';
 import {
   Wifi,
   WifiOff,

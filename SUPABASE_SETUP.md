@@ -1,6 +1,6 @@
 # ShiftForce → Supabase Setup
 
-This build keeps Firebase Authentication and moves workforce persistence/realtime/storage to Supabase.
+This build keeps Firebase Authentication and Firestore as the authoritative workforce and billing store. Supabase provides an RLS-protected read model, Realtime integration, and private file storage. Browser code cannot mutate workforce tables through Supabase; trusted labor changes go through the authenticated server endpoints so plan limits and audit guarantees cannot be bypassed.
 
 ## Why this is safe
 Supabase hosted projects support Firebase Auth as a third-party authentication provider. The client sends the current Firebase ID token to Supabase. RLS authorizes every row using the Firebase JWT `sub`.
@@ -25,8 +25,8 @@ Supabase hosted projects support Firebase Auth as a third-party authentication p
 11. In **Storage**, confirm `shiftforce-files` is private. Upload paths must be `ORGANIZATION_ID/FIREBASE_UID/...`.
 12. Run Database security and performance advisors and resolve every critical finding.
 
-## Cutover
-`src/App.tsx` and `FirebaseContext.tsx` now use `src/supabase/workforceService.ts` for persistent workforce data. Firebase remains the identity provider.
+## Runtime ownership
+`src/App.tsx` and `FirebaseContext.tsx` use `src/firebase/firestoreService.ts`. That service routes privileged workforce mutations through `/api/workforce/*`; Firestore rules deny direct browser writes to labor-impacting collections. `src/supabase/workforceService.ts` is deliberately read-only and must not become an alternate mutation path.
 
 ## Before production
 - Run Supabase database/security advisors.
