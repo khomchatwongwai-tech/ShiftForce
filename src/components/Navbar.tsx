@@ -181,9 +181,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Logo & Tagline */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-              <ChefHat className="w-6 h-6" />
-            </div>
+            <img
+              src="/logo.svg"
+              alt="ShiftForce Logo"
+              className="w-10 h-10 rounded-xl shadow-md shadow-sky-500/20 object-cover shrink-0"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-bold text-xl tracking-tight text-slate-900">
