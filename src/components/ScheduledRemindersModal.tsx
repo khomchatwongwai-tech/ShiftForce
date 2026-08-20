@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   X,
@@ -27,7 +29,6 @@ import {
   ReminderSchedulerConfig,
   ScheduledReminderTask
 } from '../types';
-import { translations } from '../utils/i18n';
 
 interface ScheduledRemindersModalProps {
   isOpen: boolean;

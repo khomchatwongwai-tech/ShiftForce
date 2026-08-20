@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Globe,
@@ -64,6 +66,8 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
   onUpdateCandidateStage,
   onSelectCandidateForAI,
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // State
   const [platforms, setPlatforms] = useState<HiringPlatformConnection[]>(INITIAL_HIRING_PLATFORMS);
   const [jobOpenings, setJobOpenings] = useState<JobOpening[]>(INITIAL_JOB_OPENINGS);

@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Building2, MapPin, Plus, RefreshCw, ShieldCheck, Store, X, AlertCircle } from 'lucide-react';
 import { CompanyLocation } from '../types';
@@ -7,6 +9,8 @@ import { getPlanForLocationCount } from '../data/enterprisePricing';
 interface Props { isOpen:boolean; onClose:()=>void; onLocationCountChange?:(count:number)=>void; }
 
 export const EnterpriseLocationManagerModal: React.FC<Props> = ({ isOpen, onClose, onLocationCountChange }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [loading,setLoading]=useState(false);
   const [error,setError]=useState<string|null>(null);
   const [companyName,setCompanyName]=useState('');

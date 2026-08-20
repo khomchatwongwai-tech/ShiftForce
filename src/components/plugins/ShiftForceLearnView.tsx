@@ -1,3 +1,5 @@
+import { useLanguage } from '../../context/LanguageContext';
+import { translations } from '../../utils/i18n';
 import React, { useState } from 'react';
 import {
   GraduationCap,
@@ -115,6 +117,8 @@ interface ShiftForceLearnViewProps {
 }
 
 export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employees }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeCourseModal, setActiveCourseModal] = useState<CourseModule | null>(null);

@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Clock,
@@ -12,7 +14,6 @@ import {
   Flame
 } from 'lucide-react';
 import { TardinessRecord, Employee, SupportedLanguage } from '../types';
-import { translations } from '../utils/i18n';
 
 interface LateTardinessTrackerViewProps {
   tardinessLog: TardinessRecord[];

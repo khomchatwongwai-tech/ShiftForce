@@ -288,7 +288,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           className="w-full py-1.5 px-3 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Shield className="w-3.5 h-3.5" />
-                          <span>Open RBAC Manager &amp; Custom Roles</span>
+                          <span>{t.openRBAC}</span>
                         </button>
                       </div>
                     )}
@@ -309,7 +309,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Manager</span>
+                <span>{t.adminPortal}</span>
               </button>
               <button
                 id="portal-employee-btn"
@@ -321,7 +321,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <UserCheck className="w-3.5 h-3.5" />
-                <span>Staff Seat</span>
+                <span>{t.employeePortal}</span>
               </button>
             </div>
 
@@ -400,7 +400,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                         Live Notifications &amp; SMS / Email
                       </h4>
-                      <p className="text-[11px] text-slate-500">Instant multi-channel dispatch logs</p>
+                      <p className="text-[11px] text-slate-500">{t.publish7DayBroadcast}</p>
                     </div>
                     <span className="px-2 py-0.5 text-[10px] font-bold bg-sky-100 text-sky-700 rounded-full">
                       {notificationDispatches.length} Dispatches
@@ -485,7 +485,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md shadow-sky-500/20 hover:shadow-lg transition-all cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-200" />
-              <span>ShiftForce AI</span>
+              <span>{t.aiAssistant}</span>
             </button>
 
             {/* Authentication & Profile Button */}
@@ -575,7 +575,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   ) : (
                     <div className="px-4 py-2 border-b border-slate-100 text-center">
                       <h4 className="font-bold text-slate-900">ShiftForce Sign-In</h4>
-                      <p className="text-[11px] text-slate-500">Choose your access portal</p>
+                      <p className="text-[11px] text-slate-500">{t.switchPortal}</p>
                     </div>
                   )}
 
@@ -592,7 +592,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <ShieldCheck className="w-4 h-4" />
                       </div>
                       <div>
-                        <span className="font-bold text-xs block text-indigo-950">Log In as Admin / Manager</span>
+                        <span className="font-bold text-xs block text-indigo-950">{t.adminSignIn}</span>
                         <span className="text-[10px] text-slate-500 block">Host billing, schedules, payroll &amp; POS</span>
                       </div>
                     </button>
@@ -610,7 +610,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-xs text-emerald-950">Log In as Employee / Staff</span>
+                          <span className="font-bold text-xs text-emerald-950">{t.staffSignIn}</span>
                           <span className="bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase">
                             Free
                           </span>
@@ -631,7 +631,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                         className="w-full py-1.5 px-3 rounded-lg text-xs font-semibold text-rose-700 hover:bg-rose-50 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out / Switch Identity</span>
+                        <span>{t.signOut}</span>
                       </button>
                     </div>
                   )}
@@ -769,7 +769,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <UserCheck className="w-4 h-4" />
-                <span>Staff Seat</span>
+                <span>{t.employeePortal}</span>
               </button>
             </div>
           </div>

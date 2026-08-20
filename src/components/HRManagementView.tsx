@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
 import {
@@ -21,7 +23,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { OnboardingCandidate, Employee, Shift, SupportedLanguage, Department, RestaurantRole } from '../types';
-import { translations } from '../utils/i18n';
 import { HiringPlatformHub } from './HiringPlatformHub';
 import { EmployeePaycheckCalculatorModal } from './payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from './payroll/StateTaxBracketsExplorerModal';

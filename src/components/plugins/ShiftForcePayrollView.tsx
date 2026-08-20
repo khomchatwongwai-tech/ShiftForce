@@ -1,3 +1,5 @@
+import { useLanguage } from '../../context/LanguageContext';
+import { translations } from '../../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   DollarSign,
@@ -42,6 +44,8 @@ interface ShiftForcePayrollViewProps {
 }
 
 export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ employees, shifts }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [payPeriod, setPayPeriod] = useState<'current_biweekly' | 'previous_biweekly'>('current_biweekly');
   const [selectedStateCode, setSelectedStateCode] = useState<string>('CA');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState<Department | 'all'>('all');

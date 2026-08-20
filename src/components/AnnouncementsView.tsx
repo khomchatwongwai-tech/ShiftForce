@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
 import {
@@ -21,7 +23,6 @@ import {
   Camera
 } from 'lucide-react';
 import { Announcement, Employee, SupportedLanguage, Department, NotificationDispatch } from '../types';
-import { translations } from '../utils/i18n';
 
 interface AnnouncementsViewProps {
   portal: 'admin' | 'employee';

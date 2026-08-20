@@ -1,3 +1,4 @@
+import { useLanguage } from './context/LanguageContext';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Navbar
@@ -184,7 +185,7 @@ export function App() {
   // Navigation & Language State
   const [portal, setPortal] = useState<PortalType>('admin');
   const [activeTab, setActiveTab] = useState<ActiveTab>('schedule');
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
+  const { currentLanguage, setLanguage: setCurrentLanguage, t } = useLanguage();
 
   // Role-Based Access Control (RBAC) & Custom Role Hierarchy State
   const [rbacState, setRbacState] = useState<RBACManagerState>(INITIAL_RBAC_STATE);

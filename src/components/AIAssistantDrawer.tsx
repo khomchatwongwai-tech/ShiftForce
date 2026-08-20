@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
 import {
@@ -14,7 +16,6 @@ import {
   Clock
 } from 'lucide-react';
 import { Employee, Shift, SupportedLanguage } from '../types';
-import { translations } from '../utils/i18n';
 
 interface AIAssistantDrawerProps {
   isOpen: boolean;

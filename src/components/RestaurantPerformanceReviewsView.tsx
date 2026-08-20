@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
 import {
@@ -50,6 +52,8 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
   onPostCelebrationToCommunity,
   portal = 'admin'
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [selectedReviewForSnapshot, setSelectedReviewForSnapshot] = useState<GuestReview>(reviews[0]);
   const [snapshotTheme, setSnapshotTheme] = useState<'gold' | 'neon' | 'emerald' | 'sunset'>('gold');
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);

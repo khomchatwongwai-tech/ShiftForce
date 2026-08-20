@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   UserPlus,
@@ -24,7 +26,6 @@ import {
   FileCheck
 } from 'lucide-react';
 import { Employee, Department, RestaurantRole, SupportedLanguage, AlcoholHandlerCard, FoodHandlerCard } from '../types';
-import { translations } from '../utils/i18n';
 import { EMPLOYEE_COLORS, generateLargeEmployeePool } from '../data/mockData';
 
 interface EmployeeManagementViewProps {
