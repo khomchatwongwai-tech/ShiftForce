@@ -8,7 +8,7 @@ import {
   updateProfile as updateFirebaseProfile
 } from 'firebase/auth';
 import { auth, googleProvider, testFirestoreConnection } from './config';
-import { firestoreService } from './firestoreService';
+import { firestoreService } from '../supabase/workforceService';
 import {
   Employee,
   Shift,

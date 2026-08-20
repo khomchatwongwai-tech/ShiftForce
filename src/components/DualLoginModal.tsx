@@ -238,9 +238,11 @@ export function DualLoginModal({
           )}
 
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/30">
-              <ChefHat className="w-6 h-6" />
-            </div>
+            <img
+              src="/logo.svg"
+              alt="ShiftForce Logo"
+              className="w-11 h-11 rounded-2xl shadow-lg shadow-sky-500/30 object-cover shrink-0"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-black tracking-tight text-white">

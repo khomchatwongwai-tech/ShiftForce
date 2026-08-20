@@ -13,7 +13,6 @@ import {
   FileText,
   UserPlus,
   CreditCard,
-  ChefHat,
   ChevronDown,
   CheckCircle2,
   Smartphone,
@@ -33,7 +32,11 @@ import {
   WifiOff,
   LogIn,
   LogOut,
-  User
+  User,
+  Menu,
+  X,
+  SlidersHorizontal,
+  ChevronRight
 } from 'lucide-react';
 import {
   Employee,
@@ -116,6 +119,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
   const t = translations[currentLanguage];
 
   const activeRole = rbacState?.roles.find(r => r.id === rbacState.activeRoleId) || rbacState?.roles[0];
@@ -156,13 +161,10 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'announcements', label: t.announcements, icon: Megaphone, badge: unreadNotificationsCount, pluginId: 'announcements' },
   ];
 
-  // Dynamically filter tabs based on enterprise feature state and RBAC permissions
   const adminTabs = allAdminTabs.filter(tab => {
-    // RBAC check: role must allow this tab
     if (activeRole && !activeRole.permissions.allowedTabs.includes(tab.id)) {
       return false;
     }
-    // Enterprise feature flag check
     if (featureState && tab.pluginId && !featureState.enabledPluginIds.includes(tab.pluginId) && tab.id !== 'command_center' && tab.id !== 'schedule') {
       return false;
     }
@@ -173,54 +175,62 @@ export const Navbar: React.FC<NavbarProps> = ({
     ? allEmployeeTabs.filter(tab => !tab.pluginId || featureState.enabledPluginIds.includes(tab.pluginId) || tab.id === 'schedule')
     : allEmployeeTabs;
 
+  const currentLangObj = languages.find(l => l.code === currentLanguage) || languages[0];
+
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-xs">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-xs w-full max-w-full pt-[env(safe-area-inset-top,0px)]">
       {/* Top Utility & Branding Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
 
           {/* Logo & Tagline */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-              <ChefHat className="w-6 h-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xl tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <img
+              src="/logo.svg"
+              alt="ShiftForce Logo"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md shadow-sky-500/20 object-cover shrink-0"
+            />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-900 truncate">
                   Shift<span className="text-sky-600">Force</span>
                 </span>
-                <span className="px-2 py-0.5 text-xs font-semibold bg-sky-100 text-sky-700 rounded-full border border-sky-200">
+                <span className="hidden lg:inline-flex px-2 py-0.5 text-[11px] font-semibold bg-sky-100 text-sky-700 rounded-full border border-sky-200 shrink-0">
                   Restaurant Edition
                 </span>
               </div>
-              <p className="text-xs text-slate-500 hidden sm:block">
+              <p className="text-xs text-slate-500 hidden xl:block truncate">
                 {t.tagline}
               </p>
             </div>
           </div>
 
-          {/* Portal Switcher & Controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* DESKTOP CONTROLS (Visible on >= 1024px) */}
+          <div className="hidden lg:flex items-center gap-2 sm:gap-3">
 
-            {/* Role & Access (RBAC) Selector / Manager Button */}
+            {/* Role & Access (RBAC) Selector */}
             {portal === 'admin' && activeRole && (
               <div className="relative">
                 <button
                   id="navbar-rbac-btn"
-                  onClick={() => setShowRoleMenu(!showRoleMenu)}
+                  onClick={() => {
+                    setShowRoleMenu(!showRoleMenu);
+                    setShowLangMenu(false);
+                    setShowNotifications(false);
+                    setShowUserMenu(false);
+                  }}
                   className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200/80 border border-slate-300 text-slate-800 transition-colors cursor-pointer shadow-xs"
                   title="Active Role & Hierarchy Access Scope (RBAC)"
                 >
                   <Shield className="w-3.5 h-3.5 text-indigo-600" />
-                  <span className="hidden sm:inline font-bold truncate max-w-[130px] md:max-w-[160px]">
+                  <span className="font-bold truncate max-w-[140px]">
                     {activeRole.name.split('(')[0].trim()}
                   </span>
-                  <span className="sm:hidden font-bold">Role</span>
                   <ChevronDown className="w-3 h-3 text-slate-400" />
                 </button>
 
                 {showRoleMenu && (
-                  <div className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+                  <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
                     <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                       <div>
                         <h4 className="text-xs font-bold text-slate-900">
@@ -299,141 +309,92 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">{t.adminPortal}</span>
-                <span className="md:hidden">Admin</span>
+                <span>Manager</span>
               </button>
               <button
                 id="portal-employee-btn"
                 onClick={() => onPortalChange('employee')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   portal === 'employee'
-                    ? 'bg-sky-600 text-white shadow-xs'
+                    ? 'bg-emerald-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
                 }`}
               >
                 <UserCheck className="w-3.5 h-3.5" />
-                <span className="hidden md:inline">{t.employeePortal}</span>
-                <span className="md:hidden">Staff</span>
+                <span>Staff Seat</span>
               </button>
             </div>
-
-            {/* Enterprise Feature & Plugins Manager Button */}
-            {portal === 'admin' && onOpenFeatureManager && (
-              <button
-                onClick={onOpenFeatureManager}
-                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-800 transition-colors cursor-pointer"
-                title="Manage Enterprise Plugins & Modular Add-ons"
-              >
-                <Sliders className="w-3.5 h-3.5 text-indigo-600" />
-                <span>Plugins ({featureState?.enabledPluginIds.length || 0})</span>
-              </button>
-            )}
-
-            {/* Universal Payment Portal Button - Restricted to Admin / Host */}
-            {portal === 'admin' && onOpenPaymentPortal && (
-              <button
-                id="navbar-payment-portal-btn"
-                onClick={onOpenPaymentPortal}
-                className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors cursor-pointer"
-                title="Host & Admin Billing & Payment Portal (100% Free for Staff)"
-              >
-                <CreditCard className="w-3.5 h-3.5 text-amber-300" />
-                <span>Payments &amp; Portal</span>
-              </button>
-            )}
-
-            {/* Capacity Pill Button (Triggers Pricing Modal) - Restricted to Admin / Host */}
-            {portal === 'admin' && onOpenPricing && (
-              <button
-                id="navbar-pricing-tier-btn"
-                onClick={onOpenPricing}
-                className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  subscriptionState?.isTrialActive
-                    ? 'bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800'
-                    : 'bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800'
-                }`}
-                title="Host & Admin Plan Management & 15-Day Free Trial"
-              >
-                <CreditCard className={`w-3.5 h-3.5 ${subscriptionState?.isTrialActive ? 'text-emerald-600' : 'text-sky-600'}`} />
-                {subscriptionState?.isTrialActive ? (
-                  <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Trial ({subscriptionState.trialDaysRemaining}d left) · {subscriptionState.activeLocationCount} stores</span>
-                  </span>
-                ) : (
-                  <span>{subscriptionState?.activeLocationCount || 1} store{(subscriptionState?.activeLocationCount || 1) === 1 ? '' : 's'} · Location plan</span>
-                )}
-              </button>
-            )}
-
-            {/* Staff / Employee Zero-Cost Guarantee Badge */}
-            {portal === 'employee' && (
-              <div
-                id="navbar-free-staff-badge"
-                className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 shadow-2xs"
-                title="Staff Access is 100% Free • Sponsored by Restaurant Host & Employer"
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span>100% Free Staff Account</span>
-              </div>
-            )}
 
             {/* Language Switcher */}
             <div className="relative">
               <button
-                id="language-switcher-btn"
-                onClick={() => setShowLangMenu(!showLangMenu)}
-                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg transition-colors cursor-pointer"
-                title="Change Language (Google Translate Engine)"
+                id="navbar-language-btn"
+                onClick={() => {
+                  setShowLangMenu(!showLangMenu);
+                  setShowRoleMenu(false);
+                  setShowNotifications(false);
+                  setShowUserMenu(false);
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200/80 border border-slate-300 text-slate-800 transition-colors cursor-pointer shadow-xs"
+                title="Select Interface Language"
               >
                 <Globe className="w-3.5 h-3.5 text-sky-600" />
-                <span className="hidden sm:inline font-mono uppercase">{currentLanguage}</span>
+                <span>{currentLangObj.flag}</span>
                 <ChevronDown className="w-3 h-3 text-slate-400" />
               </button>
 
               {showLangMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 text-xs animate-in fade-in zoom-in-95">
-                  <div className="px-3 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
-                    Translate UI
+                <div className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+                  <div className="px-4 py-2 border-b border-slate-100">
+                    <h4 className="text-xs font-bold text-slate-900">Supported Languages</h4>
                   </div>
-                  {languages.map((l) => (
-                    <button
-                      key={l.code}
-                      onClick={() => {
-                        onLanguageChange(l.code);
-                        setShowLangMenu(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-sky-50 transition-colors ${
-                        currentLanguage === l.code ? 'font-bold text-sky-700 bg-sky-50/50' : 'text-slate-700'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{l.flag}</span>
-                        <span>{l.label}</span>
-                      </span>
-                      {currentLanguage === l.code && <CheckCircle2 className="w-3.5 h-3.5 text-sky-600" />}
-                    </button>
-                  ))}
+                  <div className="p-1 space-y-0.5 max-h-60 overflow-y-auto">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          onLanguageChange(lang.code);
+                          setShowLangMenu(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                          currentLanguage === lang.code
+                            ? 'bg-sky-50 text-sky-900 font-bold'
+                            : 'hover:bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </span>
+                        {currentLanguage === lang.code && <CheckCircle2 className="w-4 h-4 text-sky-600" />}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Notification Center Trigger */}
+            {/* Notifications Button */}
             <div className="relative">
               <button
                 id="navbar-notifications-btn"
-                onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
-                title="Multi-channel Broadcasts & Alerts"
+                onClick={() => {
+                  setShowNotifications(!showNotifications);
+                  setShowRoleMenu(false);
+                  setShowLangMenu(false);
+                  setShowUserMenu(false);
+                }}
+                className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-300 text-slate-700 transition-colors cursor-pointer shadow-xs"
+                title="Live Dispatch Logs & Notifications"
               >
-                <Bell className="w-5 h-5 text-slate-600" />
+                <Bell className="w-4 h-4 text-slate-700" />
                 {unreadNotificationsCount > 0 && (
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white animate-pulse" />
                 )}
               </button>
 
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
                   <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
                     <div>
                       <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
@@ -483,7 +444,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </div>
 
-            {/* Offline Mode & Cache Indicator Button */}
+            {/* Offline Mode Indicator Button */}
             {onOpenOfflineModal && (
               <button
                 id="navbar-offline-mode-btn"
@@ -506,7 +467,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ) : (
                   <Wifi className="w-3.5 h-3.5 text-emerald-600" />
                 )}
-                <span className="hidden sm:inline">
+                <span>
                   {!isOnline || isSimulatedOffline ? 'Offline' : 'Offline Mode'}
                 </span>
                 {offlineQueueCount > 0 && (
@@ -524,15 +485,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="flex items-center gap-1.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md shadow-sky-500/20 hover:shadow-lg transition-all cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-amber-200" />
-              <span className="hidden sm:inline">ShiftForce AI</span>
-              <span className="sm:hidden">AI</span>
+              <span>ShiftForce AI</span>
             </button>
 
-            {/* Authentication & Dual Login Profile Button */}
+            {/* Authentication & Profile Button */}
             <div className="relative">
               <button
                 id="navbar-user-auth-btn"
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={() => {
+                  setShowUserMenu(!showUserMenu);
+                  setShowRoleMenu(false);
+                  setShowLangMenu(false);
+                  setShowNotifications(false);
+                }}
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs border ${
                   authSession?.isAuthenticated
                     ? authSession.userType === 'admin'
@@ -559,7 +524,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <LogIn className="w-3.5 h-3.5 text-white" />
                 )}
 
-                <span className="hidden sm:inline font-bold truncate max-w-[120px]">
+                <span className="font-bold truncate max-w-[120px]">
                   {authSession?.isAuthenticated ? authSession.displayName : 'Sign In'}
                 </span>
 
@@ -567,9 +532,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2.5 z-50 animate-in fade-in zoom-in-95 text-xs">
-
-                  {/* Account Header */}
+                <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-200 py-2.5 z-50 animate-in fade-in zoom-in-95 text-xs">
                   {authSession?.isAuthenticated ? (
                     <div className="px-4 py-2 border-b border-slate-100">
                       <div className="flex items-center gap-2.5 mb-1.5">
@@ -616,7 +579,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </div>
                   )}
 
-                  {/* Switch / Login Actions */}
                   <div className="p-2 space-y-1">
                     <button
                       id="menu-login-admin-btn"
@@ -658,7 +620,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </button>
                   </div>
 
-                  {/* Sign out button if authenticated */}
                   {authSession?.isAuthenticated && onLogout && (
                     <div className="p-2 pt-1 border-t border-slate-100">
                       <button
@@ -674,19 +635,320 @@ export const Navbar: React.FC<NavbarProps> = ({
                       </button>
                     </div>
                   )}
-
                 </div>
               )}
             </div>
 
           </div>
+
+          {/* MOBILE / TABLET CONTROLS (Visible on < 1024px) */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+
+            {/* Notification Icon Button (Mobile) */}
+            <button
+              id="mobile-notifications-btn"
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setShowMobileMenu(false);
+              }}
+              className="relative p-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-300 text-slate-700 transition-colors cursor-pointer"
+              title="Live Dispatches"
+            >
+              <Bell className="w-4 h-4 text-slate-700" />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white animate-pulse" />
+              )}
+            </button>
+
+            {/* AI Assistant Button (Mobile) */}
+            <button
+              id="mobile-ai-btn"
+              onClick={onOpenAIAssistant}
+              className="flex items-center gap-1 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-md shadow-sky-500/20 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-200" />
+              <span>AI</span>
+            </button>
+
+            {/* Profile / Auth Quick Button (Mobile) */}
+            <button
+              id="mobile-user-auth-btn"
+              onClick={() => {
+                setShowUserMenu(!showUserMenu);
+                setShowMobileMenu(false);
+              }}
+              className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer ${
+                authSession?.isAuthenticated
+                  ? authSession.userType === 'admin'
+                    ? 'bg-slate-900 text-white border-slate-700'
+                    : 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                  : 'bg-sky-600 text-white border-sky-700'
+              }`}
+              title="Account Options"
+            >
+              {authSession?.isAuthenticated ? (
+                authSession.userType === 'admin' ? (
+                  <ShieldCheck className="w-4 h-4 text-amber-300" />
+                ) : (
+                  <UserCheck className="w-4 h-4 text-emerald-600" />
+                )
+              ) : (
+                <LogIn className="w-4 h-4 text-white" />
+              )}
+            </button>
+
+            {/* Hamburger / More Menu Toggle Button */}
+            <button
+              id="mobile-more-menu-btn"
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 transition-colors cursor-pointer"
+              aria-label="Toggle Mobile Navigation Menu"
+            >
+              {showMobileMenu ? <X className="w-5 h-5 text-slate-900" /> : <Menu className="w-5 h-5 text-slate-900" />}
+            </button>
+
+          </div>
+
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs Bar */}
-      <div className="bg-sky-50/50 border-t border-sky-100/60 overflow-x-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex items-center space-x-1 sm:space-x-2 py-2">
+      {/* MOBILE MORE MENU OVERLAY / DRAWER */}
+      {showMobileMenu && (
+        <div className="lg:hidden bg-white border-b border-sky-200 shadow-2xl p-4 space-y-4 animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
+
+          {/* App Branding Info */}
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 text-xs font-bold bg-sky-100 text-sky-800 rounded-full border border-sky-200">
+                ShiftForce Restaurant Edition
+              </span>
+              {activeRole && portal === 'admin' && (
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-800 rounded-md">
+                  {activeRole.hierarchyScopeLevel}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => setShowMobileMenu(false)}
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Portal Switcher */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+              Access Portal
+            </label>
+            <div className="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                onClick={() => {
+                  onPortalChange('admin');
+                  setShowMobileMenu(false);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  portal === 'admin'
+                    ? 'bg-sky-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Manager Portal</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  onPortalChange('employee');
+                  setShowMobileMenu(false);
+                }}
+                className={`py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  portal === 'employee'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>Staff Seat</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Active Role Selector (Admin Mode) */}
+          {portal === 'admin' && activeRole && (
+            <div>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                Active Hierarchy Scope (RBAC)
+              </label>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-2 space-y-1 max-h-48 overflow-y-auto">
+                {rbacState?.roles.map((r) => {
+                  const isSelected = r.id === activeRole.id;
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => {
+                        if (onSelectActiveRole) onSelectActiveRole(r.id);
+                        setShowMobileMenu(false);
+                      }}
+                      className={`w-full text-left p-2 rounded-lg text-xs flex items-center justify-between cursor-pointer ${
+                        isSelected ? 'bg-indigo-100 text-indigo-900 font-bold' : 'hover:bg-slate-200/60 text-slate-700'
+                      }`}
+                    >
+                      <div className="truncate min-w-0 pr-2">
+                        <div className="truncate font-semibold">{r.name}</div>
+                        <div className="text-[10px] text-slate-500 truncate">📍 {r.assignedHierarchyPath}</div>
+                      </div>
+                      {isSelected && <CheckCircle2 className="w-4 h-4 text-indigo-600 shrink-0" />}
+                    </button>
+                  );
+                })}
+
+                {onOpenRBAC && (
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      onOpenRBAC();
+                    }}
+                    className="w-full mt-2 py-2 px-3 bg-indigo-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>Open RBAC Role Manager</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Language Selector */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+              Interface Language ({currentLangObj.flag} {currentLangObj.label})
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    onLanguageChange(lang.code);
+                    setShowMobileMenu(false);
+                  }}
+                  className={`p-2 rounded-lg text-xs flex items-center gap-2 border cursor-pointer ${
+                    currentLanguage === lang.code
+                      ? 'bg-sky-50 text-sky-900 border-sky-300 font-bold'
+                      : 'bg-slate-50 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <span>{lang.flag}</span>
+                  <span className="truncate">{lang.label.split(' ')[0]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Offline Mode Status & Actions */}
+          {onOpenOfflineModal && (
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
+                {!isOnline || isSimulatedOffline ? (
+                  <WifiOff className="w-4 h-4 text-amber-600" />
+                ) : (
+                  <Wifi className="w-4 h-4 text-emerald-600" />
+                )}
+                <span>{!isOnline || isSimulatedOffline ? 'Offline Mode Active' : 'System Connected'}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowMobileMenu(false);
+                  onOpenOfflineModal();
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg border border-slate-300 cursor-pointer"
+              >
+                Offline Roster ({offlineQueueCount})
+              </button>
+            </div>
+          )}
+
+          {/* Sign In / Sign Out Section */}
+          <div className="pt-3 border-t border-slate-100">
+            {authSession?.isAuthenticated ? (
+              <div className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div className="min-w-0">
+                  <div className="font-bold text-xs text-slate-900 truncate">{authSession.displayName}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{authSession.displayEmail}</div>
+                </div>
+                {onLogout && (
+                  <button
+                    onClick={() => {
+                      setShowMobileMenu(false);
+                      onLogout();
+                    }}
+                    className="px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-bold rounded-lg border border-rose-200 shrink-0 cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    if (onOpenLoginModal) onOpenLoginModal('admin');
+                  }}
+                  className="py-2 px-3 bg-indigo-600 text-white text-xs font-bold rounded-xl text-center cursor-pointer"
+                >
+                  Admin Sign In
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMobileMenu(false);
+                    if (onOpenLoginModal) onOpenLoginModal('employee');
+                  }}
+                  className="py-2 px-3 bg-emerald-600 text-white text-xs font-bold rounded-xl text-center cursor-pointer"
+                >
+                  Staff Sign In
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation Shortcuts */}
+          <div className="pt-3 border-t border-slate-100">
+            <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+              Quick Navigation Views
+            </label>
+            <div className="grid grid-cols-2 gap-1.5">
+              {(portal === 'admin' ? adminTabs : employeeTabs).map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      onTabChange(tab.id);
+                      setShowMobileMenu(false);
+                    }}
+                    className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-2 border text-left cursor-pointer transition-all ${
+                      isActive
+                        ? 'bg-sky-600 text-white border-sky-700 shadow-xs'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate">{tab.label.split('(')[0]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* Navigation Sub-Tabs Bar (Row 2) */}
+      <div className="bg-sky-50/50 border-t border-sky-100/60 w-full max-w-full overflow-x-auto scrollbar-none touch-pan-x">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 w-full">
+          <nav className="flex items-center space-x-1 sm:space-x-2 py-2 min-w-max">
             {(portal === 'admin' ? adminTabs : employeeTabs).map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -695,7 +957,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={tab.id}
                   id={`tab-btn-${tab.id}`}
                   onClick={() => onTabChange(tab.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 ${
                     isActive
                       ? 'bg-white text-sky-700 shadow-xs border border-sky-200 font-semibold'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'

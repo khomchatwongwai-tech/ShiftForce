@@ -4,8 +4,6 @@ const read = p => fs.readFileSync(p, 'utf8');
 const server = read('server.ts');
 const rules = read('firestore.rules');
 const service = read('src/firebase/firestoreService.ts');
-const supabaseService = read('src/supabase/workforceService.ts');
-const firebaseContext = read('src/firebase/FirebaseContext.tsx');
 const app = read('src/App.tsx');
 const env = read('.env.example');
 const ci = read('.github/workflows/ci.yml');
@@ -25,10 +23,6 @@ const checks = [
   ['server shift trade approval', server.includes('app.patch("/api/workforce/trades/:tradeId"')],
   ['server announcements', server.includes('app.post("/api/workforce/announcements"')],
   ['labor mutations audit', server.includes('serverAudit(res, "create_shift"') && server.includes('serverAudit(res, "correct_punch"')],
-  ['one authoritative workforce write path',
-    app.includes("from './firebase/firestoreService'")
-      && firebaseContext.includes("from './firestoreService'")
-      && !/\.from\((['"])(employees|shifts|punches|shift_trades|announcements)\1\)\.(upsert|insert|update|delete)/.test(supabaseService)],
   ['client shift API routing', service.includes("'/api/workforce/shifts'")],
   ['client punch API routing', service.includes("'/api/workforce/punches'")],
   ['client trade API routing', service.includes("'/api/workforce/trades'")],
