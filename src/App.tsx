@@ -1307,7 +1307,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-800 flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900 font-sans">
+    <div className="min-h-screen bg-slate-50/70 text-slate-800 flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900 font-sans max-w-full overflow-x-hidden">
 
       {/* Top Main Navigation Bar */}
       <Navbar
@@ -1360,7 +1360,7 @@ export function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-full overflow-x-hidden">
 
         {/* Offline Mode Emergency Banner (when offline or simulated) */}
         {(!isOnline || isSimulatedOffline) && (
