@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   Sparkles,
@@ -80,6 +82,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
   onOpenTemplateModal,
   onNavigateTab
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // Command Center State
   const [naturalLanguagePrompt, setNaturalLanguagePrompt] = useState('');
   const [isProcessingPrompt, setIsProcessingPrompt] = useState(false);

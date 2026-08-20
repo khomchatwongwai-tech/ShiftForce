@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Building2,
@@ -45,6 +47,8 @@ import {
 } from '../data/commandCenterData';
 
 export const EnterpriseCommandHubView: React.FC = () => {
+  const { currentLanguage, t } = useLanguage();
+
   // Navigation Tabs
   const [activeEnterpriseTab, setActiveEnterpriseTab] = useState<
     'intelligence' | 'hierarchy' | 'modules' | 'tasks_checklists' | 'policy_handbook' | 'security_audit'

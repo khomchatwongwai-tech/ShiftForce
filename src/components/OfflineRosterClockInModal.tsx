@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Wifi,
@@ -55,6 +57,8 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
   shifts,
   onSyncOfflinePunchesToLive
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'roster' | 'clock_in' | 'queue' | 'diagnostics'>('roster');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState<string>('all');

@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Sparkles,
@@ -67,6 +69,8 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
   onApplyAutoFillShifts,
   selectedDepartmentFilter = 'all',
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeDept, setActiveDept] = useState<Department | 'all'>(selectedDepartmentFilter);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [plan, setPlan] = useState<SmartAutoFillPlan | null>(null);

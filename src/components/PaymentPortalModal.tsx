@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import { X, CreditCard, ShieldCheck, ExternalLink, AlertCircle } from 'lucide-react';
 import { SupportedLanguage } from '../types';
@@ -22,6 +24,8 @@ interface PaymentPortalModalProps {
 }
 
 export const PaymentPortalModal: React.FC<PaymentPortalModalProps> = ({ isOpen, onClose, itemToPurchase }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   if (!isOpen) return null;

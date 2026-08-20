@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useMemo, useState } from 'react';
 import { Check, X, Building2, Users, ShieldCheck, Sparkles } from 'lucide-react';
 import { SupportedLanguage } from '../types';
@@ -15,6 +17,8 @@ interface PricingTiersModalProps {
 export const PricingTiersModal: React.FC<PricingTiersModalProps> = ({
   isOpen, onClose, currentEmployeeCount, currentLocationCount, onSelectTier,
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [billingCycle, setBillingCycle] = useState<'monthly'|'annual'>('monthly');
   const [processingTierId, setProcessingTierId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

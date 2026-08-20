@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   Plus,
@@ -30,7 +32,6 @@ import {
   Camera
 } from 'lucide-react';
 import { Shift, Employee, Department, RestaurantRole, SupportedLanguage, ShiftTemplate, ShiftPatternTag, DepartmentBudgetsMap, AvailabilityRequest, TimeOffRequest } from '../types';
-import { translations } from '../utils/i18n';
 import { ShiftTemplatesModal } from './ShiftTemplatesModal';
 import { DepartmentBudgetModal } from './DepartmentBudgetModal';
 import { SmartAutoFillModal } from './SmartAutoFillModal';

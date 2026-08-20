@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState, useMemo } from 'react';
 import {
@@ -34,7 +36,6 @@ import {
   Shift,
   SupportedLanguage
 } from '../types';
-import { translations } from '../utils/i18n';
 import { detectShiftSlotContentions } from '../utils/shiftSlotValidation';
 
 interface RequestsApprovalsViewProps {

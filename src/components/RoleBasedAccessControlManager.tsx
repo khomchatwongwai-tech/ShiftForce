@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Shield,
@@ -109,6 +111,8 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
   hierarchyNodes = INITIAL_ENTERPRISE_HIERARCHY,
   employees = [],
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'roles' | 'matrix' | 'hierarchy_scope' | 'audit'>('roles');
   const [editingRole, setEditingRole] = useState<CustomRole | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);

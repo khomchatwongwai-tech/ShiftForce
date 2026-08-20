@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Calendar,
@@ -33,7 +35,6 @@ import {
   TardinessRecord,
   SupportedLanguage
 } from '../types';
-import { translations } from '../utils/i18n';
 import { EmployeePersonalDevelopmentCalendar } from './EmployeePersonalDevelopmentCalendar';
 import { EmployeePaycheckCalculatorModal } from './payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from './payroll/StateTaxBracketsExplorerModal';

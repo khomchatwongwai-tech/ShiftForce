@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
 import {
   Building2,
@@ -71,6 +73,8 @@ export const IntegrationsHubView: React.FC<IntegrationsHubViewProps> = ({
   posMappings,
   setPOSMappings
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'workforce' | 'pos' | 'logs'>('workforce');
   const [selectedWorkforceId, setSelectedWorkforceId] = useState<string>('adp_workforce_now');
   const [selectedPOSId, setSelectedPOSId] = useState<string>('toast');

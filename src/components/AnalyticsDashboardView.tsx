@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
@@ -80,7 +82,6 @@ import {
   DepartmentBudgetsMap,
   POSLaborAlert
 } from '../types';
-import { translations } from '../utils/i18n';
 import { INITIAL_TARDINESS_LOG, INITIAL_RESTAURANT_PERFORMANCE_SCORE, INITIAL_GUEST_REVIEWS } from '../data/mockData';
 import { INITIAL_POS_DEPARTMENT_MAPPINGS } from '../data/posMappingData';
 import { POSDepartmentMappingModal } from './POSDepartmentMappingModal';

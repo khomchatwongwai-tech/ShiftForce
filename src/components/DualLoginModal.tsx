@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   ShieldCheck,
@@ -48,6 +50,7 @@ interface DualLoginModalProps {
 }
 
 export function DualLoginModal({
+
   isOpen,
   onClose,
   isMandatoryGate = false,
@@ -58,6 +61,8 @@ export function DualLoginModal({
   onLoginSuccess,
   onLogout,
 }: DualLoginModalProps) {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<AuthPortalMode>(initialMode);
 
   // Admin Login State

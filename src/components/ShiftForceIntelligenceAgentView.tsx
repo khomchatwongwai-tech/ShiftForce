@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   Sparkles,
@@ -54,6 +56,8 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
   employees,
   onNavigateTab
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // Navigation Section State
   const [activeSection, setActiveSection] = useState<'insights' | 'optimization' | 'alerts' | 'health'>('insights');
 
