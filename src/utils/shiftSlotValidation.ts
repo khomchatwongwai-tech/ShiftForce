@@ -1,13 +1,13 @@
-import {
-  ShiftSlotRequest,
-  ShiftSlotContention,
-  PriorityCandidateAnalysis,
-  Employee,
-  Shift,
-  TardinessRecord,
-  AvailabilityRequest,
+import { 
+  ShiftSlotRequest, 
+  ShiftSlotContention, 
+  PriorityCandidateAnalysis, 
+  Employee, 
+  Shift, 
+  TardinessRecord, 
+  AvailabilityRequest, 
   DayOfWeek,
-  NotificationDispatch
+  NotificationDispatch 
 } from '../types';
 
 const DAY_NAMES: DayOfWeek[] = [
@@ -49,7 +49,7 @@ export function evaluateCandidatePriority(
   const requestDurationHours = getShiftDurationHours(request.startTime, request.endTime);
 
   // 1. Availability History Analysis
-  const empAvailReq = availabilityRequests.find(a => a.employeeId === employee.id && a.status === 'approved')
+  const empAvailReq = availabilityRequests.find(a => a.employeeId === employee.id && a.status === 'approved') 
     || availabilityRequests.find(a => a.employeeId === employee.id);
 
   let statedPref: PriorityCandidateAnalysis['availabilityHistory']['statedPreference'] = 'neutral';
@@ -59,7 +59,7 @@ export function evaluateCandidatePriority(
   if (empAvailReq && empAvailReq.weeklyPreferences && empAvailReq.weeklyPreferences[targetDay]) {
     const dayPref = empAvailReq.weeklyPreferences[targetDay];
     statedPref = dayPref.status || 'neutral';
-
+    
     if (statedPref === 'preferred') {
       prefMatch = true;
       availDetails = `Stated 'Preferred' availability for ${targetDay}s in verified availability profile.`;
@@ -69,14 +69,14 @@ export function evaluateCandidatePriority(
     } else if (statedPref === 'evening_only') {
       const [sh] = request.startTime.split(':').map(Number);
       prefMatch = sh >= 15;
-      availDetails = prefMatch
-        ? `Stated 'Evening Only' for ${targetDay}s (matches ${request.startTime} shift).`
+      availDetails = prefMatch 
+        ? `Stated 'Evening Only' for ${targetDay}s (matches ${request.startTime} shift).` 
         : `Stated 'Evening Only', but shift starts at ${request.startTime}.`;
     } else if (statedPref === 'morning_only') {
       const [sh] = request.startTime.split(':').map(Number);
       prefMatch = sh < 15;
-      availDetails = prefMatch
-        ? `Stated 'Morning Only' for ${targetDay}s (matches ${request.startTime} shift).`
+      availDetails = prefMatch 
+        ? `Stated 'Morning Only' for ${targetDay}s (matches ${request.startTime} shift).` 
         : `Stated 'Morning Only', but shift starts at ${request.startTime}.`;
     } else if (statedPref === 'unavailable') {
       prefMatch = false;
@@ -206,12 +206,12 @@ export function detectShiftSlotContentions(
 ): ShiftSlotContention[] {
   // Only evaluate pending requests
   const pendingRequests = requests.filter(r => r.status === 'pending');
-
+  
   // Group requests by slot key: Date + Time + Role (or ShiftId)
   const groupedSlots: Record<string, ShiftSlotRequest[]> = {};
 
   pendingRequests.forEach(req => {
-    const key = req.shiftId
+    const key = req.shiftId 
       ? `shift_${req.shiftId}`
       : `${req.date}_${req.startTime}-${req.endTime}_${req.role}_${req.department}`;
 
@@ -226,10 +226,10 @@ export function detectShiftSlotContentions(
   Object.entries(groupedSlots).forEach(([key, slotRequests]) => {
     // Contentions occur when 2 or more distinct employees request the exact same slot
     const uniqueEmployeeIds = Array.from(new Set(slotRequests.map(r => r.employeeId)));
-
+    
     if (uniqueEmployeeIds.length >= 2) {
       const firstReq = slotRequests[0];
-
+      
       // Analyze every candidate's priority metrics
       const candidateAnalyses: PriorityCandidateAnalysis[] = slotRequests.map(req => {
         const emp = employees.find(e => e.id === req.employeeId) || {

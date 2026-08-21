@@ -1,19 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import {
-  X,
-  Plus,
-  Clock,
-  Trash2,
-  Edit3,
-  Copy,
-  Star,
-  Check,
-  Sunrise,
-  Sun,
-  Moon,
-  Zap,
-  Search,
-  Filter,
+import { 
+  X, 
+  Plus, 
+  Clock, 
+  Trash2, 
+  Edit3, 
+  Copy, 
+  Star, 
+  Check, 
+  Sunrise, 
+  Sun, 
+  Moon, 
+  Zap, 
+  Search, 
+  Filter, 
   Sparkles,
   Calendar,
   Layers,
@@ -21,12 +21,12 @@ import {
   ShieldCheck,
   Coffee
 } from 'lucide-react';
-import {
-  ShiftTemplate,
-  ShiftPatternTag,
-  Department,
-  RestaurantRole,
-  Employee
+import { 
+  ShiftTemplate, 
+  ShiftPatternTag, 
+  Department, 
+  RestaurantRole, 
+  Employee 
 } from '../types';
 
 interface ShiftTemplatesModalProps {
@@ -55,7 +55,7 @@ export const ShiftTemplatesModal: React.FC<ShiftTemplatesModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<ShiftTemplate | null>(null);
-
+  
   // Quick Apply Modal/Popover state
   const [applyingTemplate, setApplyingTemplate] = useState<ShiftTemplate | null>(null);
   const [applyEmployeeId, setApplyEmployeeId] = useState<string>(employees[0]?.id || '');
@@ -238,7 +238,7 @@ export const ShiftTemplatesModal: React.FC<ShiftTemplatesModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 my-4 flex flex-col max-h-[90vh]">
-
+        
         {/* Header */}
         <div className="bg-gradient-to-r from-sky-600 via-sky-700 to-blue-700 px-6 py-4 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -339,7 +339,7 @@ export const ShiftTemplatesModal: React.FC<ShiftTemplatesModalProps> = ({
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-
+          
           {isCreatingNew ? (
             /* CREATE / EDIT TEMPLATE FORM */
             <form onSubmit={handleSaveForm} className="max-w-2xl mx-auto space-y-4 text-xs">
@@ -682,7 +682,7 @@ export const ShiftTemplatesModal: React.FC<ShiftTemplatesModalProps> = ({
       {applyingTemplate && (
         <div className="fixed inset-0 z-60 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 space-y-4 text-xs">
-
+            
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">

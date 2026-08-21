@@ -1,26 +1,25 @@
-import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import {
-  Camera,
-  Upload,
-  Sparkles,
-  X,
-  RotateCw,
-  Check,
-  AlertCircle,
-  Calendar,
-  Clock,
-  User,
-  DollarSign,
-  CheckCircle2,
-  Trash2,
-  Edit3,
-  Layers,
-  Zap,
-  FileText,
-  RefreshCw,
-  Info,
-  Plus,
+import { 
+  Camera, 
+  Upload, 
+  Sparkles, 
+  X, 
+  RotateCw, 
+  Check, 
+  AlertCircle, 
+  Calendar, 
+  Clock, 
+  User, 
+  DollarSign, 
+  CheckCircle2, 
+  Trash2, 
+  Edit3, 
+  Layers, 
+  Zap, 
+  FileText, 
+  RefreshCw, 
+  Info, 
+  Plus, 
   ArrowRight,
   Eye,
   Sliders,
@@ -72,7 +71,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   // Steps: 'capture' | 'scanning' | 'review' | 'success'
   const [step, setStep] = useState<'capture' | 'scanning' | 'review' | 'success'>('capture');
   const [inputMode, setInputMode] = useState<'camera' | 'upload' | 'preset'>('camera');
-
+  
   // Image & Camera State
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
@@ -80,7 +79,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [rotation, setRotation] = useState<number>(0);
-
+  
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -208,10 +207,10 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
     ctx.fillStyle = '#0f172a';
     ctx.font = 'bold 28px sans-serif';
     ctx.fillText(
-      presetType === 'weekly_grid'
-        ? 'SHIFTSKY BISTRO & GRILL — WEEKLY STAFF SCHEDULE'
-        : presetType === 'handwritten'
-        ? 'WEEKEND DINNER FLOOR & BAR ROSTER'
+      presetType === 'weekly_grid' 
+        ? 'SHIFTSKY BISTRO & GRILL — WEEKLY STAFF SCHEDULE' 
+        : presetType === 'handwritten' 
+        ? 'WEEKEND DINNER FLOOR & BAR ROSTER' 
         : 'KITCHEN PREP & BOH LINE TIMETABLE',
       40, 55
     );
@@ -307,7 +306,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
     }, 1800);
 
     try {
-      const response = await authenticatedFetch('/api/ai/scan-schedule-image', {
+      const response = await fetch('/api/ai/scan-schedule-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -330,7 +329,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
       if (result.shifts && Array.isArray(result.shifts)) {
         const mappedShifts: ParsedScannedShift[] = result.shifts.map((s: any, idx: number) => {
           const emp = employees.find(e => e.id === s.employeeId || e.name.toLowerCase() === s.employeeName?.toLowerCase()) || employees[0];
-
+          
           return {
             tempId: `scanned-shift-${Date.now()}-${idx}`,
             selected: true,
@@ -476,7 +475,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden">
-
+        
         {/* MODAL HEADER */}
         <div className="p-4 sm:p-6 border-b border-slate-100 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -508,14 +507,14 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
 
         {/* MODAL BODY */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
-
+          
           {/* ERROR NOTIFICATION */}
           {errorMessage && (
             <div className="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs flex items-center gap-3 animate-in shake">
               <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
               <div className="flex-1">{errorMessage}</div>
-              <button
-                onClick={() => setErrorMessage(null)}
+              <button 
+                onClick={() => setErrorMessage(null)} 
                 className="text-rose-600 hover:text-rose-900 font-bold"
               >
                 Dismiss
@@ -526,7 +525,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
           {/* STEP 1: CAPTURE / UPLOAD / PRESET */}
           {step === 'capture' && (
             <div className="space-y-6">
-
+              
               {/* Input Mode Toggle Tabs */}
               <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs">
                 <div className="flex items-center gap-1.5">
@@ -692,7 +691,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
               {/* PRESETS VIEW */}
               {inputMode === 'preset' && !capturedImage && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div
+                  <div 
                     onClick={() => handleSelectPreset('weekly_grid')}
                     className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-sky-500 shadow-xs hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group"
                   >
@@ -710,7 +709,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                     </button>
                   </div>
 
-                  <div
+                  <div 
                     onClick={() => handleSelectPreset('handwritten')}
                     className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-amber-500 shadow-xs hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group"
                   >
@@ -728,7 +727,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                     </button>
                   </div>
 
-                  <div
+                  <div 
                     onClick={() => handleSelectPreset('kitchen_stations')}
                     className="bg-white p-5 rounded-2xl border border-slate-200 hover:border-emerald-500 shadow-xs hover:shadow-md cursor-pointer transition-all flex flex-col justify-between group"
                   >
@@ -815,7 +814,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
           {/* STEP 2: SCANNING ANIMATION */}
           {step === 'scanning' && (
             <div className="py-12 flex flex-col items-center justify-center text-center space-y-6">
-
+              
               {/* Laser OCR animation card */}
               <div className="relative w-72 h-44 bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-sky-500/50 flex items-center justify-center p-4">
                 {capturedImage && (
@@ -855,7 +854,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
           {/* STEP 3: INTERACTIVE REVIEW & VERIFICATION */}
           {step === 'review' && (
             <div className="space-y-5">
-
+              
               {/* Extracted Overview Banner */}
               <div className="bg-gradient-to-r from-sky-900 via-slate-900 to-blue-950 text-white rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="space-y-1">
@@ -950,7 +949,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {extractedShifts.map((shift) => (
-                        <tr
+                        <tr 
                           key={shift.tempId}
                           className={`hover:bg-slate-50 transition-colors ${
                             !shift.selected ? 'opacity-40 bg-slate-50/50' : ''
@@ -1057,10 +1056,10 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                           {/* Confidence */}
                           <td className="p-3 text-center">
                             <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
-                              shift.confidence >= 0.9
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : shift.confidence >= 0.75
-                                ? 'bg-amber-100 text-amber-800'
+                              shift.confidence >= 0.9 
+                                ? 'bg-emerald-100 text-emerald-800' 
+                                : shift.confidence >= 0.75 
+                                ? 'bg-amber-100 text-amber-800' 
                                 : 'bg-slate-100 text-slate-700'
                             }`}>
                               {Math.round(shift.confidence * 100)}%

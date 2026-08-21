@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Employee,
-  Shift,
-  EmployeeDailyReminder,
-  EmployeeHabit,
-  EmployeeHabitLog,
+import { 
+  Employee, 
+  Shift, 
+  EmployeeDailyReminder, 
+  EmployeeHabit, 
+  EmployeeHabitLog, 
   EmployeeGoal,
   ReminderCategory,
   ReminderPriority,
@@ -12,36 +12,36 @@ import {
   GoalCategory,
   GoalStatus
 } from '../types';
-import {
-  Calendar as CalendarIcon,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle2,
-  Circle,
-  Flame,
-  Target,
-  Bell,
-  Plus,
-  Sparkles,
-  Clock,
-  Award,
-  TrendingUp,
-  AlertCircle,
-  ListChecks,
-  Layers,
-  ShieldCheck,
-  Coffee,
-  Zap,
+import { 
+  Calendar as CalendarIcon, 
+  ChevronLeft, 
+  ChevronRight, 
+  CheckCircle2, 
+  Circle, 
+  Flame, 
+  Target, 
+  Bell, 
+  Plus, 
+  Sparkles, 
+  Clock, 
+  Award, 
+  TrendingUp, 
+  AlertCircle, 
+  ListChecks, 
+  Layers, 
+  ShieldCheck, 
+  Coffee, 
+  Zap, 
   X,
   CalendarCheck2,
   Trash2,
   Check,
   Smartphone
 } from 'lucide-react';
-import {
-  INITIAL_EMPLOYEE_HABITS,
-  generateInitialHabitLogs,
-  INITIAL_EMPLOYEE_REMINDERS,
+import { 
+  INITIAL_EMPLOYEE_HABITS, 
+  generateInitialHabitLogs, 
+  INITIAL_EMPLOYEE_REMINDERS, 
   INITIAL_EMPLOYEE_GOALS,
   generateMonthShiftsForEmployee
 } from '../data/employeeCalendarData';
@@ -65,10 +65,10 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
 
   // Personal Reminders State
   const [reminders, setReminders] = useState<EmployeeDailyReminder[]>(INITIAL_EMPLOYEE_REMINDERS);
-
+  
   // Professional Habits State
   const [habits, setHabits] = useState<EmployeeHabit[]>(INITIAL_EMPLOYEE_HABITS);
-  const [habitLogs, setHabitLogs] = useState<EmployeeHabitLog[]>(() =>
+  const [habitLogs, setHabitLogs] = useState<EmployeeHabitLog[]>(() => 
     generateInitialHabitLogs(currentEmployee.id, INITIAL_EMPLOYEE_HABITS)
   );
 
@@ -114,7 +114,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
   const fullMonthEmployeeShifts = useMemo(() => {
     const directShifts = shifts.filter(s => s.employeeId === currentEmployee.id);
     const synthShifts = generateMonthShiftsForEmployee(currentEmployee, currentYear, currentMonth);
-
+    
     // Merge: prefer direct shifts if matching same date
     const shiftMap = new Map<string, Shift>();
     synthShifts.forEach(s => shiftMap.set(s.date, s));
@@ -150,7 +150,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
   // Selected Day Items
   const selectedDayShifts = fullMonthEmployeeShifts.filter(s => s.date === selectedDate);
   const selectedDayReminders = reminders.filter(r => r.date === selectedDate);
-
+  
   // Toggle Habit for a specific date
   const handleToggleHabit = (habitId: string, dateStr: string) => {
     setHabitLogs(prev => {
@@ -223,7 +223,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
         const completedCount = updatedMilestones.filter(m => m.completed).length;
         const newProgress = Math.round((completedCount / updatedMilestones.length) * 100);
         const newStatus: GoalStatus = newProgress === 100 ? 'completed' : newProgress >= 50 ? 'on_track' : 'in_progress';
-
+        
         return {
           ...g,
           milestones: updatedMilestones,
@@ -345,7 +345,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
 
   return (
     <div className="space-y-6">
-
+      
       {/* Toast Banner */}
       {notificationToast && (
         <div className="bg-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-semibold shadow-lg flex items-center justify-between transition-all">
@@ -502,7 +502,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
       {/* VIEW 1: WHOLE MONTH INTERACTIVE CALENDAR GRID */}
       {calendarViewMode === 'month_grid' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
+          
           {/* Main 7x5 Calendar Grid (8 Columns) */}
           <div className="lg:col-span-8 bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
             {/* Month Navigation Controls */}
@@ -628,7 +628,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
                         <div
                           key={r.id}
                           className={`text-[9px] font-bold px-1 py-0.5 rounded-sm truncate flex items-center gap-0.5 ${
-                            r.priority === 'urgent'
+                            r.priority === 'urgent' 
                               ? 'bg-rose-100 text-rose-800'
                               : 'bg-amber-100 text-amber-800'
                           }`}
@@ -678,7 +678,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
 
           {/* Selected Day Agenda & Quick Habit Check-In Sidebar (4 Columns) */}
           <div className="lg:col-span-4 space-y-4">
-
+            
             {/* Selected Day Card */}
             <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -792,7 +792,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
                               )}
                             </div>
                           </button>
-
+                          
                           <button
                             onClick={() => handleDeleteReminder(r.id)}
                             className="text-slate-400 hover:text-rose-600 p-1"
@@ -1015,7 +1015,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
                     <span className="text-indigo-600">{goal.progressPct}%</span>
                   </div>
                   <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div
+                    <div 
                       className="bg-indigo-600 h-full rounded-full transition-all duration-500"
                       style={{ width: `${goal.progressPct}%` }}
                     />
@@ -1026,7 +1026,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
                 <div className="space-y-1.5 pt-2 border-t border-slate-200/60">
                   <span className="text-[11px] font-bold text-slate-700 block">Milestones & Action Plan:</span>
                   {goal.milestones.map(m => (
-                    <div
+                    <div 
                       key={m.id}
                       onClick={() => handleToggleMilestone(goal.id, m.id)}
                       className="flex items-center gap-2 text-xs cursor-pointer p-1 rounded hover:bg-slate-100 transition-all"

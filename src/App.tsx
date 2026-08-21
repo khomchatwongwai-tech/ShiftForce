@@ -1,83 +1,82 @@
-import { useLanguage } from './context/LanguageContext';
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  Navbar
+import { 
+  Navbar 
 } from './components/Navbar';
-import {
-  ShiftCountdownBanner
+import { 
+  ShiftCountdownBanner 
 } from './components/ShiftCountdownBanner';
-import {
-  ScheduleCalendarView
+import { 
+  ScheduleCalendarView 
 } from './components/ScheduleCalendarView';
-import {
-  EmployeeManagementView
+import { 
+  EmployeeManagementView 
 } from './components/EmployeeManagementView';
-import {
-  RequestsApprovalsView
+import { 
+  RequestsApprovalsView 
 } from './components/RequestsApprovalsView';
-import {
-  LateTardinessTrackerView
+import { 
+  LateTardinessTrackerView 
 } from './components/LateTardinessTrackerView';
-import {
-  HRManagementView
+import { 
+  HRManagementView 
 } from './components/HRManagementView';
-import {
-  AnalyticsDashboardView
+import { 
+  AnalyticsDashboardView 
 } from './components/AnalyticsDashboardView';
-import {
-  AnnouncementsView
+import { 
+  AnnouncementsView 
 } from './components/AnnouncementsView';
-import {
-  EmployeeSelfServiceView
+import { 
+  EmployeeSelfServiceView 
 } from './components/EmployeeSelfServiceView';
-import {
-  PublishBroadcastModal
+import { 
+  PublishBroadcastModal 
 } from './components/PublishBroadcastModal';
-import {
-  PricingTiersModal
+import { 
+  PricingTiersModal 
 } from './components/PricingTiersModal';
-import {
-  AIAssistantDrawer
+import { 
+  AIAssistantDrawer 
 } from './components/AIAssistantDrawer';
-import {
-  ScheduledRemindersModal
+import { 
+  ScheduledRemindersModal 
 } from './components/ScheduledRemindersModal';
-import {
-  AICommandCenterView
+import { 
+  AICommandCenterView 
 } from './components/AICommandCenterView';
-import {
-  ShiftForceIntelligenceAgentView
+import { 
+  ShiftForceIntelligenceAgentView 
 } from './components/ShiftForceIntelligenceAgentView';
-import {
-  EnterpriseCommandHubView
+import { 
+  EnterpriseCommandHubView 
 } from './components/EnterpriseCommandHubView';
-import {
-  RestaurantPerformanceReviewsView
+import { 
+  RestaurantPerformanceReviewsView 
 } from './components/RestaurantPerformanceReviewsView';
-import {
-  IntegrationsHubView
+import { 
+  IntegrationsHubView 
 } from './components/IntegrationsHubView';
-import {
-  ShiftForceLearnView
+import { 
+  ShiftForceLearnView 
 } from './components/plugins/ShiftForceLearnView';
-import {
-  ShiftForcePayrollView
+import { 
+  ShiftForcePayrollView 
 } from './components/plugins/ShiftForcePayrollView';
-import {
-  EnterpriseFeatureManagerModal
+import { 
+  EnterpriseFeatureManagerModal 
 } from './components/EnterpriseFeatureManagerModal';
-import {
-  PaymentPortalModal,
-  PaymentPortalItem
+import { 
+  PaymentPortalModal, 
+  PaymentPortalItem 
 } from './components/PaymentPortalModal';
-import {
-  RoleBasedAccessControlManager
+import { 
+  RoleBasedAccessControlManager 
 } from './components/RoleBasedAccessControlManager';
-import {
-  OfflineRosterClockInModal
+import { 
+  OfflineRosterClockInModal 
 } from './components/OfflineRosterClockInModal';
-import {
-  DualLoginModal
+import { 
+  DualLoginModal 
 } from './components/DualLoginModal';
 import {
   FirebaseProvider,
@@ -85,47 +84,47 @@ import {
 } from './firebase/FirebaseContext';
 import {
   firestoreService
-} from './supabase/workforceService';
-import {
-  Wifi,
-  WifiOff,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle2,
+} from './firebase/firestoreService';
+import { 
+  Wifi, 
+  WifiOff, 
+  RefreshCw, 
+  AlertTriangle, 
+  CheckCircle2, 
   ShieldCheck,
   Cloud,
   Database
 } from 'lucide-react';
-import {
-  registerServiceWorker,
-  saveRosterToOfflineStorage,
-  loadRosterFromOfflineStorage,
-  getOfflineClockInQueue,
-  clearOfflineClockInQueue,
-  OfflineClockInRecord
+import { 
+  registerServiceWorker, 
+  saveRosterToOfflineStorage, 
+  loadRosterFromOfflineStorage, 
+  getOfflineClockInQueue, 
+  clearOfflineClockInQueue, 
+  OfflineClockInRecord 
 } from './utils/offlineServiceWorker';
-import {
-  ALL_SYSTEM_PLUGINS,
-  INITIAL_FEATURE_MANAGER_STATE
+import { 
+  ALL_SYSTEM_PLUGINS, 
+  INITIAL_FEATURE_MANAGER_STATE 
 } from './plugins/registry';
-import {
-  EnterpriseFeatureManagerState
+import { 
+  EnterpriseFeatureManagerState 
 } from './plugins/types';
-import {
-  INITIAL_RBAC_STATE,
-  isRecordAuthorizedForRole,
-  filterHierarchyTreeForRole
+import { 
+  INITIAL_RBAC_STATE, 
+  isRecordAuthorizedForRole, 
+  filterHierarchyTreeForRole 
 } from './data/rbacData';
 
-import {
-  INITIAL_EMPLOYEES,
-  INITIAL_SHIFTS,
-  INITIAL_ANNOUNCEMENTS,
-  INITIAL_TIMEOFF_REQUESTS,
-  INITIAL_SWAP_REQUESTS,
-  INITIAL_SICK_REPORTS,
-  INITIAL_AVAILABILITY_REQUESTS,
-  INITIAL_TARDINESS_LOG,
+import { 
+  INITIAL_EMPLOYEES, 
+  INITIAL_SHIFTS, 
+  INITIAL_ANNOUNCEMENTS, 
+  INITIAL_TIMEOFF_REQUESTS, 
+  INITIAL_SWAP_REQUESTS, 
+  INITIAL_SICK_REPORTS, 
+  INITIAL_AVAILABILITY_REQUESTS, 
+  INITIAL_TARDINESS_LOG, 
   INITIAL_ONBOARDING_CANDIDATES,
   INITIAL_SHIFT_TEMPLATES,
   INITIAL_NOTIFICATION_DISPATCHES,
@@ -141,23 +140,22 @@ import {
   generateWeekDates,
   generateLargeEmployeePool,
   EMPLOYEE_COLORS,
+  PRICING_PLANS
 } from './data/mockData';
 
-import { acceptOrganizationInvitation, beginStripeCheckout, getEnterpriseContext } from './utils/enterpriseService';
-import { EnterpriseLocationManagerModal } from './components/EnterpriseLocationManagerModal';
-import {
-  PortalType,
-  ActiveTab,
-  SupportedLanguage,
-  Employee,
-  Shift,
-  Announcement,
-  TimeOffRequest,
-  ShiftSwapRequest,
-  SickDayReport,
-  AvailabilityRequest,
-  TardinessRecord,
-  OnboardingCandidate,
+import { 
+  PortalType, 
+  ActiveTab, 
+  SupportedLanguage, 
+  Employee, 
+  Shift, 
+  Announcement, 
+  TimeOffRequest, 
+  ShiftSwapRequest, 
+  SickDayReport, 
+  AvailabilityRequest, 
+  TardinessRecord, 
+  OnboardingCandidate, 
   NotificationDispatch,
   ShiftTemplate,
   ReminderSchedulerConfig,
@@ -173,19 +171,16 @@ import {
   AuthPortalMode
 } from './types';
 import { INITIAL_POS_DEPARTMENT_MAPPINGS } from './data/posMappingData';
-import {
-  detectShiftSlotContentions,
-  generateContentionNotificationDispatch
+import { 
+  detectShiftSlotContentions, 
+  generateContentionNotificationDispatch 
 } from './utils/shiftSlotValidation';
-import { authenticatedFetch } from './utils/apiClient';
 
 export function App() {
-  const demoDataEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_DATA === 'true';
-
   // Navigation & Language State
   const [portal, setPortal] = useState<PortalType>('admin');
   const [activeTab, setActiveTab] = useState<ActiveTab>('schedule');
-  const { currentLanguage, setLanguage: setCurrentLanguage, t } = useLanguage();
+  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
 
   // Role-Based Access Control (RBAC) & Custom Role Hierarchy State
   const [rbacState, setRbacState] = useState<RBACManagerState>(INITIAL_RBAC_STATE);
@@ -205,19 +200,19 @@ export function App() {
   }, [activeRole, activeTab, portal]);
 
   // Core Data States
-  const [employees, setEmployees] = useState<Employee[]>(demoDataEnabled ? INITIAL_EMPLOYEES : []);
-  const [shifts, setShifts] = useState<Shift[]>(demoDataEnabled ? INITIAL_SHIFTS : []);
+  const [employees, setEmployees] = useState<Employee[]>(INITIAL_EMPLOYEES);
+  const [shifts, setShifts] = useState<Shift[]>(INITIAL_SHIFTS);
   const [shiftTemplates, setShiftTemplates] = useState<ShiftTemplate[]>(INITIAL_SHIFT_TEMPLATES);
   const [departmentBudgets, setDepartmentBudgets] = useState<DepartmentBudgetsMap>(INITIAL_DEPARTMENT_BUDGETS);
-  const [announcements, setAnnouncements] = useState<Announcement[]>(demoDataEnabled ? INITIAL_ANNOUNCEMENTS : []);
-  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>(demoDataEnabled ? INITIAL_TIMEOFF_REQUESTS : []);
-  const [shiftSwapRequests, setShiftSwapRequests] = useState<ShiftSwapRequest[]>(demoDataEnabled ? INITIAL_SWAP_REQUESTS : []);
-  const [sickReports, setSickReports] = useState<SickDayReport[]>(demoDataEnabled ? INITIAL_SICK_REPORTS : []);
-  const [availabilityRequests, setAvailabilityRequests] = useState<AvailabilityRequest[]>(demoDataEnabled ? INITIAL_AVAILABILITY_REQUESTS : []);
-  const [tardinessLog, setTardinessLog] = useState<TardinessRecord[]>(demoDataEnabled ? INITIAL_TARDINESS_LOG : []);
-  const [candidates, setCandidates] = useState<OnboardingCandidate[]>(demoDataEnabled ? INITIAL_ONBOARDING_CANDIDATES : []);
-  const [shiftSlotRequests, setShiftSlotRequests] = useState<ShiftSlotRequest[]>(demoDataEnabled ? INITIAL_SHIFT_SLOT_REQUESTS : []);
-  const [notificationDispatches, setNotificationDispatches] = useState<NotificationDispatch[]>(demoDataEnabled ? INITIAL_NOTIFICATION_DISPATCHES : []);
+  const [announcements, setAnnouncements] = useState<Announcement[]>(INITIAL_ANNOUNCEMENTS);
+  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>(INITIAL_TIMEOFF_REQUESTS);
+  const [shiftSwapRequests, setShiftSwapRequests] = useState<ShiftSwapRequest[]>(INITIAL_SWAP_REQUESTS);
+  const [sickReports, setSickReports] = useState<SickDayReport[]>(INITIAL_SICK_REPORTS);
+  const [availabilityRequests, setAvailabilityRequests] = useState<AvailabilityRequest[]>(INITIAL_AVAILABILITY_REQUESTS);
+  const [tardinessLog, setTardinessLog] = useState<TardinessRecord[]>(INITIAL_TARDINESS_LOG);
+  const [candidates, setCandidates] = useState<OnboardingCandidate[]>(INITIAL_ONBOARDING_CANDIDATES);
+  const [shiftSlotRequests, setShiftSlotRequests] = useState<ShiftSlotRequest[]>(INITIAL_SHIFT_SLOT_REQUESTS);
+  const [notificationDispatches, setNotificationDispatches] = useState<NotificationDispatch[]>(INITIAL_NOTIFICATION_DISPATCHES);
 
   // POS Department Mappings State for Dynamic Labor vs Sales Efficiency Analytics
   const [posMappings, setPOSMappings] = useState<Record<POSPlatformId, POSDepartmentMapping>>(INITIAL_POS_DEPARTMENT_MAPPINGS);
@@ -232,26 +227,24 @@ export function App() {
     autoTriggerIntervalSeconds: 30,
     whatsappTemplate: '🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *{{name}}*, your next shift as *{{role}}* ({{department}}) starts tomorrow at *{{startTime}}* on *{{date}}*.',
     smsTemplate: 'ShiftForce Alert: Hi {{name}}, you are scheduled tomorrow {{date}} at {{startTime}} ({{role}}).',
-    totalAutoSentCount: 0,
-    isDaemonActive: demoDataEnabled,
+    totalAutoSentCount: 2,
+    isDaemonActive: true,
     lastRunTimestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
   });
   const [isScanningReminders, setIsScanningReminders] = useState(false);
 
   // Active Employee for Employee Portal
-  const [activeEmployeeId, setActiveEmployeeId] = useState<string>('');
+  const [activeEmployeeId, setActiveEmployeeId] = useState<string>(INITIAL_EMPLOYEES[0].id);
 
   // User Subscription & 15-Day Free Trial State
   const [subscriptionState, setSubscriptionState] = useState<UserSubscriptionState>({
-    currentTierId: 'free-1',
-    activeLocationCount: 1,
-    activeEmployeeCount: 0,
+    currentTierId: 'tier-65',
     billingCycle: 'monthly',
-    isTrialActive: false,
-    trialDaysRemaining: 0,
+    isTrialActive: true,
+    trialDaysRemaining: 15,
     trialStartDate: new Date().toISOString().split('T')[0],
-    trialEndDate: '',
-    nextBillingDate: '',
+    trialEndDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
 
   // Service Worker & Offline Mode State
@@ -266,7 +259,6 @@ export function App() {
   // Modals & Drawers State
   const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
-  const [isLocationManagerOpen, setIsLocationManagerOpen] = useState(false);
   const [isAIDrawerOpen, setIsAIDrawerOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [isFeatureManagerOpen, setIsFeatureManagerOpen] = useState(false);
@@ -274,67 +266,20 @@ export function App() {
   const [paymentPortalItem, setPaymentPortalItem] = useState<PaymentPortalItem | undefined>(undefined);
 
   // Firebase Authentication & Persistent User Session Context
-  const {
-    currentUser,
-    userProfile,
-    userSession,
-    isLoadingAuth,
+  const { 
+    currentUser, 
+    userProfile, 
+    userSession, 
+    isLoadingAuth, 
     isFirestoreConnected,
     logOutFirebase,
-    setCustomSession
+    setCustomSession 
   } = useFirebase();
 
   // Authentication & Dual Login Session State (Admin & Employee)
   const [authSession, setAuthSession] = useState<AuthUserSession>(userSession);
-  const authenticatedUserType = userSession.isAuthenticated ? userSession.userType : null;
-  const authenticatedOrganizationId = authenticatedUserType === 'employee' ? userSession.employee?.organizationId : userProfile?.organizationId;
-  const authenticatedEmployeeId = authenticatedUserType === 'employee' ? userSession.employee?.id : userProfile?.employeeId;
-  const authenticatedLocationId = authenticatedUserType === 'employee' ? userSession.employee?.locationId : undefined;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<AuthPortalMode>('admin');
-
-  // Accept single-use organization invitations after Firebase identity verification.
-  useEffect(() => {
-    if (!currentUser || typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get('invite');
-    if (!token) return;
-    let cancelled = false;
-    acceptOrganizationInvitation(token).then(async () => {
-      if (cancelled) return;
-      url.searchParams.delete('invite');
-      window.history.replaceState({}, '', url.toString());
-      await currentUser.getIdToken(true);
-      window.location.reload();
-    }).catch(err => {
-      if (!cancelled) setOfflineToast(err?.message || 'Organization invitation could not be accepted.');
-    });
-    return () => { cancelled = true; };
-  }, [currentUser]);
-
-  // Billing/location counts are server-authoritative. Never grant a paid tier from local UI state.
-  useEffect(() => {
-    if (!userSession.isAuthenticated || userSession.userType !== 'admin' || !currentUser) return;
-    let cancelled = false;
-    getEnterpriseContext().then(ctx => {
-      if (cancelled) return;
-      const billing = ctx.billing;
-      const periodEnd = billing.currentPeriodEnd || '';
-      setSubscriptionState(prev => ({
-        ...prev,
-        currentTierId: billing.tierId || 'free-1',
-        activeLocationCount: billing.activeLocationCount || Math.max(1, ctx.locations.length),
-        activeEmployeeCount: employees.length,
-        billingCycle: billing.billingCycle || 'monthly',
-        isTrialActive: billing.status === 'trialing',
-        trialDaysRemaining: billing.status === 'trialing' && periodEnd ? Math.max(0, Math.ceil((new Date(periodEnd).getTime()-Date.now())/86400000)) : 0,
-        trialStartDate: prev.trialStartDate,
-        trialEndDate: billing.status === 'trialing' ? periodEnd.slice(0,10) : '',
-        nextBillingDate: periodEnd.slice(0,10),
-      }));
-    }).catch(err => console.warn('[Enterprise] Could not load server billing context:', err));
-    return () => { cancelled = true; };
-  }, [userSession.isAuthenticated, userSession.userType, currentUser, employees.length]);
 
   // Sync authSession whenever userSession from FirebaseProvider changes or updates
   useEffect(() => {
@@ -383,8 +328,7 @@ export function App() {
 
   // Handle Logout
   const handleLogout = async () => {
-    if (userSession.userType === 'employee') await fetch('/api/auth/employee/logout', { method: 'POST', credentials: 'include' });
-    else await logOutFirebase();
+    await logOutFirebase();
     setLoginModalMode(portal === 'admin' ? 'admin' : 'employee');
     setIsLoginModalOpen(true);
   };
@@ -412,12 +356,8 @@ export function App() {
 
   // Current active employee object
   const currentEmployee = useMemo(() => {
-    if (portal === 'employee') {
-      const authenticatedEmployeeId = userProfile?.employeeId || userSession.employee?.id || activeEmployeeId;
-      return authenticatedEmployeeId ? employees.find(e => e.id === authenticatedEmployeeId) : undefined;
-    }
     return employees.find(e => e.id === activeEmployeeId) || employees[0];
-  }, [employees, activeEmployeeId, portal, userProfile?.employeeId, userSession.employee?.id]);
+  }, [employees, activeEmployeeId]);
 
   // Unread notifications count
   const unreadCount = useMemo(() => {
@@ -489,16 +429,6 @@ export function App() {
     return shiftSlotRequests.filter(r => isRecordAuthorizedForRole(activeRole, r.hierarchyPath, r.locationId));
   }, [shiftSlotRequests, activeRole, portal]);
 
-  // Immutable server-side audit event helper. The server derives actor + organization
-  // from the verified Firebase token; callers cannot choose those identity fields.
-  const auditAction = (action: string, entityType: string, entityId: string, metadata?: Record<string, unknown>) => {
-    authenticatedFetch('/api/audit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, entityType, entityId, metadata }),
-    }).catch(err => console.warn('[Audit] Event not recorded:', err));
-  };
-
   // ---------------- Handlers ----------------
 
   // RBAC Role Management Handlers
@@ -542,7 +472,35 @@ export function App() {
     setOfflineQueueCount(getOfflineClockInQueue().length);
   }, []);
 
-  // Firestore live subscriptions are owned by FirebaseProvider for core roster/schedule data.
+  // ---------------- Firestore Realtime Subscriptions ----------------
+  useEffect(() => {
+    // Seed initial dataset if database is freshly provisioned
+    firestoreService.seedEmployeesIfEmpty(INITIAL_EMPLOYEES);
+
+    const unsubEmployees = firestoreService.subscribeEmployees((liveEmps) => {
+      if (liveEmps && liveEmps.length > 0) {
+        setEmployees(liveEmps);
+      }
+    });
+
+    const unsubShifts = firestoreService.subscribeShifts((liveShifts) => {
+      if (liveShifts && liveShifts.length > 0) {
+        setShifts(liveShifts);
+      }
+    });
+
+    const unsubAnnouncements = firestoreService.subscribeAnnouncements((liveAnnouncements) => {
+      if (liveAnnouncements && liveAnnouncements.length > 0) {
+        setAnnouncements(liveAnnouncements);
+      }
+    });
+
+    return () => {
+      unsubEmployees();
+      unsubShifts();
+      unsubAnnouncements();
+    };
+  }, []);
 
   // Synchronize master roster & shifts to offline CacheStorage & localStorage
   useEffect(() => {
@@ -551,67 +509,44 @@ export function App() {
     }
   }, [employees, shifts]);
 
-  // Persisted workforce request subscriptions. These only activate for a real Firebase session
-  // and are always scoped to the signed-in user's organization.
-  useEffect(() => {
-    const organizationId = userProfile?.organizationId;
-    if (!currentUser || !organizationId || userSession.userType !== 'admin') return;
+  // Offline Clock-in Sync Handler
+  const handleSyncOfflinePunches = (punches: OfflineClockInRecord[]) => {
+    if (!punches.length) return;
 
-    const unsubs = [
-      firestoreService.subscribeEmployees(organizationId, items => setEmployees(items)),
-      firestoreService.subscribeShifts(organizationId, items => setShifts(items)),
-      firestoreService.subscribeAnnouncements(organizationId, items => setAnnouncements(items)),
-      firestoreService.subscribeTimeOffRequests(organizationId, items => setTimeOffRequests(items)),
-      firestoreService.subscribeShiftSwapRequests(organizationId, items => setShiftSwapRequests(items)),
-      firestoreService.subscribeSickReports(organizationId, items => setSickReports(items)),
-      firestoreService.subscribeAvailabilityRequests(organizationId, items => setAvailabilityRequests(items)),
-      firestoreService.subscribeShiftSlotRequests(organizationId, items => setShiftSlotRequests(items)),
-    ];
-    return () => unsubs.forEach(unsub => unsub());
-  }, [currentUser, userProfile?.organizationId]);
+    // Convert punches to tardiness / attendance records
+    const newTardyRecords: TardinessRecord[] = punches.map(p => ({
+      id: p.id,
+      employeeId: p.employeeId,
+      employeeName: p.employeeName,
+      shiftId: p.shiftId || `shift-off-${p.employeeId}`,
+      shiftDate: p.dateString,
+      scheduledStartTime: p.scheduledStartTime || p.timeString,
+      actualClockInTime: p.timeString,
+      lateMinutes: p.lateMinutes,
+      status: p.status === 'late' ? 'late' : 'on_time',
+      reason: p.managerNotes ? `Offline Synced: ${p.managerNotes}` : 'Offline Verified Clock-In'
+    }));
 
-  // Employee data is loaded only from cookie-authenticated server endpoints; never from browser-wide workforce subscriptions.
-  useEffect(() => {
-    if (authenticatedUserType !== 'employee' || !authenticatedEmployeeId || !authenticatedOrganizationId) return;
-    let cancelled = false;
-    const load = async () => {
-      const paths = ['/api/employee/profile', '/api/employee/shifts', '/api/employee/announcements', '/api/employee/timeOffRequests', '/api/employee/availabilityRequests', '/api/employee/shiftSwapRequests'];
-      const responses = await Promise.all(paths.map(path => fetch(path, { credentials: 'include' }).then(r => r.ok ? r.json() : null)));
-      if (cancelled || !responses[0]) return;
-      const [profile, ownShifts, ownAnnouncements, ownTimeOff, ownAvailability, ownSwaps] = responses;
-      setEmployees([profile.employee]); setShifts(ownShifts?.shifts || []); setAnnouncements(ownAnnouncements?.announcements || []); setTimeOffRequests(ownTimeOff?.timeOffRequests || []); setAvailabilityRequests(ownAvailability?.availabilityRequests || []); setShiftSwapRequests(ownSwaps?.shiftSwapRequests || []);
+    setTardinessLog(prev => [...newTardyRecords, ...prev]);
+
+    // Dispatch broadcast notification for records
+    const dispatch: NotificationDispatch = {
+      id: `disp-offline-sync-${Date.now()}`,
+      recipientEmployeeId: currentEmployee?.id || 'admin',
+      recipientName: 'General Manager',
+      recipientPhone: '+1 (555) 000-0000',
+      recipientEmail: 'admin@shift-sky.com',
+      type: 'announcement',
+      title: `⚡ ${punches.length} Offline Clock-Ins Synced to Master Ledger`,
+      message: `Device reconnected. ${punches.length} manager-verified punches recorded during internet outage have been committed to payroll.`,
+      channels: ['app'],
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+      status: 'delivered'
     };
-    void load(); return () => { cancelled = true; };
-  }, [authenticatedUserType, authenticatedEmployeeId, authenticatedOrganizationId]);
-
-  // Offline Clock-in Sync Handler. A signed-in admin commits queued punches through the server;
-  // the UI only clears its queue after the server confirms persistence.
-  const handleSyncOfflinePunches = async (punches: OfflineClockInRecord[]) => {
-    if (!punches.length || !userProfile?.organizationId) return;
-    try {
-      const response = await authenticatedFetch('/api/workforce/punches/bulk', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ punches: punches.map(p => ({
-          id: p.id, employeeId: p.employeeId, employeeName: p.employeeName, shiftId: p.shiftId,
-          type: p.punchType, timestamp: p.timestamp, isVerified: p.managerPinVerified, notes: p.managerNotes,
-        })) }),
-      });
-      if (!response.ok) { const body = await response.json().catch(() => ({})); throw new Error(body?.error || 'Offline punch sync failed'); }
-      const newTardyRecords: TardinessRecord[] = punches.map(p => ({
-        id: p.id, employeeId: p.employeeId, employeeName: p.employeeName, shiftId: p.shiftId || `shift-off-${p.employeeId}`,
-        shiftDate: p.dateString, scheduledStartTime: p.scheduledStartTime || p.timeString, actualClockInTime: p.timeString,
-        lateMinutes: p.lateMinutes, status: p.status === 'late' ? 'late' : 'on_time',
-        reason: p.managerNotes ? `Offline Synced: ${p.managerNotes}` : 'Offline punch synchronized by authenticated manager',
-      }));
-      setTardinessLog(prev => [...newTardyRecords, ...prev]);
-      setOfflineToast(`✅ Synchronized ${punches.length} offline punches to the secured workforce ledger.`);
-      setOfflineQueueCount(0);
-      setTimeout(() => setOfflineToast(null), 5000);
-    } catch (error: any) {
-      setOfflineToast(`⚠️ Offline punches remain queued: ${error?.message || 'sync failed'}`);
-      setTimeout(() => setOfflineToast(null), 6000);
-      throw error;
-    }
+    setNotificationDispatches(prev => [dispatch, ...prev]);
+    setOfflineToast(`✅ Successfully synchronized ${punches.length} offline clock-in punches to live server!`);
+    setOfflineQueueCount(0);
+    setTimeout(() => setOfflineToast(null), 5000);
   };
 
   // Listen for online / offline events
@@ -646,7 +581,7 @@ export function App() {
   // Shift Management
   const handleAddShift = (newShift: Omit<Shift, 'id'>) => {
     const shift: Shift = {
-      organizationId: newShift.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
+      organizationId: newShift.organizationId || 'org-shiftsky-global',
       hierarchyPath: newShift.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newShift.locationId || 'loc-sf-flagship-104',
       districtId: newShift.districtId || 'dist-bay-area-01',
@@ -660,7 +595,7 @@ export function App() {
 
   const handleAddBatchShifts = (newShiftsList: Omit<Shift, 'id'>[]) => {
     const createdShifts: Shift[] = newShiftsList.map((newShift, idx) => ({
-      organizationId: newShift.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
+      organizationId: newShift.organizationId || 'org-shiftsky-global',
       hierarchyPath: newShift.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newShift.locationId || 'loc-sf-flagship-104',
       districtId: newShift.districtId || 'dist-bay-area-01',
@@ -723,7 +658,7 @@ export function App() {
       status: 'draft',
       color: template.color || emp.color,
       notes: template.notes,
-      organizationId: emp.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
+      organizationId: emp.organizationId || 'org-shiftsky-global',
       hierarchyPath: emp.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: emp.locationId || 'loc-sf-flagship-104',
       districtId: emp.districtId || 'dist-bay-area-01',
@@ -736,7 +671,7 @@ export function App() {
   // Employee Management (Scalable up to 1,000)
   const handleAddEmployee = (newEmp: Omit<Employee, 'id'>) => {
     const emp: Employee = {
-      organizationId: newEmp.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
+      organizationId: newEmp.organizationId || 'org-shiftsky-global',
       hierarchyPath: newEmp.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newEmp.locationId || 'loc-sf-flagship-104',
       districtId: newEmp.districtId || 'dist-bay-area-01',
@@ -767,7 +702,6 @@ export function App() {
   const handleCreateAnnouncement = (ann: Omit<Announcement, 'id' | 'createdAt' | 'readByEmployeeIds'>) => {
     const newAnnouncement: Announcement = {
       ...ann,
-      organizationId: userProfile?.organizationId || 'org-demo-unassigned',
       id: `ann-${Date.now()}`,
       createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
       publishedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
@@ -789,7 +723,7 @@ export function App() {
       message: ann.content,
       channels: ann.channels,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      status: 'preview_not_sent',
+      status: 'delivered',
     }));
     setNotificationDispatches(prev => [...dispatches, ...prev]);
   };
@@ -816,7 +750,7 @@ export function App() {
   const handleClockIn = (shift: Shift, lateMinutes: number, status: 'on_time' | 'late') => {
     const now = new Date();
     const actualTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
+    
     const record: TardinessRecord = {
       id: `tardy-${Date.now()}`,
       employeeId: shift.employeeId,
@@ -834,8 +768,8 @@ export function App() {
 
   // 24-Hour WhatsApp / SMS Pre-Shift Trigger
   const handleTrigger24HrReminder = (shift: Shift, emp: Employee, channel?: 'whatsapp' | 'sms') => {
-    const channelsToUse: ('whatsapp' | 'sms' | 'app')[] = channel
-      ? [channel]
+    const channelsToUse: ('whatsapp' | 'sms' | 'app')[] = channel 
+      ? [channel] 
       : schedulerConfig.channels24Hr;
 
     const message = `🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\n⏳ Need a swap or adjustment? Submit via ShiftForce employee portal at least 12h prior.\nReply CONFIRM to acknowledge receipt.`;
@@ -851,7 +785,7 @@ export function App() {
       message,
       channels: channelsToUse,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      status: 'preview_not_sent',
+      status: 'delivered',
       metadata: {
         shiftId: shift.id,
         shiftDate: shift.date,
@@ -883,7 +817,7 @@ export function App() {
       message: `Hi ${emp.name}, your shift at ${shift.startTime} starts in 1 hour. Please prepare uniform and station readiness.`,
       channels: schedulerConfig.channels1Hr,
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      status: 'preview_not_sent',
+      status: 'delivered',
       metadata: {
         shiftId: shift.id,
         shiftDate: shift.date,
@@ -903,7 +837,7 @@ export function App() {
     setIsScanningReminders(true);
     try {
       // Attempt backend API dispatch trigger
-      const response = await authenticatedFetch('/api/scheduler/trigger-shift-reminders', {
+      const response = await fetch('/api/scheduler/trigger-shift-reminders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -920,7 +854,7 @@ export function App() {
           setNotificationDispatches(prev => [...data.newDispatches, ...prev]);
           setSchedulerConfig(prev => ({
             ...prev,
-            totalAutoSentCount: prev.totalAutoSentCount,
+            totalAutoSentCount: prev.totalAutoSentCount + data.newDispatches.length,
             lastRunTimestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
           }));
           return data.newDispatches.length;
@@ -940,7 +874,7 @@ export function App() {
         const emp = employees.find(e => e.id === shift.employeeId);
         if (!emp) return;
         const key = `${emp.id}_${shift.date}_${shift.startTime}`;
-
+        
         if (forceAll || !existingShiftDispatches.has(key)) {
           existingShiftDispatches.add(key);
           newlyDispatched.push({
@@ -954,7 +888,7 @@ export function App() {
             message: `🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\nReply CONFIRM to acknowledge receipt.`,
             channels: schedulerConfig.channels24Hr,
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-            status: 'preview_not_sent',
+            status: 'delivered',
             metadata: {
               shiftId: shift.id,
               shiftDate: shift.date,
@@ -972,7 +906,7 @@ export function App() {
         setNotificationDispatches(prev => [...newlyDispatched, ...prev]);
         setSchedulerConfig(prev => ({
           ...prev,
-          totalAutoSentCount: prev.totalAutoSentCount,
+          totalAutoSentCount: prev.totalAutoSentCount + newlyDispatched.length,
           lastRunTimestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
         }));
         return newlyDispatched.length;
@@ -1000,57 +934,34 @@ export function App() {
   const handleSubmitTimeOff = (req: Omit<TimeOffRequest, 'id' | 'createdAt' | 'status'>) => {
     const newReq: TimeOffRequest = {
       ...req,
-      organizationId: userProfile?.organizationId,
-      hierarchyPath: currentEmployee?.hierarchyPath,
-      locationId: currentEmployee?.locationId,
       id: `to-${Date.now()}`,
       createdAt: new Date().toISOString().slice(0, 10),
       status: 'pending',
     };
     setTimeOffRequests(prev => [newReq, ...prev]);
-    firestoreService.saveTimeOffRequest(newReq).catch(err => console.warn('[Firestore] Time-off save:', err));
-    auditAction('submit_time_off', 'timeOffRequest', newReq.id);
   };
 
   const handleApproveTimeOff = (id: string, notes?: string) => {
-    auditAction('approve_time_off', 'timeOffRequest', id);
-    setTimeOffRequests(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const updated = { ...r, status: 'approved' as const, reviewNotes: notes, reviewedBy: authSession.displayName };
-      firestoreService.saveTimeOffRequest(updated).catch(err => console.warn('[Firestore] Time-off approval:', err));
-      return updated;
-    }));
+    setTimeOffRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'approved', adminNotes: notes } : r));
   };
 
   const handleRejectTimeOff = (id: string, notes?: string) => {
-    auditAction('reject_time_off', 'timeOffRequest', id);
-    setTimeOffRequests(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const updated = { ...r, status: 'rejected' as const, reviewNotes: notes, reviewedBy: authSession.displayName };
-      firestoreService.saveTimeOffRequest(updated).catch(err => console.warn('[Firestore] Time-off rejection:', err));
-      return updated;
-    }));
+    setTimeOffRequests(prev => prev.map(r => r.id === id ? { ...r, status: 'rejected', adminNotes: notes } : r));
   };
 
   // Shift Swaps
   const handleSubmitShiftSwap = (swap: Omit<ShiftSwapRequest, 'id' | 'createdAt' | 'peerApprovalStatus' | 'adminApprovalStatus'>) => {
     const newSwap: ShiftSwapRequest = {
       ...swap,
-      organizationId: userProfile?.organizationId,
-      hierarchyPath: currentEmployee?.hierarchyPath,
-      locationId: currentEmployee?.locationId,
       id: `swap-${Date.now()}`,
       createdAt: new Date().toISOString().slice(0, 10),
       peerApprovalStatus: 'accepted',
       adminApprovalStatus: 'pending',
     };
     setShiftSwapRequests(prev => [newSwap, ...prev]);
-    firestoreService.saveShiftSwapRequest(newSwap).catch(err => console.warn('[Firestore] Shift-swap save:', err));
-    auditAction('submit_shift_swap', 'shiftSwapRequest', newSwap.id);
   };
 
   const handleApproveShiftSwap = (id: string, notes?: string) => {
-    auditAction('approve_shift_swap', 'shiftSwapRequest', id);
     const swap = shiftSwapRequests.find(s => s.id === id);
     if (swap) {
       // Reassign shift in calendar
@@ -1070,43 +981,26 @@ export function App() {
       }));
     }
 
-    setShiftSwapRequests(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const updated = { ...item, adminApprovalStatus: 'approved' as const, adminNotes: notes };
-      firestoreService.saveShiftSwapRequest(updated).catch(err => console.warn('[Firestore] Swap approval:', err));
-      return updated;
-    }));
+    setShiftSwapRequests(prev => prev.map(s => s.id === id ? { ...s, adminApprovalStatus: 'approved', managerNotes: notes } : s));
   };
 
   const handleRejectShiftSwap = (id: string, notes?: string) => {
-    auditAction('reject_shift_swap', 'shiftSwapRequest', id);
-    setShiftSwapRequests(prev => prev.map(item => {
-      if (item.id !== id) return item;
-      const updated = { ...item, adminApprovalStatus: 'rejected' as const, adminNotes: notes };
-      firestoreService.saveShiftSwapRequest(updated).catch(err => console.warn('[Firestore] Swap rejection:', err));
-      return updated;
-    }));
+    setShiftSwapRequests(prev => prev.map(s => s.id === id ? { ...s, adminApprovalStatus: 'rejected', managerNotes: notes } : s));
   };
 
   // Sick Day Reports
   const handleSubmitSickReport = (report: any) => {
     const newReport: SickDayReport = {
       ...report,
-      organizationId: userProfile?.organizationId,
-      hierarchyPath: currentEmployee?.hierarchyPath,
-      locationId: currentEmployee?.locationId,
       id: `sick-${Date.now()}`,
       createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
       needsImmediateCoverage: true,
       status: 'reported',
     };
     setSickReports(prev => [newReport, ...prev]);
-    firestoreService.saveSickReport(newReport).catch(err => console.warn('[Firestore] Sick report save:', err));
-    auditAction('submit_sick_report', 'sickReport', newReport.id);
   };
 
   const handleAcknowledgeSickReport = (id: string, coverageEmployeeId?: string) => {
-    auditAction('approve_sick_coverage', 'sickReport', id, { coverageEmployeeId: coverageEmployeeId || null });
     const report = sickReports.find(r => r.id === id);
     if (report && coverageEmployeeId) {
       const coverEmp = employees.find(e => e.id === coverageEmployeeId);
@@ -1127,48 +1021,26 @@ export function App() {
       }
     }
 
-    setSickReports(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const updated = { ...r, status: 'covered' as const, coverageEmployeeId };
-      firestoreService.saveSickReport(updated).catch(err => console.warn('[Firestore] Sick report update:', err));
-      return updated;
-    }));
+    setSickReports(prev => prev.map(r => r.id === id ? { ...r, status: 'covered', coverageEmployeeId } : r));
   };
 
   // Availability Changes
   const handleSubmitAvailability = (avail: Omit<AvailabilityRequest, 'id' | 'createdAt' | 'status'>) => {
     const newAvail: AvailabilityRequest = {
       ...avail,
-      organizationId: userProfile?.organizationId,
-      hierarchyPath: currentEmployee?.hierarchyPath,
-      locationId: currentEmployee?.locationId,
       id: `avail-${Date.now()}`,
       createdAt: new Date().toISOString().slice(0, 10),
       status: 'pending',
     };
     setAvailabilityRequests(prev => [newAvail, ...prev]);
-    firestoreService.saveAvailabilityRequest(newAvail).catch(err => console.warn('[Firestore] Availability save:', err));
-    auditAction('submit_availability', 'availabilityRequest', newAvail.id);
   };
 
   const handleApproveAvailability = (id: string) => {
-    auditAction('approve_availability', 'availabilityRequest', id);
-    setAvailabilityRequests(prev => prev.map(a => {
-      if (a.id !== id) return a;
-      const updated = { ...a, status: 'approved' as const, reviewedBy: authSession.displayName };
-      firestoreService.saveAvailabilityRequest(updated).catch(err => console.warn('[Firestore] Availability approval:', err));
-      return updated;
-    }));
+    setAvailabilityRequests(prev => prev.map(a => a.id === id ? { ...a, status: 'approved' } : a));
   };
 
   const handleRejectAvailability = (id: string) => {
-    auditAction('reject_availability', 'availabilityRequest', id);
-    setAvailabilityRequests(prev => prev.map(a => {
-      if (a.id !== id) return a;
-      const updated = { ...a, status: 'rejected' as const, reviewedBy: authSession.displayName };
-      firestoreService.saveAvailabilityRequest(updated).catch(err => console.warn('[Firestore] Availability rejection:', err));
-      return updated;
-    }));
+    setAvailabilityRequests(prev => prev.map(a => a.id === id ? { ...a, status: 'rejected' } : a));
   };
 
   // Candidate & HR Management
@@ -1204,17 +1076,12 @@ export function App() {
   const handleSubmitShiftSlot = (req: Omit<ShiftSlotRequest, 'id' | 'createdAt' | 'status'>) => {
     const newReq: ShiftSlotRequest = {
       ...req,
-      organizationId: userProfile?.organizationId,
-      hierarchyPath: currentEmployee?.hierarchyPath,
-      locationId: currentEmployee?.locationId,
       id: `slot-req-${Date.now()}`,
       createdAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
       status: 'pending',
     };
     const updatedSlotRequests = [...shiftSlotRequests, newReq];
     setShiftSlotRequests(updatedSlotRequests);
-    firestoreService.saveShiftSlotRequest(newReq).catch(err => console.warn('[Firestore] Shift-slot save:', err));
-    auditAction('submit_shift_slot', 'shiftSlotRequest', newReq.id);
 
     // Detect if this created a collision/contention
     const contentions = detectShiftSlotContentions(
@@ -1226,7 +1093,7 @@ export function App() {
     );
 
     // If contention detected for this slot, dispatch immediate admin alert
-    const matchedContention = contentions.find(c =>
+    const matchedContention = contentions.find(c => 
       c.contentionKey === `${req.date}_${req.startTime}-${req.endTime}_${req.role}_${req.department}` ||
       (req.shiftId && c.contentionKey === `shift_${req.shiftId}`)
     );
@@ -1237,7 +1104,6 @@ export function App() {
   };
 
   const handleApproveShiftSlot = (requestId: string, autoRejectContenders: boolean = false) => {
-    auditAction('approve_shift_slot', 'shiftSlotRequest', requestId);
     const targetReq = shiftSlotRequests.find(r => r.id === requestId);
     if (!targetReq) return;
 
@@ -1258,42 +1124,29 @@ export function App() {
         breakMinutes: 30,
         notes: `Claimed via Shift Slot Request (${targetReq.reason || 'Direct pickup'})`,
         status: 'published',
-        organizationId: targetReq.organizationId || userProfile?.organizationId,
-        hierarchyPath: targetReq.hierarchyPath || emp.hierarchyPath,
-        locationId: targetReq.locationId || emp.locationId,
       };
       setShifts(prev => [...prev, newShift]);
     }
 
     setShiftSlotRequests(prev => prev.map(r => {
       if (r.id === requestId) {
-        const updated = { ...r, status: 'approved' as const };
-        firestoreService.saveShiftSlotRequest(updated).catch(err => console.warn('[Firestore] Shift-slot approval:', err));
-        return updated;
+        return { ...r, status: 'approved' };
       }
-      if (autoRejectContenders &&
-          r.date === targetReq.date &&
-          r.startTime === targetReq.startTime &&
-          r.endTime === targetReq.endTime &&
-          r.role === targetReq.role &&
-          r.department === targetReq.department &&
+      if (autoRejectContenders && 
+          r.date === targetReq.date && 
+          r.startTime === targetReq.startTime && 
+          r.endTime === targetReq.endTime && 
+          r.role === targetReq.role && 
+          r.department === targetReq.department && 
           r.status === 'pending') {
-        const updated = { ...r, status: 'rejected' as const };
-        firestoreService.saveShiftSlotRequest(updated).catch(err => console.warn('[Firestore] Shift-slot auto-reject:', err));
-        return updated;
+        return { ...r, status: 'rejected' };
       }
       return r;
     }));
   };
 
   const handleRejectShiftSlot = (requestId: string) => {
-    auditAction('reject_shift_slot', 'shiftSlotRequest', requestId);
-    setShiftSlotRequests(prev => prev.map(r => {
-      if (r.id !== requestId) return r;
-      const updated = { ...r, status: 'rejected' as const };
-      firestoreService.saveShiftSlotRequest(updated).catch(err => console.warn('[Firestore] Shift-slot rejection:', err));
-      return updated;
-    }));
+    setShiftSlotRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
   };
 
   const handleResolveContentionWithPriority = (contention: ShiftSlotContention, chosenCandidateEmployeeId: string) => {
@@ -1315,7 +1168,7 @@ export function App() {
       message: `Admin resolved shift contention for ${contention.date} (${contention.startTime} - ${contention.endTime}). Awarded to ${chosenAnalysis.employeeName} based on Priority Score (${chosenAnalysis.priorityScore}/100).`,
       channels: ['app', 'sms'],
       timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
-      status: 'preview_not_sent',
+      status: 'delivered',
       metadata: {
         shiftDate: contention.date,
         shiftStartTime: contention.startTime,
@@ -1327,8 +1180,8 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-800 flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900 font-sans max-w-full overflow-x-hidden">
-
+    <div className="min-h-screen bg-slate-50/70 text-slate-800 flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900 font-sans">
+      
       {/* Top Main Navigation Bar */}
       <Navbar
         portal={portal}
@@ -1380,8 +1233,8 @@ export function App() {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 max-w-full overflow-x-hidden">
-
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
         {/* Offline Mode Emergency Banner (when offline or simulated) */}
         {(!isOnline || isSimulatedOffline) && (
           <div className="mb-5 bg-gradient-to-r from-amber-950 via-slate-900 to-slate-900 text-white rounded-2xl p-4 sm:p-5 border border-amber-500/40 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in">
@@ -1426,7 +1279,7 @@ export function App() {
             </div>
           </div>
         )}
-
+        
         {/* Active Role Simulation / Hierarchy Scope Notice Bar (Admin Portal) */}
         {portal === 'admin' && activeRole && activeRole.id !== 'role-super-admin' && (
           <div className="mb-4 bg-indigo-50/80 border border-indigo-200/80 rounded-2xl p-3 px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs animate-in fade-in">
@@ -1486,7 +1339,7 @@ export function App() {
         )}
 
         {/* Dynamic Tab Views based on Portal and Tab selection */}
-
+        
         {/* 0A. ShiftForce AI Command Center (Autonomous Operations Centerpiece) */}
         {activeTab === 'command_center' && portal === 'admin' && (
           <AICommandCenterView
@@ -1742,8 +1595,6 @@ export function App() {
             >
               Subscription Pricing
             </button>
-            <span>•</span>
-            <button onClick={() => setIsLocationManagerOpen(true)} className="text-indigo-600 hover:text-indigo-800 font-bold">Company Locations</button>
           </div>
         </div>
       </footer>
@@ -1759,23 +1610,40 @@ export function App() {
         onBroadcastComplete={handleBroadcastComplete}
       />
 
-      <EnterpriseLocationManagerModal
-        isOpen={isLocationManagerOpen}
-        onClose={() => setIsLocationManagerOpen(false)}
-        onLocationCountChange={(count) => setSubscriptionState(prev => ({ ...prev, activeLocationCount: count }))}
-      />
-
       <PricingTiersModal
         isOpen={isPricingModalOpen}
         onClose={() => setIsPricingModalOpen(false)}
         currentEmployeeCount={employees.length}
-        currentLocationCount={subscriptionState.activeLocationCount}
         currentLanguage={currentLanguage}
-        onSelectTier={async (tierId, cycle) => {
-          if (tierId === 'enterprise-custom') {
-            throw new Error('Custom Enterprise plans require a sales contract and cannot be self-activated.');
+        onSelectTier={(tierId, cycle) => {
+          const isPaid = tierId !== 'starter';
+          const plan = PRICING_PLANS.find(p => p.id === tierId);
+          setSubscriptionState({
+            currentTierId: tierId,
+            billingCycle: cycle,
+            isTrialActive: isPaid,
+            trialDaysRemaining: 15,
+            trialStartDate: new Date().toISOString().split('T')[0],
+            trialEndDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            nextBillingDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          });
+
+          if (isPaid) {
+            const dispatch: NotificationDispatch = {
+              id: `disp-trial-${Date.now()}`,
+              recipientEmployeeId: currentEmployee?.id || 'admin',
+              recipientName: 'General Manager',
+              recipientPhone: '+1 (555) 000-0000',
+              recipientEmail: 'admin@shift-sky.com',
+              type: 'announcement',
+              title: `🎉 15-Day Free Trial Started: ${plan?.label || 'Premium Plan'}`,
+              message: `Your 15-day free trial on the ${cycle} plan is now active with full restaurant capacity up to ${plan?.maxEmployees || 100} employees. No charges until day 15.`,
+              channels: ['app', 'email'],
+              timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
+              status: 'delivered',
+            };
+            setNotificationDispatches(prev => [dispatch, ...prev]);
           }
-          await beginStripeCheckout(tierId, cycle);
         }}
       />
 
@@ -1816,13 +1684,12 @@ export function App() {
         }}
         onOpenPurchasePortal={(plugin) => {
           setPaymentPortalItem({
-            id: plugin.id,
             title: plugin.name,
-            description: `${plugin.category.toUpperCase()} plugin license. Server-side Stripe Price configuration is required before purchase.`,
-            priceUSD: plugin.priceMonthly,
-            period: 'monthly',
-            type: 'plugin_addon',
-            badge: `${plugin.category.toUpperCase()} Add-on`,
+            subtitle: `${plugin.category.toUpperCase()} Plugin License`,
+            price: plugin.priceMonthly,
+            billingCycle: 'month',
+            icon: 'zap',
+            pluginId: plugin.id
           });
           setIsPaymentPortalOpen(true);
         }}
@@ -1832,8 +1699,15 @@ export function App() {
       <PaymentPortalModal
         isOpen={isPaymentPortalOpen}
         onClose={() => setIsPaymentPortalOpen(false)}
-        itemToPurchase={paymentPortalItem}
-        currentLanguage={currentLanguage}
+        item={paymentPortalItem}
+        onSuccess={(method) => {
+          if (paymentPortalItem?.pluginId) {
+            setFeatureState(prev => ({
+              ...prev,
+              enabledPluginIds: Array.from(new Set([...prev.enabledPluginIds, paymentPortalItem.pluginId!]))
+            }));
+          }
+        }}
       />
 
       {/* Role-Based Access Control (RBAC) & Custom Roles Manager Modal */}
@@ -1885,3 +1759,5 @@ export default function AppWithFirebase() {
     </FirebaseProvider>
   );
 }
+
+

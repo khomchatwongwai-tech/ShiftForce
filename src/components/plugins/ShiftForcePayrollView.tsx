@@ -1,21 +1,19 @@
-import { useLanguage } from '../../context/LanguageContext';
-import { translations } from '../../utils/i18n';
 import React, { useState, useMemo } from 'react';
-import {
-  DollarSign,
-  CreditCard,
-  Download,
-  Upload,
-  CheckCircle2,
-  AlertTriangle,
-  FileSpreadsheet,
-  Calendar,
-  Users,
-  Calculator,
-  RefreshCw,
-  Sparkles,
-  Building2,
-  Lock,
+import { 
+  DollarSign, 
+  CreditCard, 
+  Download, 
+  Upload, 
+  CheckCircle2, 
+  AlertTriangle, 
+  FileSpreadsheet, 
+  Calendar, 
+  Users, 
+  Calculator, 
+  RefreshCw, 
+  Sparkles, 
+  Building2, 
+  Lock, 
   Send,
   Sliders,
   TrendingUp,
@@ -44,8 +42,6 @@ interface ShiftForcePayrollViewProps {
 }
 
 export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ employees, shifts }) => {
-  const { currentLanguage, t } = useLanguage();
-
   const [payPeriod, setPayPeriod] = useState<'current_biweekly' | 'previous_biweekly'>('current_biweekly');
   const [selectedStateCode, setSelectedStateCode] = useState<string>('CA');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState<Department | 'all'>('all');
@@ -179,10 +175,10 @@ export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ em
       setIsExporting(false);
       const csvContent = `data:text/csv;charset=utf-8,` +
         `Employee Name,ADP ID,Department,Hourly Wage,State,Regular Hours,OT Hours,Gross Pay,Federal Tax,FICA (SS+Med),State Tax (${selectedStateCode}),SDI/PFL,Total Taxes,Pre-Tax Deductions,Net Direct Deposit,Employer Cost,Section 45B Tip Credit\n` +
-        filteredRows.map(r =>
+        filteredRows.map(r => 
           `"${r.employee.name}","${r.employee.adpEmployeeId || r.employee.id}","${r.employee.department}",${r.hourlyWage},"${selectedStateCode}",${r.regularHours},${r.overtimeHours},${r.grossPay},${r.federalIncomeTax},${r.totalFica},${r.stateIncomeTax},${r.stateDisabilityInsurance},${r.totalTaxesWithheld},${r.totalPreTaxDeductions},${r.netPay},${r.employerTotalCost},${r.ficaTipCredit}`
         ).join('\n');
-
+      
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -525,3 +521,4 @@ export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ em
     </div>
   );
 };
+

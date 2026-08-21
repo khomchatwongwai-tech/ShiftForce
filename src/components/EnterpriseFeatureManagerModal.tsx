@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import {
-  X,
-  Sparkles,
-  Check,
-  Zap,
-  Lock,
-  ShieldCheck,
-  Layers,
-  Search,
-  CreditCard,
-  Sliders,
-  ChevronRight,
-  Download,
-  CheckCircle2,
+import { 
+  X, 
+  Sparkles, 
+  Check, 
+  Zap, 
+  Lock, 
+  ShieldCheck, 
+  Layers, 
+  Search, 
+  CreditCard, 
+  Sliders, 
+  ChevronRight, 
+  Download, 
+  CheckCircle2, 
   AlertCircle,
   ToggleLeft,
   ToggleRight,
@@ -112,7 +112,7 @@ export const EnterpriseFeatureManagerModal: React.FC<EnterpriseFeatureManagerMod
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 my-auto max-h-[94vh] flex flex-col">
-
+        
         {/* Header Banner */}
         <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative shrink-0">
           <div>
@@ -306,8 +306,8 @@ export const EnterpriseFeatureManagerModal: React.FC<EnterpriseFeatureManagerMod
                         </button>
                       ) : (
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          isEnabled
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          isEnabled 
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' 
                             : 'bg-slate-100 text-slate-600'
                         }`}>
                           {isEnabled ? '● Active in App' : '○ Standby'}

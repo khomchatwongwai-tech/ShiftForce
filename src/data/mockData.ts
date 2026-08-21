@@ -1,15 +1,15 @@
-import {
-  Employee,
-  Shift,
+import { 
+  Employee, 
+  Shift, 
   ShiftTemplate,
-  TimeOffRequest,
-  ShiftSwapRequest,
-  SickDayReport,
-  AvailabilityRequest,
+  TimeOffRequest, 
+  ShiftSwapRequest, 
+  SickDayReport, 
+  AvailabilityRequest, 
   ShiftSlotRequest,
-  Announcement,
-  TardinessRecord,
-  OnboardingCandidate,
+  Announcement, 
+  TardinessRecord, 
+  OnboardingCandidate, 
   PricingPlan,
   Department,
   RestaurantRole,
@@ -24,8 +24,127 @@ import {
   RecurringRotationCycle
 } from '../types';
 
-import { ENTERPRISE_PRICING_PLANS } from './enterprisePricing';
-export { ENTERPRISE_PRICING_PLANS as PRICING_PLANS } from './enterprisePricing';
+export const PRICING_PLANS: PricingPlan[] = [
+  {
+    id: 'starter',
+    maxEmployees: 20,
+    label: 'Starter / Family Restaurant',
+    monthlyPrice: 0,
+    annualMonthlyPrice: 0,
+    trialDays: 0,
+    features: [
+      'Up to 20 Employees Included Free',
+      '7-Day Visual Schedule Grid',
+      'Dual Admin & Staff Portals',
+      'In-App & Email Notifications',
+      'Basic Time Off & Sick Log',
+      'Community Support',
+    ],
+  },
+  {
+    id: 'tier-35',
+    maxEmployees: 35,
+    label: 'Growth Bistro',
+    monthlyPrice: 14.99,
+    annualMonthlyPrice: 11.24,
+    trialDays: 15,
+    features: [
+      'Up to 35 Employees',
+      '15-Day Free Trial Included (No upfront charge)',
+      'Automated SMS & Phone Alerts',
+      '1-Hour Pre-Shift Countdown Push',
+      'Shift Swap Peer Approvals',
+      'Late & Tardiness Punch Log',
+      'ShiftForce AI Schedule Assistant',
+    ],
+  },
+  {
+    id: 'tier-45',
+    maxEmployees: 45,
+    label: 'Premier Dining',
+    monthlyPrice: 24.99,
+    annualMonthlyPrice: 18.74,
+    trialDays: 15,
+    features: [
+      'Up to 45 Employees',
+      '15-Day Free Trial Included',
+      'Live Department Labor % Calculator',
+      'AI Replacement Recommender for Sick Staff',
+      'Hiring Pipeline & Interview Scheduler',
+      'Overtime Threshold Warning System',
+      'Multilingual Google Translate Engine',
+    ],
+  },
+  {
+    id: 'tier-65',
+    maxEmployees: 65,
+    label: 'High Volume Brasserie',
+    monthlyPrice: 34.99,
+    annualMonthlyPrice: 26.24,
+    trialDays: 15,
+    isPopular: true,
+    features: [
+      'Up to 65 Employees',
+      '15-Day Free Trial Included',
+      'Automated 7-Day Personalized Schedule Blast',
+      'Full Onboarding Document Verification (I-9, Food Card)',
+      'Multi-Role Cross-Training Schedule Grid',
+      'Payroll Export & Overtime Breakdown',
+      'Priority 24/7 Hospitality Support',
+    ],
+  },
+  {
+    id: 'tier-85',
+    maxEmployees: 85,
+    label: 'Multi-Room Venue',
+    monthlyPrice: 44.99,
+    annualMonthlyPrice: 33.74,
+    trialDays: 15,
+    features: [
+      'Up to 85 Employees',
+      '15-Day Free Trial Included',
+      'Multi-Station Labor Forecasting ($ Sales vs Hours)',
+      'Automated Fair Workweek Compliance Check',
+      'Custom Announcement Priority Broadcasts',
+      'Dedicated Shift Lead Permissions',
+      'Unlimited SMS & Email Notifications',
+    ],
+  },
+  {
+    id: 'tier-100',
+    maxEmployees: 100,
+    label: 'Large Restaurant & Lounge',
+    monthlyPrice: 64.99,
+    annualMonthlyPrice: 48.74,
+    trialDays: 15,
+    features: [
+      'Up to 100 Employees',
+      '15-Day Free Trial Included',
+      'Enterprise Real-time Labor Optimization',
+      'Department Budget Locks & Custom Roles',
+      'Advanced HR Onboarding & Scorecards',
+      'Custom Announcement SMS & Webhooks',
+      'Dedicated Account Manager',
+    ],
+  },
+  {
+    id: 'enterprise',
+    maxEmployees: 1000,
+    label: 'Restaurant Group & Enterprise (100+)',
+    monthlyPrice: 89.99,
+    annualMonthlyPrice: 67.49,
+    trialDays: 15,
+    features: [
+      '100 to 1,000+ Employees Support',
+      '15-Day VIP Trial with Dedicated Onboarding',
+      'Unlimited Shifts & Bulk AI Auto-Fill',
+      'Multi-Location Centralized Dashboard',
+      'Full Payroll Integration (ADP, Gusto, Toast, Square)',
+      'Custom SLA & 99.99% Uptime Guarantee',
+      'VIP Dedicated AI Model Fine-Tuning',
+    ],
+  },
+];
 
 // Distinct color palette for employee shift badges on calendar
 export const EMPLOYEE_COLORS = [
@@ -486,7 +605,7 @@ export const INITIAL_EMPLOYEES: Employee[] = [
 // High-performance generator to scale from 1 up to 100,000 employees across multi-tier enterprise structure
 export function generateLargeEmployeePool(targetCount: number): Employee[] {
   const safeCount = Math.max(1, Math.min(100000, Math.floor(targetCount)));
-
+  
   if (safeCount <= INITIAL_EMPLOYEES.length) {
     return INITIAL_EMPLOYEES.slice(0, safeCount);
   }
@@ -507,7 +626,7 @@ export function generateLargeEmployeePool(targetCount: number): Employee[] {
     'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera',
     'Patel', 'Dubois', 'Rousseau', 'Muller', 'Sato', 'Tanaka', 'Costa', 'Silva', 'Kowalski'
   ];
-
+  
   const depts: { dept: Department; roles: RestaurantRole[] }[] = [
     { dept: 'Front of House', roles: ['Server', 'Head Server', 'Host / Hostess', 'Food Runner', 'Busser', 'Cashier'] },
     { dept: 'Back of House', roles: ['Head Chef', 'Sous Chef', 'Line Cook', 'Grill Cook', 'Prep Cook'] },
@@ -587,7 +706,7 @@ export function generateLargeEmployeePool(targetCount: number): Employee[] {
     const role = roles[(Math.floor(i / depts.length)) % roles.length];
     const color = EMPLOYEE_COLORS[i % EMPLOYEE_COLORS.length];
     const loc = enterpriseLocations[i % enterpriseLocations.length];
-
+    
     let baseWage = 18.0;
     if (deptInfo.dept === 'Management') baseWage = 30.0 + ((i % 8) * 1.25);
     else if (role.includes('Head') || role.includes('Sous') || role.includes('Lead')) baseWage = 24.0 + ((i % 6) * 1.1);
@@ -653,7 +772,7 @@ export function getWeekDates(baseDate: Date = new Date()): { dateStr: string; da
   const days: { dateStr: string; dayName: string; dayNumber: number; fullDate: Date }[] = [];
   const dayOfWeek = baseDate.getDay(); // 0 = Sun, 1 = Mon...
   const distanceToMonday = (dayOfWeek + 6) % 7;
-
+  
   const monday = new Date(baseDate);
   monday.setDate(baseDate.getDate() - distanceToMonday);
 
@@ -665,7 +784,7 @@ export function getWeekDates(baseDate: Date = new Date()): { dateStr: string; da
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
-
+    
     days.push({
       dateStr: `${yyyy}-${mm}-${dd}`,
       dayName: dayNames[i],
@@ -1388,7 +1507,7 @@ export const INITIAL_SHIFTS: Shift[] = generateInitialShifts(INITIAL_EMPLOYEES, 
 export const generateWeekDates = getWeekDates;
 export const INITIAL_TIMEOFF_REQUESTS = INITIAL_TIME_OFF_REQUESTS;
 export const INITIAL_SWAP_REQUESTS = INITIAL_SHIFT_SWAPS;
-export const PRICING_TIERS = ENTERPRISE_PRICING_PLANS;
+export const PRICING_TIERS = PRICING_PLANS;
 
 export const INITIAL_NOTIFICATION_DISPATCHES: NotificationDispatch[] = [
   {
@@ -2074,20 +2193,20 @@ export const INITIAL_RESTAURANT_PERFORMANCE_SCORE: RestaurantPerformanceScore = 
   letterGrade: 'A+',
   trendDirection: 'up',
   trendPercentage: 4.2,
-
+  
   googleRating: 4.9,
   googleReviewCount: 842,
   yelpRating: 4.8,
   yelpReviewCount: 615,
   openTableRating: 4.9,
   tripAdvisorRating: 4.7,
-
+  
   hospitalityDelightScore: 98,
   foodAndCocktailQualityScore: 96,
   foodAndAlcoholComplianceScore: 100, // 100% verified RBS / TIPS & ServSafe cards
   laborBudgetEfficiencyScore: 94,
   teamMoraleSatisfactionScore: 97,
-
+  
   recent5StarCountThisMonth: 128,
   totalKudosSharedThisMonth: 42,
 };
@@ -2332,3 +2451,6 @@ export const INITIAL_ROTATION_CYCLES: RecurringRotationCycle[] = [
     createdAt: '2026-08-01',
   }
 ];
+
+
+

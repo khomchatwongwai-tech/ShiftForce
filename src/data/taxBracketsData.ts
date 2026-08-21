@@ -1536,7 +1536,7 @@ export function calculateEmployeePaycheck(input: PaycheckCalculationInput): Payc
   // 5. FICA Taxes (Social Security & Medicare)
   const socialSecurityTax = Number((socialSecurityTaxableWages * FICA_RATES.socialSecurityRate).toFixed(2));
   let medicareTax = Number((medicareTaxableWages * FICA_RATES.medicareRate).toFixed(2));
-
+  
   // Additional Medicare for high earners
   let additionalMedicareTax = 0;
   const annualizedMedicareWages = medicareTaxableWages * periodsPerYear;
@@ -1616,7 +1616,7 @@ export function calculateEmployeePaycheck(input: PaycheckCalculationInput): Payc
     const hours = regHours + otHours + dtHours;
     const directWages = regularEarnings + overtimeEarnings;
     const totalWagePerHr = hours > 0 ? directWages / hours : 0;
-    const excessTipAmount = totalWagePerHr < tipThresholdWage
+    const excessTipAmount = totalWagePerHr < tipThresholdWage 
       ? Math.max(0, totalTips - ((tipThresholdWage - totalWagePerHr) * hours))
       : totalTips;
     ficaTipCreditEst = Number((excessTipAmount * 0.0765).toFixed(2));

@@ -1,7 +1,7 @@
-import {
-  POSDepartmentMapping,
-  DepartmentLiveEfficiencyMetric,
-  Department,
+import { 
+  POSDepartmentMapping, 
+  DepartmentLiveEfficiencyMetric, 
+  Department, 
   POSPlatformId,
   Shift,
   Employee

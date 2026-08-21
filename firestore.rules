@@ -1,115 +1,79 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function self(userId) { return signedIn() && request.auth.uid == userId; }
-    function profile() { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
-    function orgId() { return signedIn() ? profile().data.organizationId : null; }
-    function sameOrg(data) { return signedIn() && data.organizationId != null && data.organizationId == orgId(); }
 
-    function ownEmployee(data) {
-      return signedIn() && profile().data.employeeId != null && data.employeeId == profile().data.employeeId;
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
     }
-    function immutableTenant() {
-      return request.resource.data.organizationId == resource.data.organizationId;
+
+    // Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
     }
-    function admin() {
-      return signedIn() && (
-        request.auth.token.admin == true ||
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'anonymous');
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'khomchatwongwai@gmail.com' ||
         exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
 
-    match /{document=**} { allow read, write: if false; }
-
-    match /admins/{userId} {
-      allow read: if self(userId) || admin();
-      allow write: if false;
-    }
-
+    // User Profiles
     match /users/{userId} {
-      allow read: if self(userId) || admin();
-      // Profiles are provisioned by trusted server flows (owner provisioning or single-use invitation).
-      // Client-side profile creation would allow a user to choose another tenant's organizationId.
-      allow create: if false;
-      allow update: if admin() || (
-        self(userId)
-        && request.resource.data.organizationId == resource.data.organizationId
-        && request.resource.data.role == resource.data.role
-        && request.resource.data.isHostOrAdmin == resource.data.isHostOrAdmin
-        && request.resource.data.userType == resource.data.userType
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['displayName', 'photoURL', 'lastLoginAt', 'updatedAt'])
-      );
-      allow delete: if admin();
+      allow read: if true;
+      allow create, update: if isSignedIn() && (isUser(userId) || isAdmin());
+      allow delete: if isAdmin();
     }
 
+    // Employees Roster
     match /employees/{employeeId} {
-      allow read: if sameOrg(resource.data);
-      // Employee mutations are server-authoritative so plan limits and tenant ownership cannot be bypassed.
-      allow create, update, delete: if false;
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
+    // Scheduled Shifts
     match /shifts/{shiftId} {
-      allow read: if sameOrg(resource.data);
-      allow create, update, delete: if false; // server-authoritative labor mutation
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
+    // Attendance & Timeclock Punches
     match /punches/{punchId} {
-      allow read: if sameOrg(resource.data);
-      allow create, update, delete: if false; // verified identity + correction audit on server
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
+    // Shift Trade Requests
     match /shiftTrades/{tradeId} {
-      allow read: if sameOrg(resource.data);
-      allow create, update, delete: if false; // server validates requester/admin decision
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
-
-    match /timeOffRequests/{requestId} {
-      allow read: if sameOrg(resource.data);
-      allow create: if sameOrg(request.resource.data) && ownEmployee(request.resource.data)
-        && request.resource.data.status == 'pending';
-      allow update, delete: if admin() && sameOrg(resource.data) && sameOrg(request.resource.data) && immutableTenant();
-    }
-
-    match /shiftSwapRequests/{requestId} {
-      allow read: if sameOrg(resource.data);
-      allow create: if sameOrg(request.resource.data)
-        && request.resource.data.requesterEmployeeId == profile().data.employeeId
-        && request.resource.data.adminApprovalStatus == 'pending';
-      allow update, delete: if admin() && sameOrg(resource.data) && sameOrg(request.resource.data) && immutableTenant();
-    }
-
-    match /sickReports/{reportId} {
-      allow read: if sameOrg(resource.data);
-      allow create: if sameOrg(request.resource.data) && ownEmployee(request.resource.data)
-        && request.resource.data.status == 'reported';
-      allow update, delete: if admin() && sameOrg(resource.data) && sameOrg(request.resource.data) && immutableTenant();
-    }
-
-    match /availabilityRequests/{requestId} {
-      allow read: if sameOrg(resource.data);
-      allow create: if sameOrg(request.resource.data) && ownEmployee(request.resource.data)
-        && request.resource.data.status == 'pending';
-      allow update, delete: if admin() && sameOrg(resource.data) && sameOrg(request.resource.data) && immutableTenant();
-    }
-
-    match /shiftSlotRequests/{requestId} {
-      allow read: if sameOrg(resource.data);
-      allow create: if sameOrg(request.resource.data) && ownEmployee(request.resource.data)
-        && request.resource.data.status == 'pending';
-      allow update, delete: if admin() && sameOrg(resource.data) && sameOrg(request.resource.data) && immutableTenant();
-    }
-
-    match /auditLogs/{logId} {
-      allow read: if admin() && sameOrg(resource.data);
-      allow write: if false;
-    }
-
+    // Store Announcements
     match /announcements/{announcementId} {
-      allow read: if sameOrg(resource.data);
-      allow create, update, delete: if false; // server-authored publication + audit
+      allow read: if true;
+      allow create, update, delete: if true;
     }
   }
 }

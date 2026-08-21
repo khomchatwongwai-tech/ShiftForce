@@ -55,7 +55,7 @@ function playAlertChime() {
     const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
-
+    
     // Smooth dual-tone chime
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
@@ -140,7 +140,7 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
       const targetPct = d.targetLaborPct;
       const livePct = d.liveLaborPct;
       const variance = Number((livePct - targetPct).toFixed(1));
-      const dollarVar = livePct > targetPct
+      const dollarVar = livePct > targetPct 
         ? Math.round((livePct - targetPct) / 100 * d.liveMappedSales)
         : 0;
 
@@ -159,7 +159,7 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           posPlatformId: (activePOSId || 'toast') as POSPlatformId,
           message: `${d.department} labor is operating at ${livePct}% (budget threshold: ${targetPct}%). Running +$${dollarVar} over expected live cost.`,
-          recommendedAction: isCritical
+          recommendedAction: isCritical 
             ? `Immediate Action: Early clock-out for 1 ${d.department === 'Front of House' ? 'Server/Runner' : 'Line/Prep Cook'} or reassign to busy station to cut ~$35-$50/hr.`
             : `Monitor: Rebalance prep pacing and pause call-in shifts until live sales velocity catches up.`
         };
@@ -212,7 +212,7 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
 
   return (
     <div id="analytics-pos-realtime-alert-system" className="space-y-3">
-
+      
       {/* Toast Notification */}
       {dispatchSuccessToast && (
         <div className="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs flex items-center justify-between gap-3 border border-slate-700 animate-in fade-in slide-in-from-top-2 duration-200">
@@ -231,16 +231,16 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
 
       {/* Real-time Alert System Container */}
       <div className={`rounded-2xl border transition-all shadow-xs overflow-hidden ${
-        criticalCount > 0
-          ? 'bg-gradient-to-br from-rose-500/10 via-red-500/5 to-white border-rose-300 ring-2 ring-rose-400/20'
+        criticalCount > 0 
+          ? 'bg-gradient-to-br from-rose-500/10 via-red-500/5 to-white border-rose-300 ring-2 ring-rose-400/20' 
           : warningCount > 0
           ? 'bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-white border-amber-300 ring-2 ring-amber-400/20'
           : 'bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-white border-emerald-200'
       }`}>
-
+        
         {/* Main Alert Bar Header */}
         <div className="p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-
+          
           {/* Left Icon & Heading */}
           <div className="flex items-start gap-3.5">
             <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md ${
@@ -281,8 +281,8 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
               <h3 className="font-bold text-sm sm:text-base text-slate-900 mt-1 flex items-center gap-2">
                 {hasBreach ? (
                   <span>
-                    {criticalCount > 0
-                      ? `⚠️ ${criticalCount} Department${criticalCount > 1 ? 's' : ''} Exceeding Defined Labor Budget Threshold`
+                    {criticalCount > 0 
+                      ? `⚠️ ${criticalCount} Department${criticalCount > 1 ? 's' : ''} Exceeding Defined Labor Budget Threshold` 
                       : `⚡ ${warningCount} Department${warningCount > 1 ? 's' : ''} Approaching Labor Budget Ceiling`}
                   </span>
                 ) : (
@@ -306,7 +306,7 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
 
           {/* Right Action Controls: Audio, Simulation Presets, Threshold Settings */}
           <div className="flex items-center gap-2 flex-wrap self-stretch lg:self-center justify-between lg:justify-end border-t lg:border-t-0 pt-3 lg:pt-0 border-slate-200/60">
-
+            
             {/* Audio Ping Toggle */}
             <button
               onClick={() => {
@@ -314,8 +314,8 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
                 if (!soundEnabled) playAlertChime();
               }}
               className={`p-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                soundEnabled
-                  ? 'bg-white text-slate-800 border-slate-200 shadow-xs hover:bg-slate-50'
+                soundEnabled 
+                  ? 'bg-white text-slate-800 border-slate-200 shadow-xs hover:bg-slate-50' 
                   : 'bg-slate-100 text-slate-400 border-transparent hover:bg-slate-200'
               }`}
               title={soundEnabled ? 'Chime sound enabled on threshold breach' : 'Chime muted'}
@@ -381,7 +381,7 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
         {/* Expanded Department Breakdown Alert Cards */}
         {showDetails && (
           <div className="p-4 sm:p-5 pt-0 border-t border-slate-200/50 space-y-3">
-
+            
             <div className="flex items-center justify-between pt-3 text-xs text-slate-600">
               <span className="font-bold flex items-center gap-1.5">
                 <SlidersHorizontal className="w-3.5 h-3.5 text-sky-600" />
@@ -477,8 +477,8 @@ export const POSLaborAlertSystem: React.FC<POSLaborAlertSystemProps> = ({
                           <button
                             onClick={() => handleAcknowledge(dept.department)}
                             className={`px-2 py-1 text-[10px] font-bold rounded cursor-pointer transition-all ${
-                              isAcknowledged
-                                ? 'bg-slate-200 text-slate-700'
+                              isAcknowledged 
+                                ? 'bg-slate-200 text-slate-700' 
                                 : 'bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 shadow-xs'
                             }`}
                           >

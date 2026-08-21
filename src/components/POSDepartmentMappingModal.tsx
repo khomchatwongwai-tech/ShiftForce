@@ -297,7 +297,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-slate-100 flex flex-col max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95">
-
+        
         {/* Toast Alert */}
         {toastMessage && (
           <div className="fixed top-6 right-6 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 border border-slate-700 text-xs font-semibold">
@@ -452,7 +452,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
 
         {/* Modal Main Content Body */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
-
+          
           {/* TAB 1: REVENUE CENTER MAPPINGS */}
           {activeSubTab === 'revenue_centers' && (
             <div className="space-y-4">
@@ -921,7 +921,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
                     <span>Diagnostics Passed: 100% Department Mapping Integrity Verified</span>
                   </div>
                   <p className="text-xs text-emerald-700">{testResult.message}</p>
-
+                  
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                     <div className="p-3 bg-white rounded-xl border border-emerald-100 shadow-xs">
                       <span className="text-[11px] text-slate-500 font-medium">Orders Processed</span>

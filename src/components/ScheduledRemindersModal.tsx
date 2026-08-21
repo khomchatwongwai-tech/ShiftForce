@@ -1,34 +1,33 @@
-import { useLanguage } from '../context/LanguageContext';
-import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import {
-  X,
-  Clock,
-  MessageSquare,
-  Smartphone,
-  Send,
-  CheckCircle2,
-  Play,
-  AlertCircle,
-  ShieldCheck,
-  RefreshCw,
-  Sliders,
-  Sparkles,
-  Bell,
-  Mail,
-  Eye,
-  Calendar,
+import { 
+  X, 
+  Clock, 
+  MessageSquare, 
+  Smartphone, 
+  Send, 
+  CheckCircle2, 
+  Play, 
+  AlertCircle, 
+  ShieldCheck, 
+  RefreshCw, 
+  Sliders, 
+  Sparkles, 
+  Bell, 
+  Mail, 
+  Eye, 
+  Calendar, 
   Zap,
   CheckCheck
 } from 'lucide-react';
-import {
-  Employee,
-  Shift,
-  SupportedLanguage,
-  NotificationDispatch,
-  ReminderSchedulerConfig,
-  ScheduledReminderTask
+import { 
+  Employee, 
+  Shift, 
+  SupportedLanguage, 
+  NotificationDispatch, 
+  ReminderSchedulerConfig, 
+  ScheduledReminderTask 
 } from '../types';
+import { translations } from '../utils/i18n';
 
 interface ScheduledRemindersModalProps {
   isOpen: boolean;
@@ -83,7 +82,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 my-8">
-
+        
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 px-6 py-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -163,7 +162,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
 
         {/* Modal Main Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-
+          
           {/* Top Quick Settings Bar */}
           <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="space-y-1">
@@ -248,7 +247,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
                             <tr key={shift.id} className="hover:bg-slate-50/80 transition-colors">
                               <td className="px-4 py-3">
                                 <div className="flex items-center gap-2">
-                                  <div
+                                  <div 
                                     className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
                                     style={{ backgroundColor: emp.color || '#0284c7' }}
                                   >
@@ -328,7 +327,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
           {/* TAB 2: WhatsApp & SMS Live Template Preview */}
           {activeTab === 'templates' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+              
               {/* WhatsApp Mobile Mockup */}
               <div className="bg-[#0b141a] rounded-3xl p-4 sm:p-5 text-white shadow-xl border border-slate-700 flex flex-col justify-between">
                 <div>

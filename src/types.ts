@@ -1,8 +1,8 @@
-export type Department =
-  | 'Front of House'
-  | 'Back of House'
-  | 'Bar & Beverage'
-  | 'Kitchen Prep & Dish'
+export type Department = 
+  | 'Front of House' 
+  | 'Back of House' 
+  | 'Bar & Beverage' 
+  | 'Kitchen Prep & Dish' 
   | 'Management';
 
 export type RestaurantRole =
@@ -173,9 +173,6 @@ export type RequestStatus = 'pending' | 'approved' | 'rejected';
 
 export interface TimeOffRequest {
   id: string;
-  organizationId?: string;
-  hierarchyPath?: string;
-  locationId?: string;
   employeeId: string;
   employeeName: string;
   startDate: string; // YYYY-MM-DD
@@ -190,9 +187,6 @@ export interface TimeOffRequest {
 
 export interface ShiftSwapRequest {
   id: string;
-  organizationId?: string;
-  hierarchyPath?: string;
-  locationId?: string;
   requesterEmployeeId: string;
   requesterEmployeeName: string;
   requesterShiftId: string;
@@ -212,9 +206,6 @@ export interface ShiftSwapRequest {
 
 export interface SickDayReport {
   id: string;
-  organizationId?: string;
-  hierarchyPath?: string;
-  locationId?: string;
   employeeId: string;
   employeeName: string;
   shiftId: string;
@@ -238,9 +229,6 @@ export interface DayAvailability {
 
 export interface AvailabilityRequest {
   id: string;
-  organizationId?: string;
-  hierarchyPath?: string;
-  locationId?: string;
   employeeId: string;
   employeeName: string;
   weeklyPreferences: Record<DayOfWeek, DayAvailability>;
@@ -253,9 +241,6 @@ export interface AvailabilityRequest {
 
 export interface ShiftSlotRequest {
   id: string;
-  organizationId?: string;
-  hierarchyPath?: string;
-  locationId?: string;
   shiftId?: string; // Reference to specific shift if claiming existing slot
   date: string; // YYYY-MM-DD
   startTime: string; // HH:MM
@@ -319,25 +304,24 @@ export interface ShiftSlotContention {
 }
 
 export type PortalType = 'admin' | 'employee';
-export type ActiveTab =
+export type ActiveTab = 
   | 'command_center'
   | 'intelligence_agent'
   | 'enterprise'
-  | 'schedule'
-  | 'employees'
+  | 'schedule' 
+  | 'employees' 
   | 'payroll'
   | 'learn'
   | 'performance'
-  | 'integrations'
-  | 'analytics'
-  | 'requests'
-  | 'tardiness'
-  | 'announcements'
+  | 'integrations' 
+  | 'analytics' 
+  | 'requests' 
+  | 'tardiness' 
+  | 'announcements' 
   | 'hr_payroll';
 
 export interface Announcement {
   id: string;
-  organizationId?: string;
   title: string;
   content: string;
   authorName: string;
@@ -364,7 +348,7 @@ export interface NotificationDispatch {
   message: string;
   channels: ('app' | 'sms' | 'whatsapp' | 'email')[];
   timestamp: string;
-  status: 'sent' | 'delivered' | 'preview_not_sent' | 'failed';
+  status: 'sent' | 'delivered';
   metadata?: {
     shiftId?: string;
     shiftDate?: string;
@@ -424,7 +408,7 @@ export interface TardinessRecord {
   managerNote?: string;
 }
 
-export type HiringPlatformId =
+export type HiringPlatformId = 
   | 'linkedin'
   | 'indeed'
   | 'craigslist'
@@ -533,13 +517,10 @@ export interface OnboardingCandidate {
 
 export interface PricingPlan {
   id: string;
-  minLocations?: number;
-  maxLocations?: number | null;
-  maxEmployees: number; // -1 = unlimited
+  maxEmployees: number;
   label: string;
   monthlyPrice: number;
   annualMonthlyPrice: number;
-  annualPrice?: number;
   trialDays?: number;
   isPopular?: boolean;
   features: string[];
@@ -547,8 +528,6 @@ export interface PricingPlan {
 
 export interface UserSubscriptionState {
   currentTierId: string;
-  activeLocationCount: number;
-  activeEmployeeCount: number;
   billingCycle: 'monthly' | 'annual';
   isTrialActive: boolean;
   trialDaysRemaining: number;
@@ -557,7 +536,7 @@ export interface UserSubscriptionState {
   nextBillingDate: string;
 }
 
-export type SupportedLanguage =
+export type SupportedLanguage = 
   | 'en' // English
   | 'es' // Spanish
   | 'zh' // Chinese
@@ -658,7 +637,7 @@ export interface SmartAutoFillPlan {
 // ----------------------------------------------------
 // WorkForce & Payroll Integration Hub Types (ADP, UKG, Workday, etc.)
 // ----------------------------------------------------
-export type WorkforcePlatformId =
+export type WorkforcePlatformId = 
   | 'adp_workforce_now'
   | 'adp_run'
   | 'ukg_pro'
@@ -711,7 +690,7 @@ export interface WorkforceSyncLog {
 // ----------------------------------------------------
 // Universal POS Integration Hub Types (Toast, Square, Clover, Aloha, etc.)
 // ----------------------------------------------------
-export type POSPlatformId =
+export type POSPlatformId = 
   | 'toast'
   | 'square'
   | 'clover'
@@ -807,7 +786,7 @@ export interface RestaurantPerformanceScore {
   letterGrade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'C';
   trendDirection: 'up' | 'stable' | 'down';
   trendPercentage: number;
-
+  
   // Pillars breakdown
   googleRating: number; // e.g. 4.9
   googleReviewCount: number;
@@ -815,13 +794,13 @@ export interface RestaurantPerformanceScore {
   yelpReviewCount: number;
   openTableRating: number; // e.g. 4.9
   tripAdvisorRating: number; // e.g. 4.7
-
+  
   hospitalityDelightScore: number; // 0 - 100
   foodAndCocktailQualityScore: number; // 0 - 100
   foodAndAlcoholComplianceScore: number; // 0 - 100 (based on valid RBS & Food Handler cards)
   laborBudgetEfficiencyScore: number; // 0 - 100
   teamMoraleSatisfactionScore: number; // 0 - 100 (e.g. 98%)
-
+  
   recent5StarCountThisMonth: number;
   totalKudosSharedThisMonth: number;
 }
@@ -1199,14 +1178,14 @@ export interface HierarchyNode {
   healthScore: number;
 }
 
-export type AIAgentRole =
-  | 'scheduling_agent'
-  | 'coverage_agent'
-  | 'labor_agent'
-  | 'compliance_agent'
-  | 'training_agent'
-  | 'operations_agent'
-  | 'analytics_agent'
+export type AIAgentRole = 
+  | 'scheduling_agent' 
+  | 'coverage_agent' 
+  | 'labor_agent' 
+  | 'compliance_agent' 
+  | 'training_agent' 
+  | 'operations_agent' 
+  | 'analytics_agent' 
   | 'executive_agent';
 
 export interface ShiftForceAIAgent {
@@ -1398,22 +1377,8 @@ export interface EmployeeLoginCredentials {
   rememberDevice: boolean;
 }
 
-export interface AuditLogEntry {
-  id: string;
-  organizationId: string;
-  actorUserId: string;
-  actorEmployeeId?: string;
-  actorDisplayName?: string;
-  action: string;
-  entityType: string;
-  entityId: string;
-  createdAt: string;
-  metadata?: Record<string, string | number | boolean | null>;
-}
-
 export interface AttendancePunch {
   id: string;
-  organizationId?: string;
   employeeId: string;
   employeeName: string;
   shiftId?: string;
@@ -1426,7 +1391,6 @@ export interface AttendancePunch {
 
 export interface ShiftTradeRequest {
   id: string;
-  organizationId?: string;
   requesterId: string;
   requesterName: string;
   requesterShiftId: string;
@@ -1440,7 +1404,6 @@ export interface ShiftTradeRequest {
 
 export interface AuthUserSession {
   isAuthenticated: boolean;
-  organizationId?: string;
   userType: AuthPortalMode;
   adminRole?: CustomRole;
   employee?: Employee;
@@ -1472,66 +1435,3 @@ export interface POSLaborAlert {
 }
 
 
-
-export type EnterpriseAccessLevel = 'company' | 'region' | 'location' | 'department' | 'employee';
-
-export interface CompanyLocation {
-  id: string;
-  organizationId: string;
-  name: string;
-  code?: string;
-  regionId?: string;
-  districtId?: string;
-  address?: string;
-  timezone: string;
-  active: boolean;
-  createdAt: string;
-}
-
-export interface CompanyRegion {
-  id: string;
-  organizationId: string;
-  name: string;
-  active: boolean;
-  locationIds: string[];
-}
-
-export interface EnterpriseOrganization {
-  id: string;
-  name: string;
-  legalName?: string;
-  active: boolean;
-  ownerUid: string;
-  regionIds: string[];
-  locationIds: string[];
-  subscriptionTierId: string;
-  billingCycle: 'monthly' | 'annual';
-  createdAt: string;
-}
-
-export type SubscriptionStatus = 'free' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete' | 'unpaid';
-
-export interface OrganizationBillingState {
-  organizationId: string;
-  tierId: string;
-  billingCycle: 'monthly' | 'annual';
-  status: SubscriptionStatus;
-  activeLocationCount: number;
-  employeeLimit: number;
-  stripeCustomerId?: string;
-  stripeSubscriptionId?: string;
-  currentPeriodEnd?: string;
-  cancelAtPeriodEnd?: boolean;
-  updatedAt: string;
-}
-
-export interface OrganizationMembership {
-  organizationId: string;
-  userUid: string;
-  accessLevel: EnterpriseAccessLevel;
-  roleCode: string;
-  authorizedRegionIds: string[];
-  authorizedLocationIds: string[] | ['*'];
-  canViewAllLocations: boolean;
-  active: boolean;
-}

@@ -1,54 +1,50 @@
-import { useLanguage } from '../context/LanguageContext';
-import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import {
-  Building2,
-  Layers,
-  Cpu,
-  TrendingUp,
-  ShieldCheck,
-  DollarSign,
-  Globe,
-  CheckCircle2,
-  AlertTriangle,
-  FileText,
-  Lock,
-  Key,
-  Search,
-  BookOpen,
-  Share2,
-  Terminal,
-  Sliders,
-  Users,
-  ArrowRight,
-  ChevronRight,
-  ChevronDown,
-  Activity,
+import { 
+  Building2, 
+  Layers, 
+  Cpu, 
+  TrendingUp, 
+  ShieldCheck, 
+  DollarSign, 
+  Globe, 
+  CheckCircle2, 
+  AlertTriangle, 
+  FileText, 
+  Lock, 
+  Key, 
+  Search, 
+  BookOpen, 
+  Share2, 
+  Terminal, 
+  Sliders, 
+  Users, 
+  ArrowRight, 
+  ChevronRight, 
+  ChevronDown, 
+  Activity, 
   Sparkles,
   Camera,
   Server,
   Zap
 } from 'lucide-react';
-import {
-  HierarchyNode,
-  ShiftForceIntelligenceOverview,
-  EnterpriseModuleTier,
-  CorporateTaskChecklist,
+import { 
+  HierarchyNode, 
+  ShiftForceIntelligenceOverview, 
+  EnterpriseModuleTier, 
+  CorporateTaskChecklist, 
   EnterpriseAuditLogEntry,
   ShiftForceAIAgent
 } from '../types';
-import {
-  INITIAL_ENTERPRISE_HIERARCHY,
-  INITIAL_ENTERPRISE_INTELLIGENCE,
-  INITIAL_ENTERPRISE_MODULES,
-  INITIAL_CORPORATE_CHECKLISTS,
+import { 
+  INITIAL_ENTERPRISE_HIERARCHY, 
+  INITIAL_ENTERPRISE_INTELLIGENCE, 
+  INITIAL_ENTERPRISE_MODULES, 
+  INITIAL_CORPORATE_CHECKLISTS, 
   INITIAL_ENTERPRISE_AUDIT_LOGS,
   INITIAL_AI_AGENTS_SWARM
 } from '../data/commandCenterData';
 
 export const EnterpriseCommandHubView: React.FC = () => {
-  const { currentLanguage, t } = useLanguage();
-
   // Navigation Tabs
   const [activeEnterpriseTab, setActiveEnterpriseTab] = useState<
     'intelligence' | 'hierarchy' | 'modules' | 'tasks_checklists' | 'policy_handbook' | 'security_audit'
@@ -215,8 +211,8 @@ export const EnterpriseCommandHubView: React.FC = () => {
               key={tab.id}
               onClick={() => setActiveEnterpriseTab(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                isActive
-                  ? 'bg-slate-900 text-white shadow-sm'
+                isActive 
+                  ? 'bg-slate-900 text-white shadow-sm' 
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -254,15 +250,15 @@ export const EnterpriseCommandHubView: React.FC = () => {
               {intelligence.topInsights.map(insight => {
                 const isExecuted = executedActions.includes(insight.id);
                 return (
-                  <div
-                    key={insight.id}
+                  <div 
+                    key={insight.id} 
                     className="p-5 border border-slate-200 rounded-xl bg-slate-50/50 hover:bg-white hover:border-indigo-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                   >
                     <div className="space-y-1.5 max-w-3xl">
                       <div className="flex items-center gap-2">
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${
-                          insight.impactLevel === 'critical'
-                            ? 'bg-red-100 text-red-800'
+                          insight.impactLevel === 'critical' 
+                            ? 'bg-red-100 text-red-800' 
                             : 'bg-amber-100 text-amber-800'
                         }`}>
                           {insight.impactLevel.toUpperCase()} IMPACT
@@ -323,8 +319,8 @@ export const EnterpriseCommandHubView: React.FC = () => {
                     key={node.id}
                     onClick={() => setSelectedNodeId(node.id)}
                     className={`w-full text-left p-3 rounded-lg text-xs transition-all flex items-center justify-between ${
-                      selectedNodeId === node.id
-                        ? 'bg-slate-900 text-white font-bold shadow-sm'
+                      selectedNodeId === node.id 
+                        ? 'bg-slate-900 text-white font-bold shadow-sm' 
                         : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
                     }`}
                   >

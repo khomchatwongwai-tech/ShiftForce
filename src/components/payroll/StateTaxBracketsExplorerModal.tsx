@@ -42,13 +42,13 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
   const [regionFilter, setRegionFilter] = useState<'all' | 'West' | 'Midwest' | 'South' | 'Northeast'>('all');
   const [taxTypeFilter, setTaxTypeFilter] = useState<'all' | 'none' | 'flat' | 'graduated'>('all');
   const [activeStateCode, setActiveStateCode] = useState<string>(selectedStateCode);
-
+  
   // Simulator Parameters
   const [simHourlyWage, setSimHourlyWage] = useState<number>(25);
   const [simHoursPerWeek, setSimHoursPerWeek] = useState<number>(40);
   const [simTipsPerWeek, setSimTipsPerWeek] = useState<number>(150);
   const [simFilingStatus, setSimFilingStatus] = useState<FilingStatus>('single');
-
+  
   // State Comparison Mode
   const [compareState1, setCompareState1] = useState<string>(selectedStateCode || 'CA');
   const [compareState2, setCompareState2] = useState<string>('TX');
@@ -101,7 +101,7 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-sm overflow-y-auto animate-in fade-in">
       <div className="bg-white w-full max-w-6xl rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[92vh] my-auto">
-
+        
         {/* Modal Top Header */}
         <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-700/60 shrink-0">
           <div className="flex items-center gap-3">
@@ -155,10 +155,10 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
         {/* VIEW 1: 50-STATE DIRECTORY & DRILLDOWN */}
         {viewMode === 'explorer' && (
           <div className="flex-1 overflow-hidden flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x divide-slate-200">
-
+            
             {/* Left Column: Search & State List (4.5 cols) */}
             <div className="w-full md:w-5/12 flex flex-col h-full bg-slate-50/60 overflow-hidden">
-
+              
               {/* Search & Filter Bar */}
               <div className="p-4 border-b border-slate-200 bg-white space-y-2.5">
                 <div className="relative">
@@ -263,7 +263,7 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
 
             {/* Right Column: Active State Deep Dive (7.5 cols) */}
             <div className="w-full md:w-7/12 flex-1 p-6 overflow-y-auto space-y-6">
-
+              
               {/* Active State Header Card */}
               <div className="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-3xl p-6 shadow-md relative overflow-hidden">
                 <div className="flex items-start justify-between relative z-10">
@@ -392,7 +392,7 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
         {/* VIEW 2: REAL-TIME 2-STATE COMPARISON SIMULATOR */}
         {viewMode === 'comparison' && (
           <div className="p-6 overflow-y-auto space-y-6 flex-1">
-
+            
             {/* Simulator Controls */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
               <div>
@@ -453,7 +453,7 @@ export const StateTaxBracketsExplorerModal: React.FC<StateTaxBracketsExplorerMod
 
             {/* State Comparison 2-Card Display */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+              
               {/* State 1 Card */}
               <div className="bg-white rounded-3xl p-6 border-2 border-indigo-200 shadow-md space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">

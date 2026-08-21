@@ -1,37 +1,36 @@
-import { useLanguage } from '../context/LanguageContext';
-import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
-import {
-  Plus,
-  Calendar as CalendarIcon,
-  Clock,
-  DollarSign,
-  Filter,
-  Sparkles,
-  Send,
-  Edit3,
-  Trash2,
-  User,
-  ChevronLeft,
-  ChevronRight,
-  TrendingUp,
-  AlertTriangle,
-  CheckCircle2,
-  PieChart,
-  Search,
-  Layers,
-  Sunrise,
-  Sun,
-  Moon,
-  Zap,
-  Bookmark,
-  ChevronDown,
-  X,
-  Check,
+import { 
+  Plus, 
+  Calendar as CalendarIcon, 
+  Clock, 
+  DollarSign, 
+  Filter, 
+  Sparkles, 
+  Send, 
+  Edit3, 
+  Trash2, 
+  User, 
+  ChevronLeft, 
+  ChevronRight, 
+  TrendingUp, 
+  AlertTriangle, 
+  CheckCircle2, 
+  PieChart, 
+  Search, 
+  Layers, 
+  Sunrise, 
+  Sun, 
+  Moon, 
+  Zap, 
+  Bookmark, 
+  ChevronDown, 
+  X, 
+  Check, 
   Sliders,
   Camera
 } from 'lucide-react';
 import { Shift, Employee, Department, RestaurantRole, SupportedLanguage, ShiftTemplate, ShiftPatternTag, DepartmentBudgetsMap, AvailabilityRequest, TimeOffRequest } from '../types';
+import { translations } from '../utils/i18n';
 import { ShiftTemplatesModal } from './ShiftTemplatesModal';
 import { DepartmentBudgetModal } from './DepartmentBudgetModal';
 import { SmartAutoFillModal } from './SmartAutoFillModal';
@@ -135,7 +134,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     const q = searchQuery.toLowerCase().trim();
     return shifts.filter(s => {
       const matchesDept = selectedDepartment === 'all' || s.department === selectedDepartment;
-      const matchesSearch = q === '' ||
+      const matchesSearch = q === '' || 
         (s.employeeName || '').toLowerCase().includes(q) ||
         (s.role || '').toLowerCase().includes(q);
       return matchesDept && matchesSearch;
@@ -238,7 +237,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     const isOverTotalBudget = totalRemainingBudget < 0;
 
     // Filter-specific budget context
-    const activeDeptInfo = selectedDepartment !== 'all'
+    const activeDeptInfo = selectedDepartment !== 'all' 
       ? deptBudgetsList.find((d) => d.department === selectedDepartment) || null
       : null;
 
@@ -349,7 +348,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     setFormEndTime(tmpl.endTime);
     setFormBreakMinutes(tmpl.breakMinutes);
     setFormNotes(tmpl.notes || '');
-
+    
     // Auto-select staff member with matching role or department if current employee does not match
     const currentEmp = employees.find(e => e.id === formEmployeeId);
     if (currentEmp && currentEmp.role !== tmpl.role) {
@@ -467,10 +466,10 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
   return (
     <div className="space-y-6">
-
+      
       {/* Top Controls: Filter Pills, Search, Shift Templates Button, AI Optimizer, Publish */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-sky-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-
+        
         {/* Left: Department Pills & Search */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Department filter */}
@@ -505,7 +504,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
         {/* Right: Actions (Shift Templates Manager, Scheduled Reminders, Add Shift, AI Optimize, Publish Schedule) */}
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap justify-end">
-
+          
           {/* 24-Hour Scheduled Reminders Trigger Button */}
           {onOpenRemindersScheduler && (
             <button
@@ -743,7 +742,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
       {/* REAL-TIME DEPARTMENT LABOR BUDGET & BUDGET REMAINING INDICATOR */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-sky-100">
-
+        
         {/* Header with Title & Adjust Button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
@@ -810,7 +809,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
         {/* Main Stats: Weekly Budget, Scheduled Cost, and Real-Time Budget Remaining */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4">
-
+          
           {/* Weekly Budget */}
           <div className="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3.5">
             <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
@@ -958,7 +957,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
       {/* 7-Day Schedule Calendar Grid */}
       <div className="bg-white rounded-2xl shadow-xs border border-sky-100 overflow-hidden">
-
+        
         {/* Calendar Header: 7 Days */}
         <div className="grid grid-cols-1 sm:grid-cols-7 border-b border-slate-200 bg-sky-50/40 text-center divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
           {weekDates.map((d, index) => {
@@ -995,7 +994,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
             return (
               <div key={d.dateStr} className="p-2 sm:p-2.5 bg-slate-50/20 flex flex-col justify-between space-y-2">
-
+                
                 {/* Shift cards container */}
                 <div className="space-y-2">
                   {dayShifts.map((shift) => {
@@ -1019,10 +1018,10 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1 min-w-0 pr-1">
                             {otInfo?.isOvertime && (
-                              <span
+                              <span 
                                 title={`Overtime Alert: ${shift.employeeName}'s weekly total reaches ${otInfo.totalEmployeeWeekHours}h (${
-                                  otInfo.triggersOvertime
-                                    ? `Causes weekly hours to exceed 40h (+${otInfo.overtimeHoursOnThisShift}h OT)`
+                                  otInfo.triggersOvertime 
+                                    ? `Causes weekly hours to exceed 40h (+${otInfo.overtimeHoursOnThisShift}h OT)` 
                                     : `Overtime Shift (+${otInfo.shiftHours}h OT)`
                                 })`}
                                 className="shrink-0"
@@ -1059,8 +1058,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                         {/* Overtime Threshold Warning Badge (>40 Weekly Hours) */}
                         {otInfo?.isOvertime && (
                           <div className={`flex items-center justify-between gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 border shadow-2xs ${
-                            otInfo.triggersOvertime
-                              ? 'bg-amber-100/90 text-amber-900 border-amber-300'
+                            otInfo.triggersOvertime 
+                              ? 'bg-amber-100/90 text-amber-900 border-amber-300' 
                               : 'bg-rose-100/90 text-rose-900 border-rose-300'
                           }`}>
                             <span className="flex items-center gap-1 truncate">
@@ -1076,13 +1075,13 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                         {/* Status Badge & Actions on hover */}
                         <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100 text-[10px]">
                           <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold uppercase ${
-                            shift.status === 'published'
-                              ? 'bg-emerald-50 text-emerald-700'
+                            shift.status === 'published' 
+                              ? 'bg-emerald-50 text-emerald-700' 
                               : 'bg-amber-50 text-amber-700'
                           }`}>
                             {shift.status}
                           </span>
-
+                          
                           <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
                             <span className="text-sky-600 hover:text-sky-800 p-0.5" title="Edit Shift">
                               <Edit3 className="w-3 h-3" />
@@ -1169,7 +1168,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
       {/* Underneath Schedule Metrics: Hours, Labor Costs, Overtime & Department Breakdown */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100">
-
+        
         <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 flex-wrap gap-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center">
@@ -1194,7 +1193,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
         {/* 4 Summary Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
+          
           <div className="bg-sky-50/70 border border-sky-100 rounded-xl p-4">
             <div className="text-xs font-semibold text-sky-700 uppercase tracking-wider">
               {t.totalHours}
@@ -1336,7 +1335,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       {(isAddingShift || editingShift) && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 max-h-[95vh] flex flex-col">
-
+            
             <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-6 py-4 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-base">
@@ -1360,7 +1359,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
             </div>
 
             <form onSubmit={isAddingShift ? handleSaveAddShift : handleSaveEditShift} className="p-6 space-y-4 text-xs overflow-y-auto flex-1">
-
+              
               {/* Template Quick Auto-Fill Selector */}
               <div className="bg-sky-50/70 p-3 rounded-xl border border-sky-100">
                 <div className="flex items-center justify-between mb-1.5">
@@ -1669,3 +1668,4 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     </div>
   );
 };
+

@@ -55,34 +55,34 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
 }) => {
   // Selected Employee
   const [selectedEmpId, setSelectedEmpId] = useState<string>(employee?.id || (employees[0]?.id || 'custom'));
-
+  
   // Pay Parameters
   const [payFrequency, setPayFrequency] = useState<PayFrequency>('biweekly');
   const [filingStatus, setFilingStatus] = useState<FilingStatus>('single');
   const [stateCode, setStateCode] = useState<string>(defaultStateCode || 'CA');
-
+  
   // Hours & Rates
   const [regularHours, setRegularHours] = useState<number>(75);
   const [overtimeHours, setOvertimeHours] = useState<number>(4.5);
   const [doubleTimeHours, setDoubleTimeHours] = useState<number>(0);
   const [hourlyWage, setHourlyWage] = useState<number>(employee?.hourlyWage || 22.50);
-
+  
   // Tips & Additional Earnings
   const [creditCardTips, setCreditCardTips] = useState<number>(320);
   const [reportedCashTips, setReportedCashTips] = useState<number>(80);
   const [allocatedTips, setAllocatedTips] = useState<number>(0);
   const [bonusEarnings, setBonusEarnings] = useState<number>(0);
-
+  
   // Pre-tax Deductions
   const [healthInsurance, setHealthInsurance] = useState<number>(65);
   const [retirement401k, setRetirement401k] = useState<number>(45);
   const [hsaFsa, setHsaFsa] = useState<number>(20);
-
+  
   // Post-tax Deductions
   const [roth401k, setRoth401k] = useState<number>(0);
   const [uniformMeals, setUniformMeals] = useState<number>(15);
   const [w4ExtraWithholding, setW4ExtraWithholding] = useState<number>(0);
-
+  
   // Local Tax
   const [enableLocalTax, setEnableLocalTax] = useState<boolean>(false);
   const [localTaxRate, setLocalTaxRate] = useState<number>(1.5);
@@ -111,7 +111,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
     const emp = employees.find(e => e.id === empId);
     if (emp) {
       setHourlyWage(emp.hourlyWage);
-
+      
       // Calculate shifts for this employee
       const empShifts = shifts.filter(s => s.employeeId === emp.id);
       let totalMins = 0;
@@ -211,7 +211,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
     const csvContent = `data:text/csv;charset=utf-8,` +
       `Employee Name,Employee ID,State,Pay Frequency,Filing Status,Hourly Wage,Regular Hours,Overtime Hours,Regular Gross,Overtime Gross,Tips,Total Gross,Federal Tax,Social Security,Medicare,State Tax (${stateCode}),SDI/PFL,Total Taxes,Pre-Tax Deductions,Post-Tax Deductions,Net Take-Home,Employer Cost,Section 45B Tip Credit\n` +
       `"${selectedEmployeeObj.name}","${(selectedEmployeeObj as any).adpEmployeeId || selectedEmployeeObj.id}","${stateCode}","${payFrequency}","${filingStatus}",${hourlyWage},${regularHours},${overtimeHours},${calculation.regularEarnings},${calculation.overtimeEarnings},${calculation.totalTips},${calculation.grossPay},${calculation.federalIncomeTax},${calculation.socialSecurityTax},${calculation.medicareTax},${calculation.stateIncomeTax},${calculation.stateDisabilityInsurance + calculation.statePaidFamilyLeave},${calculation.totalTaxesWithheld},${calculation.totalPreTaxDeductions},${calculation.totalPostTaxDeductions},${calculation.netPay},${calculation.totalEmployerCost},${calculation.ficaTipCreditEst}`;
-
+    
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -219,7 +219,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
+    
     setToastMessage('Paycheck ledger CSV exported successfully!');
     setTimeout(() => setToastMessage(null), 3000);
   };
@@ -227,7 +227,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/80 backdrop-blur-sm overflow-y-auto animate-in fade-in">
       <div className="bg-white w-full max-w-6xl rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden flex flex-col max-h-[92vh] my-auto">
-
+        
         {/* Modal Top Header */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-700/60 shrink-0">
           <div className="flex items-center gap-3">
@@ -333,7 +333,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
 
         {/* Scrollable Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
-
+          
           {/* Top Quick Summary KPI Banner */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-4 text-white shadow-md">
             <div>
@@ -380,10 +380,10 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
           {/* TAB 1: INTERACTIVE CALCULATOR BUILDER */}
           {activeTab === 'calculator' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
+              
               {/* Left Column: Form Controls (7 cols) */}
               <div className="lg:col-span-7 space-y-5">
-
+                
                 {/* 1. Employee & Frequency Selector */}
                 <div className="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs space-y-3">
                   <div className="flex items-center justify-between">
@@ -745,7 +745,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
 
               {/* Right Column: Live Calculated Paycheck Summary (5 cols) */}
               <div className="lg:col-span-5 space-y-4">
-
+                
                 {/* Main Take Home Card */}
                 <div className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-md space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -917,7 +917,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
           {/* TAB 2: OFFICIAL PRINTABLE PAYSTUB */}
           {activeTab === 'paystub' && (
             <div className="max-w-3xl mx-auto bg-white border-2 border-slate-300 rounded-2xl p-6 sm:p-8 shadow-md text-slate-800 font-sans print:p-0 print:border-none print:shadow-none space-y-6">
-
+              
               {/* Paystub Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 border-b-2 border-slate-800 gap-4">
                 <div>
@@ -1033,7 +1033,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
 
               {/* Deductions & Taxes 2-Column Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
+                
                 {/* Tax Withholdings */}
                 <div className="border border-slate-200 rounded-lg p-3 space-y-2">
                   <div className="font-black text-[11px] text-slate-900 uppercase tracking-wider pb-1 border-b border-slate-100 flex justify-between">
@@ -1143,7 +1143,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
           {/* TAB 3: DETAILED TAX BRACKET BREAKDOWN */}
           {activeTab === 'breakdown' && (
             <div className="space-y-6">
-
+              
               {/* Federal Tax Brackets Table */}
               <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs space-y-4">
                 <div className="flex items-center justify-between">
@@ -1261,9 +1261,9 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
           {/* TAB 4: EMPLOYER TRUE LABOR COST & SECTION 45B TIP CREDIT */}
           {activeTab === 'employer_cost' && (
             <div className="space-y-6">
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
+                
                 {/* Employer Tax Burden */}
                 <div className="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs space-y-4">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-100">
