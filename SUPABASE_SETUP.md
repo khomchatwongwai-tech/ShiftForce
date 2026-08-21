@@ -1,4 +1,4 @@
-# ShiftForce → Supabase Setup
+# Workqora → Supabase Setup
 
 This build keeps Firebase Authentication and moves workforce persistence/realtime/storage to Supabase.
 
@@ -6,9 +6,9 @@ This build keeps Firebase Authentication and moves workforce persistence/realtim
 Supabase hosted projects support Firebase Auth as a third-party authentication provider. The client sends the current Firebase ID token to Supabase. RLS authorizes every row using the Firebase JWT `sub`.
 
 ## Dashboard steps
-1. Create a dedicated Supabase project for ShiftForce.
-2. In Supabase Authentication → Third-Party Auth, add Firebase and enter the ShiftForce Firebase Project ID.
-3. In SQL Editor, run `supabase/migrations/0001_shiftforce_foundation.sql` once and confirm it completes without errors.
+1. Create a dedicated Supabase project for Workqora.
+2. In Supabase Authentication → Third-Party Auth, add Firebase and enter the Workqora Firebase Project ID.
+3. In SQL Editor, run `supabase/migrations/0001_workqora_foundation.sql` once and confirm it completes without errors.
 4. Copy the Project URL and **publishable** key into:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`
@@ -22,7 +22,7 @@ Supabase hosted projects support Firebase Auth as a third-party authentication p
 8. Sign out/in so Firebase refreshes claims.
 9. Run `pnpm run supabase:check`.
 10. In **Database → Publications**, confirm the `supabase_realtime` publication contains the workforce tables listed in the migration.
-11. In **Storage**, confirm `shiftforce-files` is private. Upload paths must be `ORGANIZATION_ID/FIREBASE_UID/...`.
+11. In **Storage**, confirm `workqora-files` is private. Upload paths must be `ORGANIZATION_ID/FIREBASE_UID/...`.
 12. Run Database security and performance advisors and resolve every critical finding.
 
 ## Cutover

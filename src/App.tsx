@@ -46,8 +46,8 @@ import {
   AICommandCenterView
 } from './components/AICommandCenterView';
 import {
-  ShiftForceIntelligenceAgentView
-} from './components/ShiftForceIntelligenceAgentView';
+  WorkqoraIntelligenceAgentView
+} from './components/WorkqoraIntelligenceAgentView';
 import {
   EnterpriseCommandHubView
 } from './components/EnterpriseCommandHubView';
@@ -58,11 +58,11 @@ import {
   IntegrationsHubView
 } from './components/IntegrationsHubView';
 import {
-  ShiftForceLearnView
-} from './components/plugins/ShiftForceLearnView';
+  WorkqoraLearnView
+} from './components/plugins/WorkqoraLearnView';
 import {
-  ShiftForcePayrollView
-} from './components/plugins/ShiftForcePayrollView';
+  WorkqoraPayrollView
+} from './components/plugins/WorkqoraPayrollView';
 import {
   EnterpriseFeatureManagerModal
 } from './components/EnterpriseFeatureManagerModal';
@@ -230,8 +230,8 @@ export function App() {
     channels24Hr: ['whatsapp', 'sms'],
     channels1Hr: ['app', 'sms'],
     autoTriggerIntervalSeconds: 30,
-    whatsappTemplate: '🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *{{name}}*, your next shift as *{{role}}* ({{department}}) starts tomorrow at *{{startTime}}* on *{{date}}*.',
-    smsTemplate: 'ShiftForce Alert: Hi {{name}}, you are scheduled tomorrow {{date}} at {{startTime}} ({{role}}).',
+    whatsappTemplate: '🍽️ *Workqora 24-Hour Shift Reminder*\nHi *{{name}}*, your next shift as *{{role}}* ({{department}}) starts tomorrow at *{{startTime}}* on *{{date}}*.',
+    smsTemplate: 'Workqora Alert: Hi {{name}}, you are scheduled tomorrow {{date}} at {{startTime}} ({{role}}).',
     totalAutoSentCount: 0,
     isDaemonActive: demoDataEnabled,
     lastRunTimestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
@@ -623,14 +623,14 @@ export function App() {
         handleSyncOfflinePunches(pendingPunches);
         clearOfflineClockInQueue();
       } else {
-        setOfflineToast('🟢 Internet connection restored! ShiftForce is online and synchronized.');
+        setOfflineToast('🟢 Internet connection restored! Workqora is online and synchronized.');
         setTimeout(() => setOfflineToast(null), 4000);
       }
     };
 
     const handleOfflineEvent = () => {
       setIsOnline(false);
-      setOfflineToast('⚠️ Internet connection lost. ShiftForce Service Worker Offline Mode is active.');
+      setOfflineToast('⚠️ Internet connection lost. Workqora Service Worker Offline Mode is active.');
       setTimeout(() => setOfflineToast(null), 6000);
     };
 
@@ -647,7 +647,7 @@ export function App() {
   const handleAddShift = (newShift: Omit<Shift, 'id'>) => {
     const shift: Shift = {
       organizationId: newShift.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
-      hierarchyPath: newShift.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+      hierarchyPath: newShift.hierarchyPath || 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newShift.locationId || 'loc-sf-flagship-104',
       districtId: newShift.districtId || 'dist-bay-area-01',
       regionId: newShift.regionId || 'reg-pacific-coast-01',
@@ -661,7 +661,7 @@ export function App() {
   const handleAddBatchShifts = (newShiftsList: Omit<Shift, 'id'>[]) => {
     const createdShifts: Shift[] = newShiftsList.map((newShift, idx) => ({
       organizationId: newShift.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
-      hierarchyPath: newShift.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+      hierarchyPath: newShift.hierarchyPath || 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newShift.locationId || 'loc-sf-flagship-104',
       districtId: newShift.districtId || 'dist-bay-area-01',
       regionId: newShift.regionId || 'reg-pacific-coast-01',
@@ -724,7 +724,7 @@ export function App() {
       color: template.color || emp.color,
       notes: template.notes,
       organizationId: emp.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
-      hierarchyPath: emp.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+      hierarchyPath: emp.hierarchyPath || 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: emp.locationId || 'loc-sf-flagship-104',
       districtId: emp.districtId || 'dist-bay-area-01',
       regionId: emp.regionId || 'reg-pacific-coast-01',
@@ -737,7 +737,7 @@ export function App() {
   const handleAddEmployee = (newEmp: Omit<Employee, 'id'>) => {
     const emp: Employee = {
       organizationId: newEmp.organizationId || userProfile?.organizationId || 'org-demo-unassigned',
-      hierarchyPath: newEmp.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+      hierarchyPath: newEmp.hierarchyPath || 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
       locationId: newEmp.locationId || 'loc-sf-flagship-104',
       districtId: newEmp.districtId || 'dist-bay-area-01',
       regionId: newEmp.regionId || 'reg-pacific-coast-01',
@@ -838,7 +838,7 @@ export function App() {
       ? [channel]
       : schedulerConfig.channels24Hr;
 
-    const message = `🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\n⏳ Need a swap or adjustment? Submit via ShiftForce employee portal at least 12h prior.\nReply CONFIRM to acknowledge receipt.`;
+    const message = `🍽️ *Workqora 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\n⏳ Need a swap or adjustment? Submit via Workqora employee portal at least 12h prior.\nReply CONFIRM to acknowledge receipt.`;
 
     const dispatch: NotificationDispatch = {
       id: `disp-24h-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -951,7 +951,7 @@ export function App() {
             recipientEmail: emp.email,
             type: 'shift_24hr_reminder',
             title: `💬 24-Hour Shift Reminder: ${shift.role} at ${shift.startTime}`,
-            message: `🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\nReply CONFIRM to acknowledge receipt.`,
+            message: `🍽️ *Workqora 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 Station: ${shift.notes || 'Main Dining & Station Readiness'}\nReply CONFIRM to acknowledge receipt.`,
             channels: schedulerConfig.channels24Hr,
             timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16),
             status: 'preview_not_sent',
@@ -1391,7 +1391,7 @@ export function App() {
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-extrabold text-white">ShiftForce Service Worker Offline Mode Active</span>
+                  <span className="text-xs font-extrabold text-white">Workqora Service Worker Offline Mode Active</span>
                   <span className="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
                     Local Cache Online
                   </span>
@@ -1487,7 +1487,7 @@ export function App() {
 
         {/* Dynamic Tab Views based on Portal and Tab selection */}
 
-        {/* 0A. ShiftForce AI Command Center (Autonomous Operations Centerpiece) */}
+        {/* 0A. Workqora AI Command Center (Autonomous Operations Centerpiece) */}
         {activeTab === 'command_center' && portal === 'admin' && (
           <AICommandCenterView
             shifts={scopedShifts}
@@ -1498,16 +1498,16 @@ export function App() {
           />
         )}
 
-        {/* 0B. ShiftForce Intelligence Agent (Proactive Cross-Module Insights & Optimization) */}
+        {/* 0B. Workqora Intelligence Agent (Proactive Cross-Module Insights & Optimization) */}
         {activeTab === 'intelligence_agent' && portal === 'admin' && (
-          <ShiftForceIntelligenceAgentView
+          <WorkqoraIntelligenceAgentView
             shifts={scopedShifts}
             employees={scopedEmployees}
             onNavigateTab={(tab) => setActiveTab(tab)}
           />
         )}
 
-        {/* 0C. ShiftForce Enterprise Multi-Location Hub */}
+        {/* 0C. Workqora Enterprise Multi-Location Hub */}
         {activeTab === 'enterprise' && portal === 'admin' && (
           <EnterpriseCommandHubView />
         )}
@@ -1668,17 +1668,17 @@ export function App() {
           />
         )}
 
-        {/* 7. ShiftForce Payroll & Tip Pool Engine */}
+        {/* 7. Workqora Payroll & Tip Pool Engine */}
         {activeTab === 'payroll' && (
-          <ShiftForcePayrollView
+          <WorkqoraPayrollView
             employees={scopedEmployees}
             shifts={scopedShifts}
           />
         )}
 
-        {/* 8. ShiftForce Learn - Restaurant Academy & Certifications */}
+        {/* 8. Workqora Learn - Restaurant Academy & Certifications */}
         {activeTab === 'learn' && (
-          <ShiftForceLearnView
+          <WorkqoraLearnView
             employees={scopedEmployees}
           />
         )}
@@ -1729,7 +1729,7 @@ export function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
-            <span className="font-semibold text-slate-700">ShiftForce Restaurant Intelligence System</span>
+            <span className="font-semibold text-slate-700">Workqora Restaurant Intelligence System</span>
             <span>•</span>
             <span>Scale: 1 to 1,000 Employees</span>
           </div>

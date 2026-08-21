@@ -278,7 +278,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentConfig, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `ShiftForce_POS_Mapping_${currentConfig.posPlatformId}_${new Date().toISOString().slice(0, 10)}.json`);
+    downloadAnchor.setAttribute("download", `Workqora_POS_Mapping_${currentConfig.posPlatformId}_${new Date().toISOString().slice(0, 10)}.json`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
@@ -322,7 +322,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
               <span>Universal POS to Department Structure</span>
             </h2>
             <p className="text-xs text-slate-300 max-w-2xl">
-              Map Toast, Square, Clover, and Aloha revenue centers, job codes, and sales categories directly into ShiftForce's 5 departments for real-time labor efficiency tracking.
+              Map Toast, Square, Clover, and Aloha revenue centers, job codes, and sales categories directly into Workqora's 5 departments for real-time labor efficiency tracking.
             </p>
           </div>
 
@@ -478,7 +478,7 @@ export const POSDepartmentMappingModal: React.FC<POSDepartmentMappingModalProps>
                   <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
                     <tr>
                       <th className="p-3 font-semibold">POS Revenue Center / Zone</th>
-                      <th className="p-3 font-semibold">ShiftForce Department</th>
+                      <th className="p-3 font-semibold">Workqora Department</th>
                       <th className="p-3 font-semibold">Sales Allocation %</th>
                       <th className="p-3 font-semibold">Zone Notes</th>
                       <th className="p-3 font-semibold text-center">Active</th>

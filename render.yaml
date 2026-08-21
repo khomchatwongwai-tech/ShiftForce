@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: workqora
+    runtime: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build
+    startCommand: pnpm run start
+    envVars:
+      - key: APP_URL
+        value: https://workqora.com

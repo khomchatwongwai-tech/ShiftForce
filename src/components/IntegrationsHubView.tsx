@@ -183,7 +183,7 @@ export const IntegrationsHubView: React.FC<IntegrationsHubViewProps> = ({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `ShiftForce_Payroll_Batch_Export_${selectedWorkforce.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute("download", `Workqora_Payroll_Batch_Export_${selectedWorkforce.name.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

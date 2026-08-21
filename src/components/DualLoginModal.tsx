@@ -242,7 +242,7 @@ export function DualLoginModal({
           <div className="flex items-center gap-3 mb-2">
             <img
               src="/logo.svg"
-              alt="ShiftForce Logo"
+              alt="Workqora Logo"
               className="w-11 h-11 rounded-2xl shadow-lg shadow-sky-500/30 object-cover shrink-0"
             />
             <div>

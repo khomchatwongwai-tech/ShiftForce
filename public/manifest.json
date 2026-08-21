@@ -1,11 +1,11 @@
 {
-  "name": "ShiftForce Restaurant Workforce & Smart Schedule",
-  "short_name": "ShiftForce",
+  "name": "Workqora — Intelligent Workforce & Operations Platform",
+  "short_name": "Workqora",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0284c7",
-  "description": "Offline-resilient restaurant scheduling, rosters, and manager clock-in system.",
+  "description": "Smarter Work. Better Operations.",
   "icons": [
     {
       "src": "/favicon-32x32.png",

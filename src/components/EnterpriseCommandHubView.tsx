@@ -31,11 +31,11 @@ import {
 } from 'lucide-react';
 import {
   HierarchyNode,
-  ShiftForceIntelligenceOverview,
+  WorkqoraIntelligenceOverview,
   EnterpriseModuleTier,
   CorporateTaskChecklist,
   EnterpriseAuditLogEntry,
-  ShiftForceAIAgent
+  WorkqoraAIAgent
 } from '../types';
 import {
   INITIAL_ENTERPRISE_HIERARCHY,
@@ -55,7 +55,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
   >('intelligence');
 
   // Intelligence Telemetry State
-  const [intelligence, setIntelligence] = useState<ShiftForceIntelligenceOverview>(INITIAL_ENTERPRISE_INTELLIGENCE);
+  const [intelligence, setIntelligence] = useState<WorkqoraIntelligenceOverview>(INITIAL_ENTERPRISE_INTELLIGENCE);
   const [executedActions, setExecutedActions] = useState<string[]>([]);
   const [actionSuccessNotice, setActionSuccessNotice] = useState<string | null>(null);
 
@@ -78,9 +78,9 @@ export const EnterpriseCommandHubView: React.FC = () => {
   const [isSearchingPolicy, setIsSearchingPolicy] = useState(false);
 
   // AI Swarm State
-  const [agentsSwarm] = useState<ShiftForceAIAgent[]>(INITIAL_AI_AGENTS_SWARM);
+  const [agentsSwarm] = useState<WorkqoraAIAgent[]>(INITIAL_AI_AGENTS_SWARM);
 
-  // Execute 1-Tap Action Plan from ShiftForce Intelligence
+  // Execute 1-Tap Action Plan from Workqora Intelligence
   const handleExecuteActionPlan = (insightId: string, command: string) => {
     setExecutedActions(prev => [...prev, insightId]);
     setActionSuccessNotice(`⚡ Action Plan Executed: "${command}". Directive deployed to regional general managers.`);
@@ -99,20 +99,20 @@ export const EnterpriseCommandHubView: React.FC = () => {
       if (lower.includes('call-out') || lower.includes('sick') || lower.includes('absence')) {
         setPolicyAnswer({
           question: policyQuestion,
-          answer: 'ShiftForce Corporate Policy (§ 4.2 Attendance & Food Safety) mandates that food-handling staff experiencing gastrointestinal or fever symptoms must notify management at least 3 hours prior to shift. ShiftForce AI Shift Rescue is automatically activated upon log-in to find certified replacements with zero disciplinary points accrued.',
-          clauseRef: 'ShiftForce Global SOP Manual § 4.2 (Health & Call-Out Protocol)'
+          answer: 'Workqora Corporate Policy (§ 4.2 Attendance & Food Safety) mandates that food-handling staff experiencing gastrointestinal or fever symptoms must notify management at least 3 hours prior to shift. Workqora AI Shift Rescue is automatically activated upon log-in to find certified replacements with zero disciplinary points accrued.',
+          clauseRef: 'Workqora Global SOP Manual § 4.2 (Health & Call-Out Protocol)'
         });
       } else if (lower.includes('overtime') || lower.includes('1.5x') || lower.includes('hours')) {
         setPolicyAnswer({
           question: policyQuestion,
           answer: 'All hours exceeding 40.0 hours per workweek are compensated at 1.5x regular pay rate. District Manager approval is required prior to scheduling overtime shifts above 42.0 hours. Minor labor guardrails strictly forbid scheduling consecutive closing and opening shifts (<10 hours rest).',
-          clauseRef: 'ShiftForce Compensation & Fair Workweek Policy § 7.1'
+          clauseRef: 'Workqora Compensation & Fair Workweek Policy § 7.1'
         });
       } else {
         setPolicyAnswer({
           question: policyQuestion,
-          answer: 'According to ShiftForce General Operating Guidelines, all scheduled shifts and swap requests must be submitted via the ShiftForce Mobile App at least 24 hours in advance. Managers review automated eligibility and fairness checks before confirming.',
-          clauseRef: 'ShiftForce General Employee Operating Manual § 2.0'
+          answer: 'According to Workqora General Operating Guidelines, all scheduled shifts and swap requests must be submitted via the Workqora Mobile App at least 24 hours in advance. Managers review automated eligibility and fairness checks before confirming.',
+          clauseRef: 'Workqora General Employee Operating Manual § 2.0'
         });
       }
     }, 400);
@@ -128,7 +128,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider mb-2">
               <Building2 className="w-3.5 h-3.5" />
-              <span>ShiftForce Enterprise Multi-Unit Architecture</span>
+              <span>Workqora Enterprise Multi-Unit Architecture</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
               Corporate Command & Intelligence Layer
@@ -201,7 +201,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
       {/* Enterprise Tabs Navigation */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
         {[
-          { id: 'intelligence', label: 'ShiftForce Intelligence', icon: Sparkles, badge: 'Proactive Telemetry' },
+          { id: 'intelligence', label: 'Workqora Intelligence', icon: Sparkles, badge: 'Proactive Telemetry' },
           { id: 'hierarchy', label: '8-Tier Org Hierarchy', icon: Layers, badge: '847 Units' },
           { id: 'modules', label: 'Modular Product Suite', icon: Cpu, badge: '9 Modules' },
           { id: 'tasks_checklists', label: 'Corporate Checklists & Audits', icon: Camera, badge: 'Photo Verification' },
@@ -245,7 +245,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
                   Proactive Intelligence & Autonomous Action Plans
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Instead of browsing through hundreds of reports, ShiftForce detects multi-unit variances and provides 1-tap executable solutions.
+                  Instead of browsing through hundreds of reports, Workqora detects multi-unit variances and provides 1-tap executable solutions.
                 </p>
               </div>
             </div>
@@ -392,7 +392,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
               <div>
                 <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                   <Cpu className="w-5 h-5 text-indigo-600" />
-                  ShiftForce Modular Architecture Suite
+                  Workqora Modular Architecture Suite
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Modular packaging enables standalone adoption or complete multi-location enterprise workforce management.

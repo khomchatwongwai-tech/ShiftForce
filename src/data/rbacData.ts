@@ -9,7 +9,7 @@ export const INITIAL_CUSTOM_ROLES: CustomRole[] = [
     description: 'Unrestricted enterprise-wide master authority. Manages billing, licenses, financial models, AI swarm commands, payroll, and global RBAC security.',
     badgeColor: 'bg-indigo-600 text-white border-indigo-700',
     hierarchyScopeLevel: 'organization',
-    assignedHierarchyPath: 'ShiftForce Global Hospitality Corp',
+    assignedHierarchyPath: 'Workqora Global Hospitality Corp',
     assignedNodeId: 'node-corp-01',
     authorizedLocationIds: ['*'],
     permissions: {
@@ -50,7 +50,7 @@ export const INITIAL_CUSTOM_ROLES: CustomRole[] = [
     description: 'Primary restaurant host and paying account holder. Responsible for restaurant subscription and billing so that all staff members and employees use the app completely FREE.',
     badgeColor: 'bg-amber-600 text-white border-amber-700',
     hierarchyScopeLevel: 'organization',
-    assignedHierarchyPath: 'ShiftForce Global Hospitality Corp',
+    assignedHierarchyPath: 'Workqora Global Hospitality Corp',
     assignedNodeId: 'node-corp-01',
     authorizedLocationIds: ['*'],
     permissions: {
@@ -198,7 +198,7 @@ export const INITIAL_CUSTOM_ROLES: CustomRole[] = [
     description: 'Enterprise human resources officer focusing on hiring pipelines, I-9 compliance, mandatory food/alcohol handler certifications, and training academies.',
     badgeColor: 'bg-purple-600 text-white border-purple-700',
     hierarchyScopeLevel: 'organization',
-    assignedHierarchyPath: 'ShiftForce Global Hospitality Corp',
+    assignedHierarchyPath: 'Workqora Global Hospitality Corp',
     assignedNodeId: 'node-corp-01',
     authorizedLocationIds: ['*'],
     permissions: {

@@ -98,7 +98,7 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
   const [newLocationName, setNewLocationName] = useState('SF Flagship Bistro & Lounge #104');
   const [newDescription, setNewDescription] = useState('');
   const [newRequirements, setNewRequirements] = useState<string[]>(['Valid Food Handler Card', 'Weekend availability']);
-  const [newBenefits, setNewBenefits] = useState<string[]>(['Flexible scheduling with ShiftForce App', 'Daily shift meal']);
+  const [newBenefits, setNewBenefits] = useState<string[]>(['Flexible scheduling with Workqora App', 'Daily shift meal']);
   const [newTargetPlatforms, setNewTargetPlatforms] = useState<HiringPlatformId[]>([
     'linkedin', 'indeed', 'craigslist', 'facebook_jobs', 'ziprecruiter', 'snagajob', 'google_jobs'
   ]);
@@ -241,7 +241,7 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
   const handleGenerateAIJobDescription = () => {
     setIsGeneratingAIJob(true);
     setTimeout(() => {
-      const generatedDesc = `ShiftForce Flagship Bistro & Lounge is looking for an exceptional ${newRole} to join our high-energy ${newDepartment} team.
+      const generatedDesc = `Workqora Flagship Bistro & Lounge is looking for an exceptional ${newRole} to join our high-energy ${newDepartment} team.
 We pride ourselves on culinary excellence, warm neighborhood hospitality, and a supportive team environment where every employee is valued.
 In this role, you will be a core contributor to our daily service, ensuring seamless operations, pristine standards, and delighted guests.`;
 
@@ -256,10 +256,10 @@ In this role, you will be a core contributor to our daily service, ensuring seam
 
       const perks = [
         `Competitive base wage of $${newHourlyMin.toFixed(2)} - $${newHourlyMax.toFixed(2)}/hr ${newTipEligible ? '+ generous tip share' : ''}`,
-        'Predictive 7-day scheduling via ShiftForce Mobile App with 1-click shift swaps',
+        'Predictive 7-day scheduling via Workqora Mobile App with 1-click shift swaps',
         'Daily family meal prepared fresh by our Executive Chef',
         'Comprehensive health, dental, and vision insurance for 30+ hrs/wk',
-        '50% employee discount at all ShiftForce restaurant properties nationwide'
+        '50% employee discount at all Workqora restaurant properties nationwide'
       ];
 
       setNewDescription(generatedDesc);
@@ -409,7 +409,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
               Hiring Web Platform Integration Hub
             </h2>
             <p className="text-xs sm:text-sm text-indigo-200/80 leading-relaxed">
-              Seamlessly link and broadcast open restaurant roles across <strong className="text-white">LinkedIn</strong>, <strong className="text-white">Indeed</strong>, <strong className="text-white">Craigslist</strong>, <strong className="text-white">Facebook Jobs</strong>, <strong className="text-white">ZipRecruiter</strong>, <strong className="text-white">Snagajob</strong>, <strong className="text-white">Culinary Agents</strong>, and <strong className="text-white">Google for Jobs</strong>. Inbound applications sync straight into your ShiftForce ATS &amp; Onboarding roster.
+              Seamlessly link and broadcast open restaurant roles across <strong className="text-white">LinkedIn</strong>, <strong className="text-white">Indeed</strong>, <strong className="text-white">Craigslist</strong>, <strong className="text-white">Facebook Jobs</strong>, <strong className="text-white">ZipRecruiter</strong>, <strong className="text-white">Snagajob</strong>, <strong className="text-white">Culinary Agents</strong>, and <strong className="text-white">Google for Jobs</strong>. Inbound applications sync straight into your Workqora ATS &amp; Onboarding roster.
             </p>
           </div>
 
@@ -1348,7 +1348,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   className="rounded text-indigo-600 focus:ring-indigo-500"
                 />
                 <span className="font-semibold text-slate-800">
-                  Automatically import new applicants directly into ShiftForce ATS
+                  Automatically import new applicants directly into Workqora ATS
                 </span>
               </label>
 

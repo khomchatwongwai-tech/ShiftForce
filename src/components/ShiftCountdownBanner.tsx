@@ -99,7 +99,7 @@ export const ShiftCountdownBanner: React.FC<ShiftCountdownBannerProps> = ({
     setSimAlertDetails({
       type: '24hr',
       channel: channel === 'whatsapp' ? 'WhatsApp Business' : 'SMS Gateway',
-      text: `🍽️ ShiftForce 24-Hour Shift Reminder sent to ${currentEmployee.phone}: "Hi ${currentEmployee.name}, your shift tomorrow starts at ${nextShift.startTime} on ${nextShift.date}."`,
+      text: `🍽️ Workqora 24-Hour Shift Reminder sent to ${currentEmployee.phone}: "Hi ${currentEmployee.name}, your shift tomorrow starts at ${nextShift.startTime} on ${nextShift.date}."`,
     });
     setShowSimAlert(true);
     setTimeout(() => setShowSimAlert(false), 5000);

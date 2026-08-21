@@ -29,9 +29,9 @@ export const PricingTiersModal: React.FC<PricingTiersModalProps> = ({
     <div className="bg-white rounded-3xl w-full max-w-6xl max-h-[94vh] overflow-hidden shadow-2xl flex flex-col">
       <div className="bg-slate-950 text-white px-6 py-6 relative">
         <button onClick={onClose} className="absolute right-4 top-4 p-2 rounded-full hover:bg-white/10"><X className="w-5 h-5"/></button>
-        <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-widest"><Building2 className="w-4 h-4"/>ShiftForce Enterprise Pricing</div>
+        <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-widest"><Building2 className="w-4 h-4"/>Workqora Enterprise Pricing</div>
         <h2 className="text-3xl font-black mt-2">Pay by active locations, not by team size.</h2>
-        <p className="text-slate-300 text-sm mt-2 max-w-3xl">One company account can manage every authorized store from one sign-in. Paid plans include unlimited employees. Company data remains isolated from every other ShiftForce customer.</p>
+        <p className="text-slate-300 text-sm mt-2 max-w-3xl">One company account can manage every authorized store from one sign-in. Paid plans include unlimited employees. Company data remains isolated from every other Workqora customer.</p>
         <div className="mt-4 inline-flex bg-white/10 p-1 rounded-xl">
           <button onClick={()=>setBillingCycle('monthly')} className={`px-4 py-2 rounded-lg text-sm font-bold ${billingCycle==='monthly'?'bg-white text-slate-950':'text-white'}`}>Monthly</button>
           <button onClick={()=>setBillingCycle('annual')} className={`px-4 py-2 rounded-lg text-sm font-bold ${billingCycle==='annual'?'bg-white text-slate-950':'text-white'}`}>Annual · ~2 months free</button>

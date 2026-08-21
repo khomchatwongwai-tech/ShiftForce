@@ -2,7 +2,7 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Authenticated user profile and metadata in ShiftForce",
+      "description": "Authenticated user profile and metadata in Workqora",
       "type": "object",
       "properties": {
         "userId": { "type": "string", "description": "Auth UID" },

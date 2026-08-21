@@ -42,7 +42,7 @@ export const PaymentPortalModal: React.FC<PaymentPortalModalProps> = ({ isOpen, 
         <button onClick={onClose} className="absolute right-4 top-4 p-2 rounded-full hover:bg-white/10"><X className="w-5 h-5"/></button>
         <div className="flex items-center gap-2 text-emerald-300 text-xs font-black uppercase tracking-widest"><ShieldCheck className="w-4 h-4"/>Secure billing</div>
         <h2 className="text-2xl font-black mt-2">Billing is handled by Stripe</h2>
-        <p className="text-slate-300 text-sm mt-2">ShiftForce does not collect or simulate card numbers, bank credentials, or payment approval in the application.</p>
+        <p className="text-slate-300 text-sm mt-2">Workqora does not collect or simulate card numbers, bank credentials, or payment approval in the application.</p>
       </div>
       <div className="p-6 space-y-5">
         {itemToPurchase && <div className="rounded-2xl border border-slate-200 p-4"><div className="font-black text-slate-900">{itemToPurchase.title}</div><div className="text-sm text-slate-600 mt-1">{itemToPurchase.description}</div><div className="text-xs text-amber-700 mt-3">Add-on checkout must be configured as a server-authorized Stripe Price before purchase.</div></div>}
