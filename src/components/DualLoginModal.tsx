@@ -106,7 +106,7 @@ export function DualLoginModal({
     ).slice(0, 12);
   }, [employees, employeeSearchQuery]);
 
-  const { signInWithGoogle, signInWithEmail, signInWithEmployeePin } = useFirebase();
+  const { signInWithGoogle, signInWithEmail, signInWithEmployeePin, signInEmployee } = useFirebase();
   const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
 
   // Selected Admin Role
@@ -158,10 +158,7 @@ export function DualLoginModal({
         session = await signInWithEmployeePin(emp, employeePin);
         welcomeName = emp.name;
       } else {
-        session = await signInWithEmail(employeeIdOrPhone.trim(), employeePin);
-        if (session.userType !== 'employee') {
-          throw new Error('Use the manager portal for administrator accounts.');
-        }
+        session = await signInEmployee(employeeIdOrPhone.trim(), employeePin);
         welcomeName = session.displayName;
       }
       setSuccessMessage(`Welcome back, ${welcomeName}!`);

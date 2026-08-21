@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -200,6 +201,30 @@ app.post("/api/billing/webhook", express.raw({ type: "application/json", limit: 
 
 app.use(express.json({ limit: "25mb" }));
 app.use(express.urlencoded({ extended: true, limit: "25mb" }));
+
+const employeeSessionSecret = process.env.EMPLOYEE_SESSION_SECRET?.trim();
+const employeePinPepper = process.env.EMPLOYEE_PIN_PEPPER?.trim();
+const employeeSessionTtlMs = Number(process.env.EMPLOYEE_SESSION_TTL_MS || 28_800_000);
+const employeeMaxAttempts = Number(process.env.EMPLOYEE_LOGIN_MAX_ATTEMPTS || 5);
+const employeeLockoutMs = Number(process.env.EMPLOYEE_LOGIN_LOCKOUT_MS || 900_000);
+const employeeCookieName = "shiftforce_employee_session";
+function employeeAuthConfigured() { if (!employeeSessionSecret || !employeePinPepper) throw Object.assign(new Error("Employee authentication is not configured"), { statusCode: 503 }); }
+function employeeToken(payload: Record<string, unknown>) { const body = Buffer.from(JSON.stringify(payload)).toString("base64url"); return `${body}.${crypto.createHmac("sha256", employeeSessionSecret!).update(body).digest("base64url")}`; }
+function readEmployeeSession(req: express.Request): any | null { const token = (req.headers.cookie || "").split(";").map(v => v.trim()).find(v => v.startsWith(`${employeeCookieName}=`))?.slice(employeeCookieName.length + 1); if (!token || !employeeSessionSecret) return null; const [body, signature] = token.split("."); const expected = crypto.createHmac("sha256", employeeSessionSecret).update(body || "").digest("base64url"); if (!body || !signature || signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null; try { const value = JSON.parse(Buffer.from(body, "base64url").toString()); return value.type === "employee" && value.exp > Date.now() ? value : null; } catch { return null; } }
+function employeePublic(employee: any) { return { employeeId: employee.id, organizationId: employee.organizationId, locationId: employee.locationId || null, displayName: employee.name, email: employee.email || null, role: employee.role, userType: "employee", active: employee.status === "active" }; }
+async function requireEmployee(req: express.Request, res: express.Response, next: express.NextFunction) { const token = readEmployeeSession(req); if (!token) return res.status(401).json({ error: "Employee session required" }); const session = await getAdminFirestore().doc(`employeeSessions/${token.sid}`).get(); if (!session.exists || session.data()?.revoked || session.data()?.employeeId !== token.employeeId || session.data()?.organizationId !== token.organizationId) return res.status(401).json({ error: "Employee session expired" }); res.locals.employeeSession = token; next(); }
+function clearEmployeeSession(res: express.Response) { res.clearCookie(employeeCookieName, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/" }); }
+
+app.post("/api/auth/employee/login", async (req, res) => { try { employeeAuthConfigured(); const identifier = typeof req.body?.identifier === "string" ? req.body.identifier.trim().toLowerCase() : ""; const pin = typeof req.body?.pin === "string" ? req.body.pin : ""; if (!identifier || pin.length < 4 || pin.length > 128) return res.status(401).json({ error: "Invalid employee ID or PIN" }); const db = getAdminFirestore(); const fields = ["id", "adpEmployeeId", "email", "phone"]; const docs = (await Promise.all(fields.map(field => db.collection("employees").where(field, "==", identifier).limit(2).get()))).flatMap(s => s.docs).filter((doc, i, all) => all.findIndex(other => other.id === doc.id) === i); if (docs.length !== 1) return res.status(401).json({ error: "Invalid employee ID or PIN" }); const employee = { ...docs[0].data(), id: docs[0].id } as any; if (employee.status !== "active") return res.status(403).json({ error: "Employee account is inactive" }); const credential = await db.doc(`employeeCredentials/${employee.id}`).get(); const value = credential.data() as any; if (!employee.organizationId || !credential.exists || value.organizationId !== employee.organizationId || value.disabled || !value.pinHash) return res.status(403).json({ error: "Employee account is not provisioned" }); const now = Date.now(); if (value.lockedUntil && Date.parse(value.lockedUntil) > now) return res.status(429).json({ error: "Employee account is temporarily locked" }); const valid = await bcrypt.compare(`${pin}${employeePinPepper}`, value.pinHash); if (!valid) { const failures = Number(value.failedAttempts || 0) + 1; await credential.ref.set({ failedAttempts: failures, lockedUntil: failures >= employeeMaxAttempts ? new Date(now + employeeLockoutMs).toISOString() : null, updatedAt: new Date().toISOString() }, { merge: true }); return res.status(401).json({ error: "Invalid employee ID or PIN" }); } const sid = crypto.randomUUID(), exp = now + employeeSessionTtlMs; await db.doc(`employeeSessions/${sid}`).set({ employeeId: employee.id, organizationId: employee.organizationId, locationId: employee.locationId || null, expiresAt: new Date(exp).toISOString(), revoked: false, createdAt: new Date().toISOString() }); await credential.ref.set({ failedAttempts: 0, lockedUntil: null, updatedAt: new Date().toISOString() }, { merge: true }); res.cookie(employeeCookieName, employeeToken({ type: "employee", sid, employeeId: employee.id, organizationId: employee.organizationId, locationId: employee.locationId || null, exp }), { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", maxAge: employeeSessionTtlMs, path: "/" }); return res.json({ employee: employeePublic(employee) }); } catch (error: any) { console.error("Employee login failed", error?.message || error); return res.status(error?.statusCode || 500).json({ error: "Employee authentication unavailable" }); } });
+app.get("/api/auth/employee/session", requireEmployee, async (_req, res) => { const token = res.locals.employeeSession; const employee = await getAdminFirestore().doc(`employees/${token.employeeId}`).get(); if (!employee.exists || employee.data()?.organizationId !== token.organizationId || employee.data()?.status !== "active") { clearEmployeeSession(res); return res.status(401).json({ error: "Employee session expired" }); } return res.json({ employee: employeePublic({ ...employee.data(), id: employee.id }) }); });
+app.post("/api/auth/employee/logout", async (req, res) => { const token = readEmployeeSession(req); if (token) await getAdminFirestore().doc(`employeeSessions/${token.sid}`).set({ revoked: true, revokedAt: new Date().toISOString() }, { merge: true }); clearEmployeeSession(res); return res.status(204).end(); });
+app.get("/api/employee/profile", requireEmployee, async (_req, res) => { const s = res.locals.employeeSession; const doc = await getAdminFirestore().doc(`employees/${s.employeeId}`).get(); if (!doc.exists || doc.data()?.organizationId !== s.organizationId) return res.status(404).json({ error: "Employee provisioning required" }); return res.json({ employee: employeePublic({ ...doc.data(), id: doc.id }) }); });
+app.get("/api/employee/shifts", requireEmployee, async (_req, res) => { const s = res.locals.employeeSession; const rows = await getAdminFirestore().collection("shifts").where("organizationId", "==", s.organizationId).where("employeeId", "==", s.employeeId).get(); return res.json({ shifts: rows.docs.map(d => d.data()) }); });
+app.get("/api/employee/announcements", requireEmployee, async (_req, res) => { const s = res.locals.employeeSession; const rows = await getAdminFirestore().collection("announcements").where("organizationId", "==", s.organizationId).get(); return res.json({ announcements: rows.docs.map(d => d.data()) }); });
+function employeeOwnedResource(name: string, employeeField: string) { app.get(`/api/employee/${name}`, requireEmployee, async (_req, res) => { const s = res.locals.employeeSession; const rows = await getAdminFirestore().collection(name).where("organizationId", "==", s.organizationId).where(employeeField, "==", s.employeeId).get(); return res.json({ [name]: rows.docs.map(d => d.data()) }); }); app.post(`/api/employee/${name}`, requireEmployee, async (req, res) => { const s = res.locals.employeeSession; const ref = getAdminFirestore().collection(name).doc(); const value = { ...(req.body || {}), id: ref.id, organizationId: s.organizationId, [employeeField]: s.employeeId, locationId: s.locationId || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }; delete value.employeeId; value[employeeField] = s.employeeId; await ref.set(value); return res.status(201).json({ id: ref.id }); }); }
+employeeOwnedResource("timeOffRequests", "employeeId");
+employeeOwnedResource("availabilityRequests", "employeeId");
+employeeOwnedResource("shiftSwapRequests", "employeeId");
 
 const aiRateLimiter = rateLimit({
   windowMs: 60_000,
@@ -729,6 +754,7 @@ async function isFirestoreReady() {
 }
 
 app.get("/api/health/ready", async (_req, res) => {
+  const secureEmployeeSecret = (value: string | undefined) => Boolean(value && value.trim().length >= 32 && !/change|example|placeholder|secret$/i.test(value));
   const required = {
     firebaseProjectId: Boolean(process.env.FIREBASE_PROJECT_ID?.trim()),
     firebaseAdminCredential: firebaseAdminCredentialConfigured,
@@ -738,6 +764,8 @@ app.get("/api/health/ready", async (_req, res) => {
     stripeWebhook: Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim()),
     supabaseUrl: hasValidUrl(process.env.VITE_SUPABASE_URL, true),
     supabasePublishableKey: Boolean(process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()),
+    employeeSessionSecret: process.env.NODE_ENV !== "production" || secureEmployeeSecret(process.env.EMPLOYEE_SESSION_SECRET),
+    employeePinPepper: process.env.NODE_ENV !== "production" || secureEmployeeSecret(process.env.EMPLOYEE_PIN_PEPPER),
   };
   const stripePricesConfigured = Object.values(STRIPE_PRICE_ENV).every(cycles => Boolean(cycles.monthly && process.env[cycles.monthly] && cycles.annual && process.env[cycles.annual]));
   const firestore = await isFirestoreReady();
