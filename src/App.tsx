@@ -85,7 +85,7 @@ import {
 } from './firebase/FirebaseContext';
 import {
   firestoreService
-} from './supabase/workforceService';
+} from './firebase/firestoreService';
 import {
   Wifi,
   WifiOff,
@@ -655,7 +655,7 @@ export function App() {
       id: `shift-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
     };
     setShifts(prev => [...prev, shift]);
-    firestoreService.saveShift(shift).catch(err => console.warn('[Firestore] Shift save:', err));
+    firestoreService.createShift(shift).catch(err => console.warn('[Workforce API] Shift create:', err));
   };
 
   const handleAddBatchShifts = (newShiftsList: Omit<Shift, 'id'>[]) => {
@@ -671,7 +671,7 @@ export function App() {
 
     setShifts(prev => [...prev, ...createdShifts]);
     createdShifts.forEach(shift => {
-      firestoreService.saveShift(shift).catch(err => console.warn('[Firestore] Batch shift save:', err));
+      firestoreService.createShift(shift).catch(err => console.warn('[Workforce API] Batch shift create:', err));
     });
 
     setOfflineToast(`📸 Successfully added ${createdShifts.length} verified shifts to live schedule from AI Paper Scan!`);
@@ -680,12 +680,12 @@ export function App() {
 
   const handleUpdateShift = (updatedShift: Shift) => {
     setShifts(prev => prev.map(s => s.id === updatedShift.id ? updatedShift : s));
-    firestoreService.saveShift(updatedShift).catch(err => console.warn('[Firestore] Shift update:', err));
+    firestoreService.updateShift(updatedShift).catch(err => console.warn('[Workforce API] Shift update:', err));
   };
 
   const handleDeleteShift = (shiftId: string) => {
     setShifts(prev => prev.filter(s => s.id !== shiftId));
-    firestoreService.deleteShift(shiftId).catch(err => console.warn('[Firestore] Shift delete:', err));
+    firestoreService.deleteShift(shiftId).catch(err => console.warn('[Workforce API] Shift delete:', err));
   };
 
   // Shift Templates Management
@@ -730,7 +730,7 @@ export function App() {
       regionId: emp.regionId || 'reg-pacific-coast-01',
     };
     setShifts(prev => [...prev, newShift]);
-    firestoreService.saveShift(newShift).catch(err => console.warn('[Firestore] Shift template apply:', err));
+    firestoreService.createShift(newShift).catch(err => console.warn('[Workforce API] Shift template create:', err));
   };
 
   // Employee Management (Scalable up to 1,000)
