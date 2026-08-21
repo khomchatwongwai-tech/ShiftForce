@@ -10,6 +10,7 @@ import { createClient } from "@supabase/supabase-js";
 import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 
 dotenv.config();
@@ -96,6 +97,27 @@ if (getAdminApps().length === 0) {
 
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null;
+const supabaseUrl = process.env.SUPABASE_URL?.trim();
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim();
+let serverSupabase: SupabaseClient | null = null;
+
+/** Service-role client is server-only. Never import this module into browser code. */
+function getServerSupabase() {
+  if (!supabaseUrl || !supabaseSecretKey) {
+    throw Object.assign(new Error("Supabase server configuration is required"), { statusCode: 503 });
+  }
+  if (!serverSupabase) {
+    serverSupabase = createClient(supabaseUrl, supabaseSecretKey, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+  }
+  return serverSupabase;
+}
+
+function supabaseFailure(error: unknown, fallback: string) {
+  const detail = error && typeof error === "object" && "message" in error ? String((error as { message?: unknown }).message || "") : "";
+  throw Object.assign(new Error(detail || fallback), { statusCode: 503 });
+}
 
 type BillingCycle = "monthly" | "annual";
 const BILLING_TIERS = [
@@ -250,26 +272,17 @@ async function requireFirebaseUser(req: express.Request, res: express.Response, 
   }
 }
 
-const ADMIN_MEMBERSHIP_ROLES = new Set(["owner", "corporate_admin", "regional_manager", "general_manager", "assistant_manager"]);
 
-async function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
-  const authContext = res.locals.auth;
-  if (!authContext?.admin) {
-    return res.status(403).json({ error: "Administrator access required" });
-  }
-  try {
-    const profile = await getServerUserProfile(authContext.uid);
-    if (!profile || profile.userType !== "admin" || !ADMIN_MEMBERSHIP_ROLES.has(profile.membershipRole)) {
-      return res.status(403).json({ error: "Active administrator membership required" });
-    }
-    res.locals.serverProfile = profile;
-    return next();
-  } catch (error: any) {
-    return res.status(error?.statusCode || 503).json({ error: "Administrator profile is unavailable" });
-  }
-}
+const ADMIN_MEMBERSHIP_ROLES = new Set([
+  "owner",
+  "corporate_admin",
+  "regional_manager",
+  "general_manager",
+  "assistant_manager",
+]);
 
 let supabaseServerClient: ReturnType<typeof createClient> | null = null;
+
 type ServerUserProfileRow = {
   firebase_uid: string;
   organization_id: string;
@@ -279,33 +292,64 @@ type ServerUserProfileRow = {
   employee_id: string | null;
   payload: unknown;
 };
+
 type ServerOrganizationMembershipRow = {
   organization_id: string;
   role: string;
   active: boolean;
 };
 
+type OrganizationContext = {
+  authContext: any;
+  profile: any;
+  membership: ServerOrganizationMembershipRow;
+  organizationId: string;
+};
+
 function getSupabaseServerClient() {
   const url = process.env.SUPABASE_URL?.trim();
   const secret = process.env.SUPABASE_SECRET_KEY?.trim();
-  if (!url || !secret) throw Object.assign(new Error("Supabase server credentials are not configured"), { statusCode: 503 });
+
+  if (!url || !secret) {
+    throw Object.assign(
+      new Error("Supabase server credentials are not configured"),
+      { statusCode: 503 },
+    );
+  }
+
   if (!supabaseServerClient) {
     supabaseServerClient = createClient(url, secret, {
-      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
     });
   }
+
   return supabaseServerClient;
 }
 
 async function getServerUserProfile(uid: string) {
   const supabase = getSupabaseServerClient();
+
   const { data: userRow, error: userError } = await supabase
     .from("users")
-    .select("firebase_uid, organization_id, email, display_name, role, employee_id, payload")
+    .select(
+      "firebase_uid, organization_id, email, display_name, role, employee_id, payload",
+    )
     .eq("firebase_uid", uid)
     .maybeSingle();
-  if (userError) throw Object.assign(new Error("Supabase user profile lookup failed"), { statusCode: 503 });
+
+  if (userError) {
+    throw Object.assign(
+      new Error("Supabase user profile lookup failed"),
+      { statusCode: 503 },
+    );
+  }
+
   if (!userRow) return null;
+
   const user = userRow as unknown as ServerUserProfileRow;
 
   const { data: membershipRow, error: membershipError } = await supabase
@@ -315,12 +359,27 @@ async function getServerUserProfile(uid: string) {
     .eq("firebase_uid", uid)
     .eq("active", true)
     .maybeSingle();
-  if (membershipError) throw Object.assign(new Error("Supabase organization membership lookup failed"), { statusCode: 503 });
-  if (!membershipRow) return null;
-  const membership = membershipRow as unknown as ServerOrganizationMembershipRow;
 
-  const payload = user.payload && typeof user.payload === "object" ? user.payload as Record<string, unknown> : {};
-  const ownerProfile = user.role === "role-super-admin" && membership.role === "owner";
+  if (membershipError) {
+    throw Object.assign(
+      new Error("Supabase organization membership lookup failed"),
+      { statusCode: 503 },
+    );
+  }
+
+  if (!membershipRow) return null;
+
+  const membership =
+    membershipRow as unknown as ServerOrganizationMembershipRow;
+
+  const payload =
+    user.payload && typeof user.payload === "object"
+      ? (user.payload as Record<string, unknown>)
+      : {};
+
+  const ownerProfile =
+    user.role === "role-super-admin" && membership.role === "owner";
+
   return {
     ...payload,
     userId: user.firebase_uid,
@@ -332,34 +391,122 @@ async function getServerUserProfile(uid: string) {
     membershipRole: membership.role,
     userType: payload.userType || (ownerProfile ? "admin" : "employee"),
     isHostOrAdmin: Boolean(payload.isHostOrAdmin) || ownerProfile,
+    membership,
   };
 }
 
+async function requireOrganizationContext(
+  res: express.Response,
+): Promise<OrganizationContext> {
+  if (res.locals.organizationContext) {
+    return res.locals.organizationContext;
+  }
 
-async function requireOrganizationContext(res: express.Response) {
   const authContext = res.locals.auth;
-  const profile = res.locals.serverProfile || await getServerUserProfile(authContext.uid);
-  const organizationId = profile?.organizationId;
-  if (!organizationId) throw Object.assign(new Error("Active organization membership required"), { statusCode: 403 });
-  return { authContext, profile, organizationId };
+
+  if (!authContext?.uid) {
+    throw Object.assign(new Error("Authentication required"), {
+      statusCode: 401,
+    });
+  }
+
+  const profile = await getServerUserProfile(authContext.uid);
+
+  if (!profile?.organizationId || !profile.membership?.active) {
+    throw Object.assign(
+      new Error("Active organization membership required"),
+      { statusCode: 403 },
+    );
+  }
+
+  const context: OrganizationContext = {
+    authContext,
+    profile,
+    membership: profile.membership,
+    organizationId: profile.organizationId,
+  };
+
+  res.locals.organizationContext = context;
+  res.locals.serverProfile = profile;
+
+  return context;
+}
+
+async function requireAdmin(
+  _req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) {
+  try {
+    const context = await requireOrganizationContext(res);
+
+    if (!ADMIN_MEMBERSHIP_ROLES.has(context.membership.role)) {
+      return res.status(403).json({
+        error: "Manager access required",
+      });
+    }
+
+    return next();
+  } catch (error: any) {
+    return res.status(error?.statusCode || 500).json({
+      error: error?.message || "Authorization failed",
+    });
+  }
 }
 
 async function serverAudit(res: express.Response, action: string, entityType: string, entityId: string, metadata: Record<string, unknown> = {}) {
   const { authContext, profile, organizationId } = await requireOrganizationContext(res);
-  const ref = getAdminFirestore().collection("auditLogs").doc();
-  await ref.set({
-    id: ref.id, organizationId, actorUserId: authContext.uid, actorEmployeeId: profile?.employeeId || null,
-    actorDisplayName: profile?.displayName || authContext.email || "ShiftForce user", action, entityType, entityId,
-    metadata, createdAt: new Date().toISOString(),
+  const { error } = await getServerSupabase().from('audit_logs').insert({
+    id: crypto.randomUUID(), organization_id: organizationId, actor_firebase_uid: authContext.uid, action, entity_type: entityType, entity_id: entityId,
+    payload: { actorUserId: authContext.uid, actorEmployeeId: profile?.employeeId || null, actorDisplayName: profile?.displayName || authContext.email || 'ShiftForce user', metadata },
   });
+  if (error) supabaseFailure(error, 'Unable to write audit event');
 }
 
-async function assertLocationBelongsToOrganization(organizationId: string, locationId?: unknown) {
-  if (!locationId || typeof locationId !== "string") return;
-  const snap = await getAdminFirestore().doc(`locations/${locationId}`).get();
-  if (!snap.exists || snap.data()?.organizationId !== organizationId || snap.data()?.active === false) {
-    throw Object.assign(new Error("Location is not available to this organization"), { statusCode: 403 });
+async function assertLocationBelongsToOrganization(context: OrganizationContext, locationId?: unknown) {
+  if (!locationId || typeof locationId !== 'string') return;
+  const { data: location, error } = await getServerSupabase().from('locations').select('id, organization_id, region_id, active')
+    .eq('id', locationId).eq('organization_id', context.organizationId).maybeSingle();
+  if (error) supabaseFailure(error, 'Unable to validate location');
+  if (!location || !location.active) throw Object.assign(new Error('Location is not available to this organization'), { statusCode: 403 });
+  const member = context.membership;
+  if (['owner', 'corporate_admin'].includes(member.role)) return;
+  if (member.role === 'employee' && context.profile?.employeeId) {
+    const employee = await employeeInOrganization(context.organizationId, context.profile.employeeId, true);
+    if (employee?.location_id === location.id) return;
   }
+  const locationIds: string[] = member.location_ids || [];
+  const regionIds: string[] = member.region_ids || [];
+  if (!locationIds.includes(location.id) && !(location.region_id && regionIds.includes(location.region_id))) {
+    throw Object.assign(new Error('Manager is not authorized for this location'), { statusCode: 403 });
+  }
+}
+
+async function employeeInOrganization(organizationId: string, employeeId: unknown, activeOnly = false) {
+  if (typeof employeeId !== 'string' || !employeeId) return null;
+  let query = getServerSupabase().from('employees').select('*').eq('id', employeeId).eq('organization_id', organizationId);
+  if (activeOnly) query = query.eq('active', true);
+  const { data, error } = await query.maybeSingle();
+  if (error) supabaseFailure(error, 'Unable to validate employee');
+  return data;
+}
+
+function shiftRow(input: any, organizationId: string, id: string, existingPayload: any = {}) {
+  const payload = { ...existingPayload, ...input, id, organizationId };
+  const date = typeof payload.date === 'string' ? payload.date : null;
+  const startsAt = typeof payload.startsAt === 'string' ? payload.startsAt : (date && typeof payload.startTime === 'string' ? `${date}T${payload.startTime}:00` : null);
+  const endsAt = typeof payload.endsAt === 'string' ? payload.endsAt : (date && typeof payload.endTime === 'string' ? `${date}T${payload.endTime}:00` : null);
+  return { id, organization_id: organizationId, employee_id: payload.employeeId || null, location_id: payload.locationId || null, starts_at: startsAt, ends_at: endsAt, status: payload.status || 'scheduled', payload, updated_at: new Date().toISOString() };
+}
+
+function punchRow(input: any, organizationId: string, id: string) {
+  const payload = { ...input, id, organizationId };
+  return { id, organization_id: organizationId, employee_id: payload.employeeId || null, location_id: payload.locationId || null, punched_at: payload.timestamp || new Date().toISOString(), punch_type: payload.type || 'clock_in', payload, updated_at: new Date().toISOString() };
+}
+
+function tradeRow(input: any, organizationId: string, id: string, existingPayload: any = {}) {
+  const payload = { ...existingPayload, ...input, id, organizationId };
+  return { id, organization_id: organizationId, employee_id: payload.requesterId || payload.employeeId || null, status: payload.status || 'pending', payload, updated_at: new Date().toISOString() };
 }
 
 function billingAllowsLocationCount(billing: any, locationCount: number) {
@@ -575,34 +722,34 @@ app.delete("/api/workforce/employees/:employeeId", requireFirebaseUser, requireA
 });
 
 
-// Server-authoritative labor mutations. Direct browser writes are denied in Firestore rules.
+// Server-authoritative labor mutations. Firebase establishes identity; Supabase is the workforce system of record.
 app.post("/api/workforce/shifts", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res);
+    const context = await requireOrganizationContext(res); const { organizationId } = context;
     const input = req.body && typeof req.body === "object" ? req.body : {};
     if (typeof input.employeeId !== "string" || typeof input.date !== "string" || typeof input.startTime !== "string" || typeof input.endTime !== "string") {
       return res.status(400).json({ error: "employeeId, date, startTime and endTime are required" });
     }
-    await assertLocationBelongsToOrganization(organizationId, input.locationId);
-    const emp = await getAdminFirestore().doc(`employees/${input.employeeId}`).get();
-    if (!emp.exists || emp.data()?.organizationId !== organizationId || emp.data()?.status === "inactive") return res.status(400).json({ error: "Employee is not active in this organization" });
-    const ref = input.id && typeof input.id === "string" ? getAdminFirestore().doc(`shifts/${input.id}`) : getAdminFirestore().collection("shifts").doc();
-    const now = new Date().toISOString();
-    await ref.set({ ...input, id: ref.id, organizationId, createdAt: input.createdAt || now, updatedAt: now }, { merge: false });
-    await serverAudit(res, "create_shift", "shift", ref.id, { employeeId: input.employeeId, locationId: input.locationId || null });
-    return res.status(201).json({ id: ref.id });
+    await assertLocationBelongsToOrganization(context, input.locationId);
+    if (!await employeeInOrganization(organizationId, input.employeeId, true)) return res.status(400).json({ error: "Employee is not active in this organization" });
+    const id = typeof input.id === 'string' ? input.id : crypto.randomUUID();
+    const { error } = await getServerSupabase().from('shifts').insert(shiftRow(input, organizationId, id));
+    if (error) supabaseFailure(error, 'Unable to create shift');
+    await serverAudit(res, "create_shift", "shift", id, { employeeId: input.employeeId, locationId: input.locationId || null });
+    return res.status(201).json({ id });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Shift creation failed" }); }
 });
 
 app.patch("/api/workforce/shifts/:shiftId", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res);
-    const ref = getAdminFirestore().doc(`shifts/${req.params.shiftId}`); const snap = await ref.get();
-    if (!snap.exists || snap.data()?.organizationId !== organizationId) return res.status(404).json({ error: "Shift not found" });
+    const context = await requireOrganizationContext(res); const { organizationId } = context;
+    const sb = getServerSupabase(); const { data: existing, error: findError } = await sb.from('shifts').select('*').eq('id', req.params.shiftId).eq('organization_id', organizationId).maybeSingle();
+    if (findError) supabaseFailure(findError, 'Unable to load shift'); if (!existing) return res.status(404).json({ error: "Shift not found" });
     const input = { ...(req.body || {}) }; delete input.id; delete input.organizationId; delete input.createdAt;
-    await assertLocationBelongsToOrganization(organizationId, input.locationId ?? snap.data()?.locationId);
-    if (input.employeeId) { const emp = await getAdminFirestore().doc(`employees/${input.employeeId}`).get(); if (!emp.exists || emp.data()?.organizationId !== organizationId) return res.status(400).json({ error: "Employee is not in this organization" }); }
-    await ref.set({ ...input, updatedAt: new Date().toISOString() }, { merge: true });
+    await assertLocationBelongsToOrganization(context, input.locationId ?? existing.location_id);
+    if (input.employeeId && !await employeeInOrganization(organizationId, input.employeeId, true)) return res.status(400).json({ error: "Employee is not active in this organization" });
+    const { error } = await sb.from('shifts').update(shiftRow(input, organizationId, existing.id, existing.payload)).eq('id', existing.id).eq('organization_id', organizationId);
+    if (error) supabaseFailure(error, 'Unable to update shift');
     await serverAudit(res, "update_shift", "shift", req.params.shiftId, { changedFields: Object.keys(input).slice(0, 40) });
     return res.json({ ok: true });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Shift update failed" }); }
@@ -610,49 +757,48 @@ app.patch("/api/workforce/shifts/:shiftId", requireFirebaseUser, requireAdmin, a
 
 app.delete("/api/workforce/shifts/:shiftId", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res); const ref = getAdminFirestore().doc(`shifts/${req.params.shiftId}`); const snap = await ref.get();
-    if (!snap.exists || snap.data()?.organizationId !== organizationId) return res.status(404).json({ error: "Shift not found" });
-    await ref.delete(); await serverAudit(res, "delete_shift", "shift", req.params.shiftId); return res.json({ ok: true });
+    const { organizationId } = await requireOrganizationContext(res); const { data, error: findError } = await getServerSupabase().from('shifts').select('id').eq('id', req.params.shiftId).eq('organization_id', organizationId).maybeSingle();
+    if (findError) supabaseFailure(findError, 'Unable to load shift'); if (!data) return res.status(404).json({ error: "Shift not found" });
+    const { error } = await getServerSupabase().from('shifts').delete().eq('id', data.id).eq('organization_id', organizationId); if (error) supabaseFailure(error, 'Unable to delete shift'); await serverAudit(res, "delete_shift", "shift", req.params.shiftId); return res.json({ ok: true });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Shift deletion failed" }); }
 });
 
 app.post("/api/workforce/punches", requireFirebaseUser, async (req, res) => {
   try {
-    const { profile, organizationId } = await requireOrganizationContext(res); const input = req.body && typeof req.body === "object" ? req.body : {};
+    const context = await requireOrganizationContext(res); const { profile, organizationId } = context; const input = req.body && typeof req.body === "object" ? req.body : {};
     if (!profile?.employeeId || input.employeeId !== profile.employeeId) return res.status(403).json({ error: "Employees may only record their own punch" });
     if (!['clock_in','clock_out','break_start','break_end'].includes(input.type)) return res.status(400).json({ error: "Invalid punch type" });
-    await assertLocationBelongsToOrganization(organizationId, input.locationId);
-    const ref = input.id && typeof input.id === "string" ? getAdminFirestore().doc(`punches/${input.id}`) : getAdminFirestore().collection("punches").doc();
-    await ref.create({ ...input, id: ref.id, organizationId, timestamp: input.timestamp || new Date().toISOString(), createdAt: new Date().toISOString() });
-    await serverAudit(res, "record_punch", "punch", ref.id, { type: input.type, employeeId: profile.employeeId }); return res.status(201).json({ id: ref.id });
+    await assertLocationBelongsToOrganization(context, input.locationId);
+    if (!await employeeInOrganization(organizationId, profile.employeeId, true)) return res.status(403).json({ error: 'Employee is not active in this organization' });
+    const id = typeof input.id === 'string' ? input.id : crypto.randomUUID(); const { error } = await getServerSupabase().from('punches').insert(punchRow({ ...input, employeeId: profile.employeeId }, organizationId, id));
+    if (error) supabaseFailure(error, 'Unable to record punch'); await serverAudit(res, "record_punch", "punch", id, { type: input.type, employeeId: profile.employeeId }); return res.status(201).json({ id });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Punch could not be recorded" }); }
 });
 
 app.post("/api/workforce/punches/bulk", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res);
+    const context = await requireOrganizationContext(res); const { organizationId } = context;
     const punches = Array.isArray(req.body?.punches) ? req.body.punches.slice(0, 100) : [];
     if (!punches.length) return res.status(400).json({ error: "At least one punch is required" });
-    const batch = getAdminFirestore().batch(); const acceptedIds: string[] = [];
+    const rows: any[] = []; const acceptedIds: string[] = [];
     for (const input of punches) {
       if (!input || typeof input.employeeId !== 'string' || !['clock_in','clock_out','break_start','break_end'].includes(input.type)) return res.status(400).json({ error: "Invalid punch payload" });
-      const emp = await getAdminFirestore().doc(`employees/${input.employeeId}`).get();
-      if (!emp.exists || emp.data()?.organizationId !== organizationId) return res.status(400).json({ error: "Punch employee is not in this organization" });
-      const ref = input.id && typeof input.id === 'string' ? getAdminFirestore().doc(`punches/${input.id}`) : getAdminFirestore().collection('punches').doc();
-      acceptedIds.push(ref.id); batch.set(ref, { ...input, id: ref.id, organizationId, timestamp: input.timestamp || new Date().toISOString(), createdAt: new Date().toISOString(), source: 'admin_offline_sync' }, { merge: false });
+      if (!await employeeInOrganization(organizationId, input.employeeId, true)) return res.status(400).json({ error: "Punch employee is not in this organization" });
+      await assertLocationBelongsToOrganization(context, input.locationId);
+      const id = input.id && typeof input.id === 'string' ? input.id : crypto.randomUUID(); acceptedIds.push(id); rows.push(punchRow({ ...input, source: 'admin_offline_sync' }, organizationId, id));
     }
-    await batch.commit(); await serverAudit(res, "bulk_sync_punches", "punch", acceptedIds.join(','), { count: acceptedIds.length });
+    const { error } = await getServerSupabase().from('punches').insert(rows); if (error) supabaseFailure(error, 'Unable to sync punches'); await serverAudit(res, "bulk_sync_punches", "punch", acceptedIds.join(','), { count: acceptedIds.length });
     return res.status(201).json({ ok: true, count: acceptedIds.length, ids: acceptedIds });
   } catch (error:any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Punch sync failed" }); }
 });
 
 app.patch("/api/workforce/punches/:punchId", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res); const ref = getAdminFirestore().doc(`punches/${req.params.punchId}`); const snap = await ref.get();
-    if (!snap.exists || snap.data()?.organizationId !== organizationId) return res.status(404).json({ error: "Punch not found" });
+    const { organizationId } = await requireOrganizationContext(res); const sb = getServerSupabase(); const { data: existing, error: findError } = await sb.from('punches').select('*').eq('id', req.params.punchId).eq('organization_id', organizationId).maybeSingle();
+    if (findError) supabaseFailure(findError, 'Unable to load punch'); if (!existing) return res.status(404).json({ error: "Punch not found" });
     const { timestamp, type, correctionReason } = req.body || {}; if (!correctionReason || typeof correctionReason !== 'string') return res.status(400).json({ error: "correctionReason is required" });
     const patch: any = { correctedAt: new Date().toISOString(), correctionReason: correctionReason.slice(0,500) }; if (typeof timestamp === 'string') patch.timestamp = timestamp; if (['clock_in','clock_out','break_start','break_end'].includes(type)) patch.type = type;
-    await ref.set(patch, { merge: true }); await serverAudit(res, "correct_punch", "punch", req.params.punchId, { correctionReason: patch.correctionReason }); return res.json({ ok: true });
+    const row = punchRow({ ...(existing.payload || {}), ...patch, employeeId: existing.employee_id }, organizationId, existing.id); const { error } = await sb.from('punches').update(row).eq('id', existing.id).eq('organization_id', organizationId); if (error) supabaseFailure(error, 'Unable to correct punch'); await serverAudit(res, "correct_punch", "punch", req.params.punchId, { correctionReason: patch.correctionReason }); return res.json({ ok: true });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Punch correction failed" }); }
 });
 
@@ -660,18 +806,18 @@ app.post("/api/workforce/trades", requireFirebaseUser, async (req, res) => {
   try {
     const { profile, organizationId } = await requireOrganizationContext(res); const input = req.body && typeof req.body === "object" ? req.body : {};
     if (!profile?.employeeId || (input.requesterId && input.requesterId !== profile.employeeId)) return res.status(403).json({ error: "Trade requester must match the signed-in employee" });
-    const ref = input.id && typeof input.id === 'string' ? getAdminFirestore().doc(`shiftTrades/${input.id}`) : getAdminFirestore().collection('shiftTrades').doc();
-    await ref.create({ ...input, id: ref.id, organizationId, requesterId: profile.employeeId, status: 'pending', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-    await serverAudit(res, "request_shift_trade", "shiftTrade", ref.id); return res.status(201).json({ id: ref.id });
+    if (!await employeeInOrganization(organizationId, profile.employeeId, true)) return res.status(403).json({ error: 'Employee is not active in this organization' });
+    const id = input.id && typeof input.id === 'string' ? input.id : crypto.randomUUID(); const { error } = await getServerSupabase().from('shift_trades').insert(tradeRow({ ...input, requesterId: profile.employeeId, status: 'pending' }, organizationId, id));
+    if (error) supabaseFailure(error, 'Unable to create shift trade'); await serverAudit(res, "request_shift_trade", "shiftTrade", id); return res.status(201).json({ id });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Shift trade request failed" }); }
 });
 
 app.patch("/api/workforce/trades/:tradeId", requireFirebaseUser, requireAdmin, async (req, res) => {
   try {
-    const { organizationId } = await requireOrganizationContext(res); const ref = getAdminFirestore().doc(`shiftTrades/${req.params.tradeId}`); const snap = await ref.get();
-    if (!snap.exists || snap.data()?.organizationId !== organizationId) return res.status(404).json({ error: "Trade not found" });
+    const { organizationId } = await requireOrganizationContext(res); const sb = getServerSupabase(); const { data: existing, error: findError } = await sb.from('shift_trades').select('*').eq('id', req.params.tradeId).eq('organization_id', organizationId).maybeSingle();
+    if (findError) supabaseFailure(findError, 'Unable to load trade'); if (!existing) return res.status(404).json({ error: "Trade not found" });
     const status = req.body?.status; if (!['approved','rejected','pending'].includes(status)) return res.status(400).json({ error: "Invalid trade status" });
-    await ref.set({ status, adminNote: typeof req.body?.adminNote === 'string' ? req.body.adminNote.slice(0,1000) : null, updatedAt: new Date().toISOString() }, { merge: true });
+    const { error } = await sb.from('shift_trades').update(tradeRow({ status, adminNote: typeof req.body?.adminNote === 'string' ? req.body.adminNote.slice(0,1000) : null }, organizationId, existing.id, existing.payload)).eq('id', existing.id).eq('organization_id', organizationId); if (error) supabaseFailure(error, 'Unable to update trade');
     await serverAudit(res, status === 'approved' ? "approve_shift_trade" : "reject_shift_trade", "shiftTrade", req.params.tradeId); return res.json({ ok: true });
   } catch (error: any) { return res.status(error?.statusCode || 500).json({ error: error?.message || "Trade update failed" }); }
 });
@@ -850,8 +996,9 @@ const auditRateLimiter = rateLimit({ windowMs: 60_000, limit: 120, standardHeade
 app.post("/api/audit", auditRateLimiter, requireFirebaseUser, async (req, res) => {
   try {
     const authContext = res.locals.auth;
-    const profile = await getServerUserProfile(authContext.uid);
-    const organizationId = profile?.organizationId;
+    const context = await getServerUserProfile(authContext.uid);
+    const profile = context?.profile;
+    const organizationId = context?.organizationId;
     if (!organizationId) return res.status(403).json({ error: "Provisioned organization membership required" });
 
     const { action, entityType, entityId, metadata } = req.body || {};
