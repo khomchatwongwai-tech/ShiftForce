@@ -33,7 +33,9 @@ importers:
         specifier: ^8.1.0
         version: 8.6.2(express@4.22.2)
       firebase:
+       fix/firebase-google-popup-persistence
         specifier: 12.18.0
+        main
         version: 12.18.0
       firebase-admin:
         specifier: ^14.2.0
