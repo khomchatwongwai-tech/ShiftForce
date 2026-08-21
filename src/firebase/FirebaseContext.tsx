@@ -52,6 +52,7 @@ interface FirebaseContextType {
   signInWithEmail: (email: string, password: string, preferredRole?: CustomRole) => Promise<AuthUserSession>;
   signUpWithEmail: (email: string, password: string, displayName?: string, preferredRole?: CustomRole) => Promise<AuthUserSession>;
   signInWithEmployeePin: (employee: Employee, pin?: string) => Promise<AuthUserSession>;
+  signInEmployee: (identifier: string, pin: string) => Promise<AuthUserSession>;
   setCustomSession: (session: AuthUserSession) => void;
   logOutFirebase: () => Promise<void>;
   updateUserProfile: (updates: Partial<UserProfileDoc>) => Promise<void>;
@@ -121,6 +122,7 @@ export const FirebaseProvider: React.FC<{
   // Sync session changes to localStorage
   const persistSession = useCallback((session: AuthUserSession) => {
     setUserSession(session);
+    if (session.userType === 'employee' && !(import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true')) return;
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
       if (session.userType === 'employee' && session.employee) {
@@ -131,8 +133,28 @@ export const FirebaseProvider: React.FC<{
     }
   }, []);
 
+  const signInEmployee = async (identifier: string, pin: string): Promise<AuthUserSession> => {
+    const response = await fetch('/api/auth/employee/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ identifier, pin }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload?.employee) throw new Error(payload?.error || 'Invalid employee ID or PIN');
+    const employee = payload.employee as Employee & { employeeId?: string };
+    const session: AuthUserSession = { isAuthenticated: true, organizationId: employee.organizationId, userType: 'employee', employee: { ...employee, id: employee.employeeId || employee.id }, displayName: (employee as any).displayName || employee.name, displayEmail: employee.email || '', loginTimestamp: new Date().toISOString(), sessionToken: '', authMethod: 'pin', isHostOrAdminPayer: false };
+    setUserSession(session);
+    return session;
+  };
+
   // Real Firebase onAuthStateChanged Observer
   useEffect(() => {
+    void (async () => {
+      try {
+        const response = await fetch('/api/auth/employee/session', { credentials: 'include' });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.employee) {
+          const employee = payload.employee as Employee & { employeeId?: string };
+          setUserSession({ isAuthenticated: true, organizationId: employee.organizationId, userType: 'employee', employee: { ...employee, id: employee.employeeId || employee.id }, displayName: (employee as any).displayName || employee.name, displayEmail: employee.email || '', loginTimestamp: new Date().toISOString(), sessionToken: '', authMethod: 'pin', isHostOrAdminPayer: false });
+        }
+      } catch {}
+    })();
     const unsubscribeAuth = onAuthStateChanged(auth, async (fbUser) => {
       // Clean up previous user profile listener if any
       if (activeUnsubProfileRef.current) {
@@ -417,7 +439,7 @@ export const FirebaseProvider: React.FC<{
   // --- Set Custom Session ---
   const setCustomSession = (session: AuthUserSession) => {
     const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
-    if (!currentUser && !demoAuthEnabled) {
+    if (!currentUser && !demoAuthEnabled && session.userType !== 'employee') {
       throw new Error('Cannot create a production session without Firebase authentication.');
     }
     persistSession(session);
@@ -488,7 +510,8 @@ export const FirebaseProvider: React.FC<{
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
-        signInWithEmployeePin,
+    signInWithEmployeePin,
+    signInEmployee,
         setCustomSession,
         logOutFirebase,
         updateUserProfile,

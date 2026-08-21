@@ -286,6 +286,10 @@ export function App() {
 
   // Authentication & Dual Login Session State (Admin & Employee)
   const [authSession, setAuthSession] = useState<AuthUserSession>(userSession);
+  const authenticatedUserType = userSession.isAuthenticated ? userSession.userType : null;
+  const authenticatedOrganizationId = authenticatedUserType === 'employee' ? userSession.employee?.organizationId : userProfile?.organizationId;
+  const authenticatedEmployeeId = authenticatedUserType === 'employee' ? userSession.employee?.id : userProfile?.employeeId;
+  const authenticatedLocationId = authenticatedUserType === 'employee' ? userSession.employee?.locationId : undefined;
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginModalMode, setLoginModalMode] = useState<AuthPortalMode>('admin');
 
@@ -379,7 +383,8 @@ export function App() {
 
   // Handle Logout
   const handleLogout = async () => {
-    await logOutFirebase();
+    if (userSession.userType === 'employee') await fetch('/api/auth/employee/logout', { method: 'POST', credentials: 'include' });
+    else await logOutFirebase();
     setLoginModalMode(portal === 'admin' ? 'admin' : 'employee');
     setIsLoginModalOpen(true);
   };
@@ -550,7 +555,7 @@ export function App() {
   // and are always scoped to the signed-in user's organization.
   useEffect(() => {
     const organizationId = userProfile?.organizationId;
-    if (!currentUser || !organizationId) return;
+    if (!currentUser || !organizationId || userSession.userType !== 'admin') return;
 
     const unsubs = [
       firestoreService.subscribeEmployees(organizationId, items => setEmployees(items)),
@@ -564,6 +569,20 @@ export function App() {
     ];
     return () => unsubs.forEach(unsub => unsub());
   }, [currentUser, userProfile?.organizationId]);
+
+  // Employee data is loaded only from cookie-authenticated server endpoints; never from browser-wide workforce subscriptions.
+  useEffect(() => {
+    if (authenticatedUserType !== 'employee' || !authenticatedEmployeeId || !authenticatedOrganizationId) return;
+    let cancelled = false;
+    const load = async () => {
+      const paths = ['/api/employee/profile', '/api/employee/shifts', '/api/employee/announcements', '/api/employee/timeOffRequests', '/api/employee/availabilityRequests', '/api/employee/shiftSwapRequests'];
+      const responses = await Promise.all(paths.map(path => fetch(path, { credentials: 'include' }).then(r => r.ok ? r.json() : null)));
+      if (cancelled || !responses[0]) return;
+      const [profile, ownShifts, ownAnnouncements, ownTimeOff, ownAvailability, ownSwaps] = responses;
+      setEmployees([profile.employee]); setShifts(ownShifts?.shifts || []); setAnnouncements(ownAnnouncements?.announcements || []); setTimeOffRequests(ownTimeOff?.timeOffRequests || []); setAvailabilityRequests(ownAvailability?.availabilityRequests || []); setShiftSwapRequests(ownSwaps?.shiftSwapRequests || []);
+    };
+    void load(); return () => { cancelled = true; };
+  }, [authenticatedUserType, authenticatedEmployeeId, authenticatedOrganizationId]);
 
   // Offline Clock-in Sync Handler. A signed-in admin commits queued punches through the server;
   // the UI only clears its queue after the server confirms persistence.
