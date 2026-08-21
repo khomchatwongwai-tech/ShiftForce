@@ -7,7 +7,7 @@ import {
   signOut,
   updateProfile as updateFirebaseProfile
 } from 'firebase/auth';
-import { auth, googleProvider, testFirestoreConnection } from './config';
+import { auth, googleProvider } from './config';
 import { firestoreService } from '../supabase/workforceService';
 import {
   Employee,
@@ -260,10 +260,9 @@ export const FirebaseProvider: React.FC<{
       setIsLoadingAuth(false);
     });
 
-    // Test Firestore Connection
-    testFirestoreConnection().then((ok) => {
-      setIsFirestoreConnected(ok);
-    });
+    // Workforce persistence is Supabase-backed. Do not open an unused client Firestore
+    // connection during auth startup: the Firebase project is used here for Auth only.
+    setIsFirestoreConnected(false);
 
     return () => {
       unsubscribeAuth();
