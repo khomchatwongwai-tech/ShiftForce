@@ -1,25 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Employee, 
-  Shift, 
-  TimeOffRequest, 
-  ShiftSwapRequest, 
-  SickDayReport, 
-  TardinessRecord, 
-  SupportedLanguage 
+import {
+  Employee,
+  Shift,
+  TimeOffRequest,
+  ShiftSwapRequest,
+  SickDayReport,
+  TardinessRecord,
+  SupportedLanguage
 } from '../types';
-import { 
-  Clock, 
-  Calendar, 
-  CheckCircle2, 
-  XCircle, 
-  AlertCircle, 
-  ShieldCheck, 
-  Filter, 
-  Search, 
-  FileText, 
-  ArrowUpRight, 
-  CheckCheck, 
+import {
+  Clock,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  ShieldCheck,
+  Filter,
+  Search,
+  FileText,
+  ArrowUpRight,
+  CheckCheck,
   Sparkles,
   ChevronRight,
   TrendingUp,
@@ -121,7 +121,7 @@ export function EmployeeActionLog({
         status: isPast ? 'completed' : 'verified',
         statusLabel: isPast ? 'Completed & Logged' : 'Confirmed & Scheduled',
         statusColor: isPast ? 'emerald' : 'sky',
-        details: isPast 
+        details: isPast
           ? `Completed ${hours} hrs shift. Gross pay calculated at $${earned} (${shift.color || 'Standard schedule'}).`
           : `Upcoming rostered shift on ${shift.date}. Report to ${shift.department} station on time.`,
         metadata: {

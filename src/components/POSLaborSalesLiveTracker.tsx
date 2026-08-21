@@ -127,10 +127,10 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
   const totalLiveSales = departmentMetrics.reduce((sum, d) => sum + d.liveMappedSales, 0);
   const totalHours = departmentMetrics.reduce((sum, d) => sum + d.totalHoursToday, 0);
   const totalActiveStaff = departmentMetrics.reduce((sum, d) => sum + d.activeStaffClockedIn, 0);
-  
+
   const overallLaborPct = totalLiveSales > 0 ? Number(((totalLiveLaborCost / totalLiveSales) * 100).toFixed(2)) : 0;
   const overallSplh = totalHours > 0 ? Math.round(totalLiveSales / totalHours) : 0;
-  
+
   const targetLaborGoal = 22.0;
   const varianceVsGoal = Number((overallLaborPct - targetLaborGoal).toFixed(2));
 
@@ -218,7 +218,7 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
 
   return (
     <div id="analytics-pos-live-labor-tracker" className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-sky-100 space-y-6">
-      
+
       {/* 1. Header Bar with POS System Switcher & Live Ingestion Status */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-5 border-b border-slate-100 gap-4">
         <div className="space-y-1">
@@ -280,7 +280,7 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
 
       {/* 2. Top Overview Metric Banners */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
-        
+
         {/* Total Live Net Sales */}
         <div className="p-4 rounded-2xl bg-gradient-to-br from-sky-500/10 via-sky-50/50 to-white border border-sky-200">
           <div className="flex items-center justify-between text-xs text-sky-800 font-semibold mb-1">
@@ -311,8 +311,8 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
 
         {/* Live Labor % vs Goal */}
         <div className={`p-4 rounded-2xl border ${
-          overallLaborPct <= targetLaborGoal 
-            ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-50/50 to-white border-emerald-200' 
+          overallLaborPct <= targetLaborGoal
+            ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-50/50 to-white border-emerald-200'
             : 'bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-white border-amber-200'
         }`}>
           <div className="flex items-center justify-between text-xs font-semibold mb-1">
@@ -419,8 +419,8 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
                       {dept.department}
                     </span>
                     <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                      dept.status === 'optimal' 
-                        ? 'bg-emerald-100 text-emerald-800' 
+                      dept.status === 'optimal'
+                        ? 'bg-emerald-100 text-emerald-800'
                         : dept.status === 'lean_floor_risk'
                         ? 'bg-amber-100 text-amber-800'
                         : 'bg-rose-100 text-rose-800'
@@ -489,7 +489,7 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
 
       {/* 4. Interactive Live Labor Visualizations (Recharts) */}
       <div className="bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-4">
-        
+
         {/* Visualization Switcher Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-3">
           <div className="flex items-center gap-2">
@@ -587,8 +587,8 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
                   margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                  <XAxis 
-                    dataKey="deptShort" 
+                  <XAxis
+                    dataKey="deptShort"
                     tick={{ fontSize: 11, fill: '#334155', fontWeight: 600 }}
                   />
                   {/* Left Y Axis for Dollars ($) */}
@@ -655,11 +655,11 @@ export const POSLaborSalesLiveTracker: React.FC<POSLaborSalesLiveTrackerProps> =
                       return null;
                     }}
                   />
-                  <Legend 
+                  <Legend
                     wrapperStyle={{ fontSize: 11, paddingTop: 10 }}
                     verticalAlign="bottom"
                   />
-                  
+
                   {/* Mapped Sales Bar */}
                   <Bar
                     yAxisId="left"

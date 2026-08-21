@@ -298,7 +298,7 @@ export function getDescendantNodeIds(rootNodeId: string, nodes: HierarchyNode[] 
   if (rootNodeId === 'node-corp-01') {
     return nodes.map(n => n.id);
   }
-  
+
   const descendants: string[] = [rootNodeId];
   let queue: string[] = [rootNodeId];
 
@@ -333,7 +333,7 @@ export function isRecordAuthorizedForRole(
 
   // If node ID matches directly or via descendants
   const authorizedNodeIds = getDescendantNodeIds(role.assignedNodeId, hierarchyNodes);
-  
+
   if (recordLocationId && authorizedNodeIds.includes(recordLocationId)) {
     return true;
   }

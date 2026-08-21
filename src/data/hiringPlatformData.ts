@@ -1,9 +1,9 @@
-import { 
-  HiringPlatformConnection, 
-  JobOpening, 
-  HiringSyncLog, 
-  OnboardingCandidate, 
-  HiringPlatformId 
+import {
+  HiringPlatformConnection,
+  JobOpening,
+  HiringSyncLog,
+  OnboardingCandidate,
+  HiringPlatformId
 } from '../types';
 
 export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
@@ -694,7 +694,7 @@ export const INITIAL_HIRING_SYNC_LOGS: HiringSyncLog[] = [
 // Helper to generate Craigslist-ready post copy
 export function generateCraigslistPostContent(job: JobOpening): string {
   const payStr = `$${job.hourlyMin.toFixed(2)} - $${job.hourlyMax.toFixed(2)} / Hour ${job.tipEligible ? '+ Generous Tip Share' : ''}`;
-  
+
   return `=== NOW HIRING: ${job.title.toUpperCase()} ===
 Location: ${job.locationName}
 Employment Type: ${job.jobType.replace('_', ' ').toUpperCase()}

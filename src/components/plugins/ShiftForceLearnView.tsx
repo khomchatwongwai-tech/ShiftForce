@@ -1,20 +1,22 @@
+import { useLanguage } from '../../context/LanguageContext';
+import { translations } from '../../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  GraduationCap, 
-  BookOpen, 
-  Award, 
-  CheckCircle2, 
-  Clock, 
-  Sparkles, 
-  ShieldCheck, 
-  AlertCircle, 
-  Play, 
-  BarChart2, 
-  Users, 
-  Flame, 
-  Search, 
-  Filter, 
-  ChevronRight, 
+import {
+  GraduationCap,
+  BookOpen,
+  Award,
+  CheckCircle2,
+  Clock,
+  Sparkles,
+  ShieldCheck,
+  AlertCircle,
+  Play,
+  BarChart2,
+  Users,
+  Flame,
+  Search,
+  Filter,
+  ChevronRight,
   ExternalLink,
   Plus,
   FileCheck,
@@ -115,6 +117,8 @@ interface ShiftForceLearnViewProps {
 }
 
 export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employees }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeCourseModal, setActiveCourseModal] = useState<CourseModule | null>(null);
@@ -122,7 +126,7 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
 
   const filteredCourses = COURSES.filter(c => {
     const matchesCategory = selectedCategory === 'all' || c.category === selectedCategory;
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -222,8 +226,8 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
       {/* Courses Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCourses.map(course => (
-          <div 
-            key={course.id} 
+          <div
+            key={course.id}
             className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col hover:shadow-md transition-all group"
           >
             {/* Card Banner */}
@@ -266,8 +270,8 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
                     <span className="font-bold text-indigo-700">{course.completionRatePct}%</span>
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-indigo-500 to-sky-500 rounded-full" 
+                    <div
+                      className="h-full bg-gradient-to-r from-indigo-500 to-sky-500 rounded-full"
                       style={{ width: `${course.completionRatePct}%` }}
                     />
                   </div>
@@ -288,7 +292,7 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
                   <Users className="w-3.5 h-3.5" />
                   <span>Assign Roster</span>
                 </button>
-                <button 
+                <button
                   onClick={() => alert(`Starting interactive preview for "${course.title}" module.`)}
                   className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors"
                   title="Launch Module Preview"
@@ -315,7 +319,7 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
                   <p className="text-xs text-slate-500">{activeCourseModal.title}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setActiveCourseModal(null)}
                 className="text-slate-400 hover:text-slate-600 text-sm"
               >

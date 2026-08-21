@@ -1,52 +1,54 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  Shield, 
-  ShieldCheck, 
-  ShieldAlert, 
-  Users, 
-  Plus, 
-  Check, 
-  X, 
-  Edit3, 
-  Trash2, 
-  Building2, 
-  Layers, 
-  Eye, 
-  EyeOff, 
-  Lock, 
-  Unlock, 
-  Key, 
-  Calendar, 
-  DollarSign, 
-  FileText, 
-  Clock, 
-  Megaphone, 
-  Zap, 
-  Sparkles, 
-  BarChart3, 
-  Star, 
-  GraduationCap, 
-  UserPlus, 
-  CheckCircle2, 
-  AlertCircle, 
-  Info, 
-  ArrowRight, 
-  ChevronRight, 
-  Sliders, 
-  RefreshCw, 
+import {
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  Users,
+  Plus,
+  Check,
+  X,
+  Edit3,
+  Trash2,
+  Building2,
+  Layers,
+  Eye,
+  EyeOff,
+  Lock,
+  Unlock,
+  Key,
+  Calendar,
+  DollarSign,
+  FileText,
+  Clock,
+  Megaphone,
+  Zap,
+  Sparkles,
+  BarChart3,
+  Star,
+  GraduationCap,
+  UserPlus,
+  CheckCircle2,
+  AlertCircle,
+  Info,
+  ArrowRight,
+  ChevronRight,
+  Sliders,
+  RefreshCw,
   FileCheck,
   Globe,
   MapPin,
   Filter
 } from 'lucide-react';
-import { 
-  CustomRole, 
-  RBACManagerState, 
-  RBACPermission, 
-  HierarchyLevel, 
-  HierarchyNode, 
-  ActiveTab, 
-  Employee 
+import {
+  CustomRole,
+  RBACManagerState,
+  RBACPermission,
+  HierarchyLevel,
+  HierarchyNode,
+  ActiveTab,
+  Employee
 } from '../types';
 import { INITIAL_ENTERPRISE_HIERARCHY } from '../data/commandCenterData';
 
@@ -109,6 +111,8 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
   hierarchyNodes = INITIAL_ENTERPRISE_HIERARCHY,
   employees = [],
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'roles' | 'matrix' | 'hierarchy_scope' | 'audit'>('roles');
   const [editingRole, setEditingRole] = useState<CustomRole | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
@@ -246,12 +250,12 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
   };
 
   const toggleTabInForm = (tabId: ActiveTab) => {
-    setFormAllowedTabs(prev => 
+    setFormAllowedTabs(prev =>
       prev.includes(tabId) ? prev.filter(t => t !== tabId) : [...prev, tabId]
     );
   };
 
-  const filteredRoles = rbacState.roles.filter(r => 
+  const filteredRoles = rbacState.roles.filter(r =>
     r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.assignedHierarchyPath.toLowerCase().includes(searchQuery.toLowerCase())
@@ -260,7 +264,7 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
-        
+
         {/* Header */}
         <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white p-5 sm:p-6 flex items-center justify-between border-b border-slate-700">
           <div className="flex items-center gap-3.5">
@@ -425,7 +429,7 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
 
         {/* Modal Body Content */}
         <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-slate-50/50">
-          
+
           {/* TAB 1: Roles Directory */}
           {activeTab === 'roles' && (
             <div className="space-y-4">
@@ -757,19 +761,19 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
                   {hierarchyNodes.map(node => {
                     const isRoot = node.id === 'node-corp-01';
                     const isRoleScope = node.id === currentActiveRole.assignedNodeId;
-                    const isAuthorized = currentActiveRole.permissions.canViewAllLocations || 
-                      node.id === currentActiveRole.assignedNodeId || 
+                    const isAuthorized = currentActiveRole.permissions.canViewAllLocations ||
+                      node.id === currentActiveRole.assignedNodeId ||
                       node.parentId === currentActiveRole.assignedNodeId ||
                       currentActiveRole.assignedNodeId === 'node-corp-01';
 
                     return (
-                      <div 
+                      <div
                         key={node.id}
                         className={`p-3.5 flex items-center justify-between transition-colors ${
-                          isRoleScope 
-                            ? 'bg-indigo-50/80 border-l-4 border-l-indigo-600' 
-                            : isAuthorized 
-                              ? 'bg-white' 
+                          isRoleScope
+                            ? 'bg-indigo-50/80 border-l-4 border-l-indigo-600'
+                            : isAuthorized
+                              ? 'bg-white'
                               : 'bg-slate-50 opacity-60'
                         }`}
                       >
@@ -832,18 +836,18 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {hierarchyNodes.map(n => {
-                    const isAllowed = currentActiveRole.permissions.canViewAllLocations || 
+                    const isAllowed = currentActiveRole.permissions.canViewAllLocations ||
                       n.id === currentActiveRole.assignedNodeId ||
                       currentActiveRole.assignedNodeId === 'node-corp-01' ||
                       (currentActiveRole.assignedNodeId === 'node-region-01' && (n.id === 'node-region-01' || n.id === 'node-district-01' || n.id === 'node-loc-01')) ||
                       (currentActiveRole.assignedNodeId === 'node-loc-01' && n.id === 'node-loc-01');
 
                     return (
-                      <div 
+                      <div
                         key={n.id}
                         className={`p-3 rounded-xl border text-xs flex items-center justify-between ${
-                          isAllowed 
-                            ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950' 
+                          isAllowed
+                            ? 'bg-emerald-50/50 border-emerald-200 text-emerald-950'
                             : 'bg-rose-50/50 border-rose-200 text-rose-950'
                         }`}
                       >
@@ -931,7 +935,7 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
       {isCreatingNew && (
         <div className="fixed inset-0 z-60 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in">
           <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
-            
+
             {/* Drawer Header */}
             <div className="bg-indigo-900 text-white p-4 sm:p-5 flex items-center justify-between">
               <div>
@@ -952,7 +956,7 @@ export const RoleBasedAccessControlManager: React.FC<RoleBasedAccessControlManag
 
             {/* Form Fields */}
             <form onSubmit={handleSaveForm} className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
-              
+
               {/* Name & Code */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>

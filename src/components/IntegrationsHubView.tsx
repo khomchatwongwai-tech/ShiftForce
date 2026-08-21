@@ -1,38 +1,40 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  Building2, 
-  Layers, 
-  Flame, 
-  Square, 
-  CircleDot, 
-  Zap, 
-  Server, 
-  Tablet, 
-  Sparkles, 
-  Database, 
-  RefreshCw, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
-  DollarSign, 
-  Users, 
-  ArrowRight, 
-  Download, 
-  Upload, 
-  ShieldCheck, 
-  FileSpreadsheet, 
-  Sliders, 
+import {
+  Building2,
+  Layers,
+  Flame,
+  Square,
+  CircleDot,
+  Zap,
+  Server,
+  Tablet,
+  Sparkles,
+  Database,
+  RefreshCw,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  DollarSign,
+  Users,
+  ArrowRight,
+  Download,
+  Upload,
+  ShieldCheck,
+  FileSpreadsheet,
+  Sliders,
   ExternalLink,
   ChevronRight,
   TrendingUp,
   Activity,
   Check
 } from 'lucide-react';
-import { 
-  WorkforcePlatformInfo, 
-  WorkforceSyncLog, 
-  POSPlatformInfo, 
-  POSServerSalesMetric, 
+import {
+  WorkforcePlatformInfo,
+  WorkforceSyncLog,
+  POSPlatformInfo,
+  POSServerSalesMetric,
   POSTimeclockPunch,
   Employee,
   POSPlatformId,
@@ -71,6 +73,8 @@ export const IntegrationsHubView: React.FC<IntegrationsHubViewProps> = ({
   posMappings,
   setPOSMappings
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'workforce' | 'pos' | 'logs'>('workforce');
   const [selectedWorkforceId, setSelectedWorkforceId] = useState<string>('adp_workforce_now');
   const [selectedPOSId, setSelectedPOSId] = useState<string>('toast');
@@ -167,7 +171,7 @@ export const IntegrationsHubView: React.FC<IntegrationsHubViewProps> = ({
   };
 
   const handleExportPayrollBatch = () => {
-    const csvContent = "data:text/csv;charset=utf-8," + 
+    const csvContent = "data:text/csv;charset=utf-8," +
       "ADP_Employee_ID,Name,Department,Role,Regular_Hours,Overtime_Hours,Base_Hourly_Wage,Estimated_Gross,Alcohol_Card_Verified,Food_Handler_Verified\n" +
       employees.map(emp => {
         const regHours = 35.0;

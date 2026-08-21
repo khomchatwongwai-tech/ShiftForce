@@ -1,46 +1,48 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
-import { 
-  Sparkles, 
-  TrendingUp, 
-  TrendingDown, 
-  ShieldCheck, 
-  AlertTriangle, 
-  DollarSign, 
-  CheckCircle2, 
-  Zap, 
-  Activity, 
-  Layers, 
-  Clock, 
-  Users, 
-  Search, 
-  Filter, 
-  RefreshCw, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  FileText, 
-  Calendar, 
-  Star, 
-  BarChart3, 
-  Coffee, 
-  Building2, 
-  ChevronRight, 
-  HelpCircle, 
+import {
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  ShieldCheck,
+  AlertTriangle,
+  DollarSign,
+  CheckCircle2,
+  Zap,
+  Activity,
+  Layers,
+  Clock,
+  Users,
+  Search,
+  Filter,
+  RefreshCw,
+  ArrowUpRight,
+  ArrowDownRight,
+  FileText,
+  Calendar,
+  Star,
+  BarChart3,
+  Coffee,
+  Building2,
+  ChevronRight,
+  HelpCircle,
   SlidersHorizontal,
   Bot
 } from 'lucide-react';
-import { 
-  Employee, 
-  Shift, 
-  ProactiveIntelligenceInsight, 
-  LaborOptimizationStrategy, 
-  WorkforceCriticalAlertItem, 
-  ModuleHealthScorecard 
+import {
+  Employee,
+  Shift,
+  ProactiveIntelligenceInsight,
+  LaborOptimizationStrategy,
+  WorkforceCriticalAlertItem,
+  ModuleHealthScorecard
 } from '../types';
-import { 
-  INITIAL_PROACTIVE_INSIGHTS, 
-  INITIAL_LABOR_OPTIMIZATION_STRATEGIES, 
-  INITIAL_CRITICAL_WORKFORCE_ALERTS, 
-  INITIAL_MODULE_HEALTH_SCORECARDS 
+import {
+  INITIAL_PROACTIVE_INSIGHTS,
+  INITIAL_LABOR_OPTIMIZATION_STRATEGIES,
+  INITIAL_CRITICAL_WORKFORCE_ALERTS,
+  INITIAL_MODULE_HEALTH_SCORECARDS
 } from '../data/commandCenterData';
 
 interface ShiftForceIntelligenceAgentViewProps {
@@ -54,6 +56,8 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
   employees,
   onNavigateTab
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // Navigation Section State
   const [activeSection, setActiveSection] = useState<'insights' | 'optimization' | 'alerts' | 'health'>('insights');
 
@@ -170,7 +174,7 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
   const filteredInsights = useMemo(() => {
     return insights.filter(ins => {
       const matchesCat = selectedCategory === 'all' || ins.category === selectedCategory;
-      const matchesSearch = searchQuery === '' || 
+      const matchesSearch = searchQuery === '' ||
         ins.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         ins.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCat && matchesSearch;
@@ -343,8 +347,8 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
               key={tab.id}
               onClick={() => setActiveSection(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                isActive 
-                  ? 'bg-slate-900 text-white shadow-sm' 
+                isActive
+                  ? 'bg-slate-900 text-white shadow-sm'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -399,13 +403,13 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
             {filteredInsights.map(ins => {
               const isExecuted = executedInsights.includes(ins.id);
               return (
-                <div 
+                <div
                   key={ins.id}
                   className={`bg-white rounded-2xl p-5 border transition-all ${
-                    isExecuted 
-                      ? 'border-emerald-200 bg-emerald-50/20' 
-                      : ins.impactLevel === 'critical' 
-                        ? 'border-red-200 hover:border-red-300' 
+                    isExecuted
+                      ? 'border-emerald-200 bg-emerald-50/20'
+                      : ins.impactLevel === 'critical'
+                        ? 'border-red-200 hover:border-red-300'
                         : 'border-slate-200 hover:border-indigo-300'
                   } shadow-sm`}
                 >
@@ -414,8 +418,8 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
                       {/* Badge Row */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          ins.impactLevel === 'critical' 
-                            ? 'bg-red-100 text-red-800' 
+                          ins.impactLevel === 'critical'
+                            ? 'bg-red-100 text-red-800'
                             : 'bg-amber-100 text-amber-800'
                         }`}>
                           {ins.impactLevel} Impact
@@ -506,11 +510,11 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
               {strategies.map(strat => {
                 const isApplied = appliedStrategies.includes(strat.id);
                 return (
-                  <div 
-                    key={strat.id} 
+                  <div
+                    key={strat.id}
                     className={`p-5 rounded-xl border transition-all flex flex-col justify-between ${
-                      isApplied 
-                        ? 'border-emerald-300 bg-emerald-50/30' 
+                      isApplied
+                        ? 'border-emerald-300 bg-emerald-50/30'
                         : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300'
                     }`}
                   >
@@ -549,8 +553,8 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
                         <button
                           onClick={() => handleToggleStrategy(strat.id)}
                           className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                            isApplied 
-                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                            isApplied
+                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                               : 'bg-slate-900 hover:bg-slate-800 text-white'
                           }`}
                         >
@@ -589,21 +593,21 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
               {alerts.map(al => {
                 const isResolved = resolvedAlerts.includes(al.id);
                 return (
-                  <div 
+                  <div
                     key={al.id}
                     className={`p-4 rounded-xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                      isResolved 
-                        ? 'border-emerald-200 bg-emerald-50/20 opacity-70' 
-                        : al.severity === 'critical' 
-                          ? 'border-red-200 bg-red-50/30' 
+                      isResolved
+                        ? 'border-emerald-200 bg-emerald-50/20 opacity-70'
+                        : al.severity === 'critical'
+                          ? 'border-red-200 bg-red-50/30'
                           : 'border-slate-200 bg-slate-50/60'
                     }`}
                   >
                     <div className="space-y-1.5 max-w-2xl">
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          al.severity === 'critical' 
-                            ? 'bg-red-100 text-red-800' 
+                          al.severity === 'critical'
+                            ? 'bg-red-100 text-red-800'
                             : 'bg-amber-100 text-amber-800'
                         }`}>
                           {al.severity}

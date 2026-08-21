@@ -1,50 +1,52 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  Globe, 
-  Share2, 
-  RefreshCw, 
-  CheckCircle2, 
-  ExternalLink, 
-  Plus, 
-  Settings, 
-  Sparkles, 
-  Copy, 
-  Check, 
-  FileText, 
-  Briefcase, 
-  Users, 
-  Calendar, 
-  DollarSign, 
-  Star, 
-  MapPin, 
-  Clock, 
-  Send, 
-  QrCode, 
-  ShieldCheck, 
-  Filter, 
-  Search, 
-  TrendingUp, 
-  AlertCircle, 
+import {
+  Globe,
+  Share2,
+  RefreshCw,
+  CheckCircle2,
+  ExternalLink,
+  Plus,
+  Settings,
+  Sparkles,
+  Copy,
+  Check,
+  FileText,
+  Briefcase,
+  Users,
+  Calendar,
+  DollarSign,
+  Star,
+  MapPin,
+  Clock,
+  Send,
+  QrCode,
+  ShieldCheck,
+  Filter,
+  Search,
+  TrendingUp,
+  AlertCircle,
   Award,
   Zap,
   ArrowRight,
   Eye,
   MessageSquare
 } from 'lucide-react';
-import { 
-  HiringPlatformConnection, 
-  JobOpening, 
-  HiringSyncLog, 
-  OnboardingCandidate, 
+import {
+  HiringPlatformConnection,
+  JobOpening,
+  HiringSyncLog,
+  OnboardingCandidate,
   HiringPlatformId,
   RestaurantRole,
   Department,
   SupportedLanguage
 } from '../types';
-import { 
-  INITIAL_HIRING_PLATFORMS, 
-  INITIAL_JOB_OPENINGS, 
-  INITIAL_MULTI_SOURCE_APPLICANTS, 
+import {
+  INITIAL_HIRING_PLATFORMS,
+  INITIAL_JOB_OPENINGS,
+  INITIAL_MULTI_SOURCE_APPLICANTS,
   INITIAL_HIRING_SYNC_LOGS,
   generateCraigslistPostContent,
   generateGoogleJobsJsonLd
@@ -64,6 +66,8 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
   onUpdateCandidateStage,
   onSelectCandidateForAI,
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // State
   const [platforms, setPlatforms] = useState<HiringPlatformConnection[]>(INITIAL_HIRING_PLATFORMS);
   const [jobOpenings, setJobOpenings] = useState<JobOpening[]>(INITIAL_JOB_OPENINGS);
@@ -184,7 +188,7 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
     const firstNames = ['Camila', 'Trevor', 'Darius', 'Mei-Ling', 'Lucas', 'Nadia', 'Hannah', 'Dante'];
     const lastNames = ['Rodriguez', 'O\'Connor', 'Bennett', 'Zhang', 'Silva', 'Kowalski', 'Miller', 'Romano'];
     const roles: RestaurantRole[] = ['Lead Bartender', 'Line Cook', 'Server', 'Host / Hostess', 'Prep Cook'];
-    
+
     const randomFirst = firstNames[Math.floor(Math.random() * firstNames.length)];
     const randomLast = lastNames[Math.floor(Math.random() * lastNames.length)];
     const randomRole = roles[Math.floor(Math.random() * roles.length)];
@@ -237,14 +241,14 @@ export const HiringPlatformHub: React.FC<HiringPlatformHubProps> = ({
   const handleGenerateAIJobDescription = () => {
     setIsGeneratingAIJob(true);
     setTimeout(() => {
-      const generatedDesc = `ShiftForce Flagship Bistro & Lounge is looking for an exceptional ${newRole} to join our high-energy ${newDepartment} team. 
-We pride ourselves on culinary excellence, warm neighborhood hospitality, and a supportive team environment where every employee is valued. 
+      const generatedDesc = `ShiftForce Flagship Bistro & Lounge is looking for an exceptional ${newRole} to join our high-energy ${newDepartment} team.
+We pride ourselves on culinary excellence, warm neighborhood hospitality, and a supportive team environment where every employee is valued.
 In this role, you will be a core contributor to our daily service, ensuring seamless operations, pristine standards, and delighted guests.`;
-      
+
       const reqs = [
         `2+ years experience as a ${newRole} in a high-volume restaurant or hospitality venue`,
-        newDepartment === 'Bar & Beverage' || newRole === 'Server' 
-          ? 'Valid California RBS (Responsible Beverage Service) & ServSafe Food Handler certification' 
+        newDepartment === 'Bar & Beverage' || newRole === 'Server'
+          ? 'Valid California RBS (Responsible Beverage Service) & ServSafe Food Handler certification'
           : 'Valid ServSafe Food Handler Card (or obtained within 30 days)',
         'Positive hospitality mindset with strong teamwork and communication skills',
         'Weekend, evening, and holiday rush availability'
@@ -371,7 +375,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
 
   return (
     <div className="space-y-6">
-      
+
       {/* Toast Notification */}
       {syncSuccessToast && (
         <div className="fixed bottom-6 right-6 max-w-md bg-slate-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 z-50 flex items-start gap-3 animate-in fade-in slide-in-from-bottom-5">
@@ -566,13 +570,13 @@ In this role, you will be a core contributor to our daily service, ensuring seam
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {platforms.map((platform) => (
-              <div 
+              <div
                 key={platform.id}
                 className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 relative overflow-hidden group"
               >
                 {/* Brand Color Indicator Bar */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-1.5" 
+                <div
+                  className="absolute top-0 left-0 right-0 h-1.5"
                   style={{ backgroundColor: platform.brandColor }}
                 />
 
@@ -623,7 +627,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   <span className="text-[10px] text-slate-400 truncate">
                     Last sync: {platform.lastSyncedAt?.slice(11) || 'Live'}
                   </span>
-                  
+
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleSimulateInboundWebhook(platform.id)}
@@ -749,7 +753,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                     {job.targetPlatforms.map((pid) => {
                       const b = getPlatformBadge(pid);
                       return (
-                        <span 
+                        <span
                           key={pid}
                           className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${b.badgeBg} ${b.badgeText} border border-slate-200 flex items-center gap-1`}
                         >
@@ -821,7 +825,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
             {filteredApplicants.map((cand) => {
               const platformBadge = getPlatformBadge(cand.sourcePlatform);
               return (
-                <div 
+                <div
                   key={cand.id}
                   className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-indigo-300 transition-all space-y-3"
                 >
@@ -832,7 +836,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                         <span className="px-2.5 py-0.5 text-xs font-bold bg-indigo-50 text-indigo-700 rounded-md">
                           {cand.role} ({cand.department})
                         </span>
-                        
+
                         {/* Source Platform Badge */}
                         <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${platformBadge.badgeBg} ${platformBadge.badgeText} border border-slate-200 flex items-center gap-1`}>
                           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: platformBadge.color }} />
@@ -882,7 +886,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   {cand.resumeSnippet && (
                     <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-xs text-slate-700">
                       <p className="leading-relaxed italic">"{cand.resumeSnippet}"</p>
-                      
+
                       {cand.certificationsSummary && cand.certificationsSummary.length > 0 && (
                         <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Verified:</span>
@@ -1104,7 +1108,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   Instantly publish to LinkedIn, Indeed, Craigslist, Facebook Jobs, ZipRecruiter &amp; Google for Jobs.
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => setIsNewJobModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 text-sm font-bold"
               >
@@ -1195,7 +1199,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   {platforms.map((p) => {
                     const isChecked = newTargetPlatforms.includes(p.id);
                     return (
-                      <label 
+                      <label
                         key={p.id}
                         className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition-colors ${
                           isChecked ? 'bg-indigo-50/70 border-indigo-300 font-bold text-indigo-950' : 'bg-slate-50 border-slate-200 text-slate-600'
@@ -1205,7 +1209,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => {
-                            setNewTargetPlatforms(prev => 
+                            setNewTargetPlatforms(prev =>
                               isChecked ? prev.filter(x => x !== p.id) : [...prev, p.id]
                             );
                           }}
@@ -1267,7 +1271,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <div 
+                <div
                   className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-white shadow-xs"
                   style={{ backgroundColor: selectedPlatformForConfig.brandColor }}
                 >
@@ -1280,7 +1284,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   <p className="text-xs text-slate-500">API Credentials &amp; Auto-Intake Webhooks</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedPlatformForConfig(null)}
                 className="text-slate-400 hover:text-slate-600 text-sm font-bold"
               >

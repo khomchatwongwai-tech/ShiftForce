@@ -1,22 +1,21 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { 
-  User, 
-  onAuthStateChanged, 
-  signInWithPopup, 
+import {
+  User,
+  onAuthStateChanged,
+  signInWithPopup,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   updateProfile as updateFirebaseProfile
 } from 'firebase/auth';
 import { auth, googleProvider, testFirestoreConnection } from './config';
-import { firestoreService } from './firestoreService';
-import { 
-  Employee, 
-  Shift, 
-  AttendancePunch, 
-  ShiftTradeRequest, 
-  Announcement, 
-  AuthUserSession, 
+import { firestoreService } from '../supabase/workforceService';
+import {
+  Employee,
+  Shift,
+  AttendancePunch,
+  ShiftTradeRequest,
+  Announcement,
+  AuthUserSession,
   CustomRole,
   AuthPortalMode
 } from '../types';
@@ -35,6 +34,7 @@ export interface UserProfileDoc {
   isHostOrAdmin: boolean;
   userType: AuthPortalMode;
   employeeId?: string;
+  organizationId?: string;
   createdAt?: string;
   updatedAt?: string;
   lastLoginAt?: string;
@@ -52,6 +52,7 @@ interface FirebaseContextType {
   signInWithEmail: (email: string, password: string, preferredRole?: CustomRole) => Promise<AuthUserSession>;
   signUpWithEmail: (email: string, password: string, displayName?: string, preferredRole?: CustomRole) => Promise<AuthUserSession>;
   signInWithEmployeePin: (employee: Employee, pin?: string) => Promise<AuthUserSession>;
+  signInEmployee: (identifier: string, pin: string) => Promise<AuthUserSession>;
   setCustomSession: (session: AuthUserSession) => void;
   logOutFirebase: () => Promise<void>;
   updateUserProfile: (updates: Partial<UserProfileDoc>) => Promise<void>;
@@ -64,8 +65,10 @@ const loadPersistedSession = (): AuthUserSession => {
     try {
       const saved = localStorage.getItem(SESSION_STORAGE_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed.isAuthenticated === 'boolean') {
+        const parsed = JSON.parse(saved) as AuthUserSession;
+        // Only retain employee demo/PIN sessions when explicit demo auth is enabled.
+        const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
+        if (demoAuthEnabled && parsed?.isAuthenticated && parsed.userType === 'employee') {
           return parsed;
         }
       }
@@ -75,15 +78,14 @@ const loadPersistedSession = (): AuthUserSession => {
   }
 
   return {
-    isAuthenticated: true,
+    isAuthenticated: false,
     userType: 'admin',
-    adminRole: defaultAdminRole,
-    displayName: defaultAdminRole.name.split('(')[0].trim(),
-    displayEmail: 'admin@shiftsky.com',
-    loginTimestamp: new Date().toISOString(),
-    sessionToken: 'token-initial-adm-01',
-    authMethod: 'quick_select',
-    isHostOrAdminPayer: true,
+    displayName: 'Guest / Signed Out',
+    displayEmail: '',
+    loginTimestamp: '',
+    sessionToken: '',
+    authMethod: 'credentials',
+    isHostOrAdminPayer: false,
   };
 };
 
@@ -114,12 +116,13 @@ export const FirebaseProvider: React.FC<{
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isFirestoreConnected, setIsFirestoreConnected] = useState(false);
   const [syncWithFirestore, setSyncWithFirestore] = useState(true);
-  
+
   const activeUnsubProfileRef = useRef<(() => void) | null>(null);
 
   // Sync session changes to localStorage
   const persistSession = useCallback((session: AuthUserSession) => {
     setUserSession(session);
+    if (session.userType === 'employee' && !(import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true')) return;
     try {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
       if (session.userType === 'employee' && session.employee) {
@@ -130,8 +133,28 @@ export const FirebaseProvider: React.FC<{
     }
   }, []);
 
+  const signInEmployee = async (identifier: string, pin: string): Promise<AuthUserSession> => {
+    const response = await fetch('/api/auth/employee/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ identifier, pin }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload?.employee) throw new Error(payload?.error || 'Invalid employee ID or PIN');
+    const employee = payload.employee as Employee & { employeeId?: string };
+    const session: AuthUserSession = { isAuthenticated: true, organizationId: employee.organizationId, userType: 'employee', employee: { ...employee, id: employee.employeeId || employee.id }, displayName: (employee as any).displayName || employee.name, displayEmail: employee.email || '', loginTimestamp: new Date().toISOString(), sessionToken: '', authMethod: 'pin', isHostOrAdminPayer: false };
+    setUserSession(session);
+    return session;
+  };
+
   // Real Firebase onAuthStateChanged Observer
   useEffect(() => {
+    void (async () => {
+      try {
+        const response = await fetch('/api/auth/employee/session', { credentials: 'include' });
+        const payload = await response.json().catch(() => ({}));
+        if (response.ok && payload?.employee) {
+          const employee = payload.employee as Employee & { employeeId?: string };
+          setUserSession({ isAuthenticated: true, organizationId: employee.organizationId, userType: 'employee', employee: { ...employee, id: employee.employeeId || employee.id }, displayName: (employee as any).displayName || employee.name, displayEmail: employee.email || '', loginTimestamp: new Date().toISOString(), sessionToken: '', authMethod: 'pin', isHostOrAdminPayer: false });
+        }
+      } catch {}
+    })();
     const unsubscribeAuth = onAuthStateChanged(auth, async (fbUser) => {
       // Clean up previous user profile listener if any
       if (activeUnsubProfileRef.current) {
@@ -146,29 +169,21 @@ export const FirebaseProvider: React.FC<{
           // Check for existing profile in Firestore
           let profile = await firestoreService.getUserProfile(fbUser.uid);
 
-          const isSuperAdminEmail = fbUser.email === 'khomchatwongwai@gmail.com' || 
-                                    fbUser.email?.includes('admin') || 
-                                    fbUser.email?.includes('host');
-
-          const matchingRole = INITIAL_CUSTOM_ROLES.find(r => r.id === profile?.role) || 
-                               (isSuperAdminEmail ? INITIAL_CUSTOM_ROLES[0] : INITIAL_CUSTOM_ROLES[1]) ||
-                               INITIAL_CUSTOM_ROLES[0];
+          const matchingRole = INITIAL_CUSTOM_ROLES.find(r => r.id === profile?.role) ||
+                               INITIAL_CUSTOM_ROLES.find(r => r.id === 'role-employee') ||
+                               INITIAL_CUSTOM_ROLES[1];
 
           if (!profile) {
-            // First time Firebase Auth login -> create Firestore profile doc
-            profile = {
-              userId: fbUser.uid,
-              email: fbUser.email || '',
-              displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'Hospitality Manager',
-              photoURL: fbUser.photoURL || undefined,
-              role: matchingRole.id,
-              isHostOrAdmin: isSuperAdminEmail || matchingRole.id === 'role-restaurant-host' || matchingRole.id === 'role-super-admin',
-              userType: 'admin',
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              lastLoginAt: new Date().toISOString(),
+            // Unknown Firebase identities are not auto-enrolled into a tenant. They may remain
+            // Firebase-authenticated long enough to accept a valid organization invitation.
+            setUserProfile(null);
+            const pendingSession: AuthUserSession = {
+              isAuthenticated: false, userType: 'employee', displayName: fbUser.displayName || 'Pending invitation',
+              displayEmail: fbUser.email || '', loginTimestamp: '', sessionToken: '', authMethod: 'credentials', isHostOrAdminPayer: false,
             };
-            await firestoreService.saveUserProfile(profile);
+            persistSession(pendingSession);
+            setIsLoadingAuth(false);
+            return;
           } else {
             // Update lastLoginAt timestamp in Firestore
             firestoreService.saveUserProfile({
@@ -187,7 +202,7 @@ export const FirebaseProvider: React.FC<{
           });
 
           // Check if user's email matches an employee record
-          const matchedEmployee = initialEmployees.find(e => 
+          const matchedEmployee = initialEmployees.find(e =>
             e.email?.toLowerCase() === fbUser.email?.toLowerCase() ||
             e.id === profile?.employeeId
           );
@@ -196,6 +211,7 @@ export const FirebaseProvider: React.FC<{
 
           const newSession: AuthUserSession = {
             isAuthenticated: true,
+            organizationId: profile.organizationId,
             userType: isEmployeeMode ? 'employee' : 'admin',
             adminRole: matchingRole,
             employee: matchedEmployee,
@@ -205,7 +221,7 @@ export const FirebaseProvider: React.FC<{
             loginTimestamp: new Date().toISOString(),
             sessionToken: `token-fb-${fbUser.uid}`,
             authMethod: fbUser.providerData.some(p => p.providerId === 'google.com') ? 'google_oauth' : 'credentials',
-            isHostOrAdminPayer: profile.isHostOrAdmin ?? (isSuperAdminEmail || true),
+            isHostOrAdminPayer: profile.isHostOrAdmin ?? false,
           };
 
           persistSession(newSession);
@@ -216,26 +232,28 @@ export const FirebaseProvider: React.FC<{
         setCurrentUser(null);
         setUserProfile(null);
 
-        // Check if there is a cached employee PIN session or active admin session in localStorage
+        // A missing Firebase user must fail closed. Only the explicitly enabled local
+        // development PIN demo may survive without Firebase authentication.
         setUserSession((prev) => {
-          if (prev.authMethod === 'google_oauth') {
-            const signedOut: AuthUserSession = {
-              isAuthenticated: false,
-              userType: 'admin',
-              displayName: 'Signed Out',
-              displayEmail: '',
-              loginTimestamp: '',
-              sessionToken: '',
-              authMethod: 'credentials',
-              isHostOrAdminPayer: false,
-            };
-            try {
-              localStorage.removeItem(SESSION_STORAGE_KEY);
-            } catch {}
-            return signedOut;
+          const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
+          if (demoAuthEnabled && prev.userType === 'employee' && (prev.authMethod === 'pin' || prev.authMethod === 'quick_select')) {
+            return prev;
           }
-          // Preserve valid employee PIN sessions and configured admin sessions
-          return prev;
+          const signedOut: AuthUserSession = {
+            isAuthenticated: false,
+            userType: 'admin',
+            displayName: 'Signed Out',
+            displayEmail: '',
+            loginTimestamp: '',
+            sessionToken: '',
+            authMethod: 'credentials',
+            isHostOrAdminPayer: false,
+          };
+          try {
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+            localStorage.removeItem(EMPLOYEE_SESSION_KEY);
+          } catch {}
+          return signedOut;
         });
       }
 
@@ -255,44 +273,21 @@ export const FirebaseProvider: React.FC<{
     };
   }, [initialEmployees, persistSession]);
 
-  // Realtime Firestore Subscriptions for App Entities
+  // Realtime Firestore subscriptions are tenant-scoped and only active after a real Firebase login.
   useEffect(() => {
-    if (!syncWithFirestore) return;
+    if (!syncWithFirestore || !currentUser || !userProfile?.organizationId) return;
 
-    // Seed initial demo data to Firestore if available
-    if (initialEmployees.length > 0) {
+    const organizationId = userProfile.organizationId;
+    const demoSeedEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
+    if (demoSeedEnabled && initialEmployees.length > 0) {
       firestoreService.seedEmployeesIfEmpty(initialEmployees).catch(() => {});
     }
 
-    const unsubEmployees = firestoreService.subscribeEmployees((employees) => {
-      if (onEmployeesSynced && employees.length > 0) {
-        onEmployeesSynced(employees);
-      }
-    });
-
-    const unsubShifts = firestoreService.subscribeShifts((shifts) => {
-      if (onShiftsSynced && shifts.length > 0) {
-        onShiftsSynced(shifts);
-      }
-    });
-
-    const unsubPunches = firestoreService.subscribePunches((punches) => {
-      if (onPunchesSynced) {
-        onPunchesSynced(punches);
-      }
-    });
-
-    const unsubTrades = firestoreService.subscribeTrades((trades) => {
-      if (onTradesSynced) {
-        onTradesSynced(trades);
-      }
-    });
-
-    const unsubAnnouncements = firestoreService.subscribeAnnouncements((announcements) => {
-      if (onAnnouncementsSynced) {
-        onAnnouncementsSynced(announcements);
-      }
-    });
+    const unsubEmployees = firestoreService.subscribeEmployees(organizationId, employees => onEmployeesSynced?.(employees));
+    const unsubShifts = firestoreService.subscribeShifts(organizationId, shifts => onShiftsSynced?.(shifts));
+    const unsubPunches = firestoreService.subscribePunches(organizationId, punches => onPunchesSynced?.(punches));
+    const unsubTrades = firestoreService.subscribeTrades(organizationId, trades => onTradesSynced?.(trades));
+    const unsubAnnouncements = firestoreService.subscribeAnnouncements(organizationId, announcements => onAnnouncementsSynced?.(announcements));
 
     return () => {
       unsubEmployees();
@@ -301,7 +296,7 @@ export const FirebaseProvider: React.FC<{
       unsubTrades();
       unsubAnnouncements();
     };
-  }, [syncWithFirestore, initialEmployees, onAnnouncementsSynced, onEmployeesSynced, onPunchesSynced, onShiftsSynced, onTradesSynced]);
+  }, [syncWithFirestore, currentUser, userProfile?.organizationId, initialEmployees, onAnnouncementsSynced, onEmployeesSynced, onPunchesSynced, onShiftsSynced, onTradesSynced]);
 
   // --- Sign In with Google Popup ---
   const signInWithGoogle = async (preferredRole?: CustomRole, isHost?: boolean): Promise<AuthUserSession> => {
@@ -309,14 +304,13 @@ export const FirebaseProvider: React.FC<{
       const res = await signInWithPopup(auth, googleProvider);
       const fbUser = res.user;
 
-      const isSuperAdminEmail = fbUser.email === 'khomchatwongwai@gmail.com' || 
-                                fbUser.email?.includes('admin') ||
-                                fbUser.email?.includes('host');
-
-      const assignedRole = preferredRole || 
-                           (isSuperAdminEmail ? INITIAL_CUSTOM_ROLES[0] : (INITIAL_CUSTOM_ROLES.find(r => r.id === 'role-restaurant-host') || INITIAL_CUSTOM_ROLES[0]));
-      
-      const isPayer = isHost ?? (isSuperAdminEmail || assignedRole.id === 'role-restaurant-host' || assignedRole.id === 'role-super-admin');
+      const existingProfile = await firestoreService.getUserProfile(fbUser.uid);
+      if (!existingProfile?.organizationId) {
+        throw new Error('This Google account is not provisioned yet. Use a valid ShiftForce organization invitation or ask an administrator to provision access.');
+      }
+      const assignedRole = INITIAL_CUSTOM_ROLES.find(r => r.id === existingProfile?.role) ||
+                           INITIAL_CUSTOM_ROLES.find(r => r.id === 'role-employee') || INITIAL_CUSTOM_ROLES[1];
+      const isPayer = Boolean(existingProfile?.isHostOrAdmin);
 
       const profile: UserProfileDoc = {
         userId: fbUser.uid,
@@ -325,7 +319,8 @@ export const FirebaseProvider: React.FC<{
         photoURL: fbUser.photoURL || undefined,
         role: assignedRole.id,
         isHostOrAdmin: isPayer,
-        userType: 'admin',
+        userType: existingProfile?.userType || 'employee',
+        organizationId: existingProfile.organizationId,
         updatedAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
@@ -336,8 +331,9 @@ export const FirebaseProvider: React.FC<{
 
       const session: AuthUserSession = {
         isAuthenticated: true,
-        userType: 'admin',
-        adminRole: assignedRole,
+        organizationId: profile.organizationId,
+        userType: profile.userType === 'admin' && isPayer ? 'admin' : 'employee',
+        adminRole: profile.userType === 'admin' && isPayer ? assignedRole : undefined,
         displayName: fbUser.displayName || assignedRole.name.split('(')[0].trim(),
         displayEmail: fbUser.email || 'admin@shiftsky.com',
         avatarUrl: fbUser.photoURL || undefined,
@@ -356,52 +352,44 @@ export const FirebaseProvider: React.FC<{
   };
 
   // --- Sign In with Email / Password ---
-  const signInWithEmail = async (email: string, password: string, preferredRole?: CustomRole): Promise<AuthUserSession> => {
+  const signInWithEmail = async (email: string, password: string, _preferredRole?: CustomRole): Promise<AuthUserSession> => {
     try {
-      let fbUser: User;
-      try {
-        const res = await signInWithEmailAndPassword(auth, email, password);
-        fbUser = res.user;
-      } catch (authErr: any) {
-        if (authErr.code === 'auth/user-not-found' || authErr.code === 'auth/invalid-credential' || authErr.code === 'auth/wrong-password') {
-          // If the account doesn't exist yet, attempt automatic creation
-          const createRes = await createUserWithEmailAndPassword(auth, email, password);
-          fbUser = createRes.user;
-        } else {
-          throw authErr;
-        }
+      const res = await signInWithEmailAndPassword(auth, email, password);
+      const fbUser = res.user;
+      const profile = await firestoreService.getUserProfile(fbUser.uid);
+
+      if (!profile?.organizationId) {
+        await signOut(auth);
+        throw new Error('This account is not provisioned for ShiftForce. Ask an administrator to invite you.');
       }
 
-      const assignedRole = preferredRole || INITIAL_CUSTOM_ROLES[0];
-      const isPayer = assignedRole.id === 'role-restaurant-host' || assignedRole.id === 'role-super-admin' || email === 'khomchatwongwai@gmail.com';
+      const assignedRole = INITIAL_CUSTOM_ROLES.find(r => r.id === profile.role) ||
+                           INITIAL_CUSTOM_ROLES.find(r => r.id === 'role-employee') || INITIAL_CUSTOM_ROLES[1];
+      const isAdminProfile = profile.userType === 'admin' && profile.isHostOrAdmin === true;
+      const matchedEmployee = initialEmployees.find(e => e.id === profile.employeeId || e.email?.toLowerCase() === email.toLowerCase());
+      const isEmployeeProfile = profile.userType === 'employee' && Boolean(profile.employeeId);
 
-      const profile: UserProfileDoc = {
-        userId: fbUser.uid,
-        email: fbUser.email || email,
-        displayName: fbUser.displayName || assignedRole.name.split('(')[0].trim(),
-        photoURL: fbUser.photoURL || undefined,
-        role: assignedRole.id,
-        isHostOrAdmin: isPayer,
-        userType: 'admin',
-        updatedAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      };
+      if (!isAdminProfile && !isEmployeeProfile) {
+        await signOut(auth);
+        throw new Error('This account exists but is not linked to an active ShiftForce workforce identity. Ask an administrator to provision it.');
+      }
 
-      await firestoreService.saveUserProfile(profile);
       setUserProfile(profile);
       setCurrentUser(fbUser);
 
       const session: AuthUserSession = {
         isAuthenticated: true,
-        userType: 'admin',
-        adminRole: assignedRole,
-        displayName: profile.displayName,
-        displayEmail: profile.email,
-        avatarUrl: profile.photoURL,
+        organizationId: profile.organizationId,
+        userType: isAdminProfile ? 'admin' : 'employee',
+        adminRole: isAdminProfile ? assignedRole : undefined,
+        employee: isEmployeeProfile ? matchedEmployee : undefined,
+        displayName: profile.displayName || matchedEmployee?.name || fbUser.displayName || email,
+        displayEmail: profile.email || fbUser.email || email,
+        avatarUrl: profile.photoURL || matchedEmployee?.avatarUrl || fbUser.photoURL || undefined,
         loginTimestamp: new Date().toISOString(),
-        sessionToken: `token-fb-email-${fbUser.uid}`,
+        sessionToken: `firebase:${fbUser.uid}`,
         authMethod: 'credentials',
-        isHostOrAdminPayer: isPayer,
+        isHostOrAdminPayer: isAdminProfile,
       };
 
       persistSession(session);
@@ -413,63 +401,24 @@ export const FirebaseProvider: React.FC<{
   };
 
   // --- Sign Up with Email / Password ---
+  // Workforce identities are provisioned through a company invitation. Public client-side
+  // signup is intentionally disabled so users cannot create or select their own tenant.
   const signUpWithEmail = async (
-    email: string, 
-    password: string, 
-    displayName?: string, 
-    preferredRole?: CustomRole
+    _email: string,
+    _password: string,
+    _displayName?: string,
+    _preferredRole?: CustomRole
   ): Promise<AuthUserSession> => {
-    try {
-      const res = await createUserWithEmailAndPassword(auth, email, password);
-      const fbUser = res.user;
-
-      if (displayName) {
-        await updateFirebaseProfile(fbUser, { displayName });
-      }
-
-      const assignedRole = preferredRole || INITIAL_CUSTOM_ROLES[0];
-      const isPayer = assignedRole.id === 'role-restaurant-host' || assignedRole.id === 'role-super-admin' || email === 'khomchatwongwai@gmail.com';
-
-      const profile: UserProfileDoc = {
-        userId: fbUser.uid,
-        email: fbUser.email || email,
-        displayName: displayName || assignedRole.name.split('(')[0].trim(),
-        photoURL: fbUser.photoURL || undefined,
-        role: assignedRole.id,
-        isHostOrAdmin: isPayer,
-        userType: 'admin',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString(),
-      };
-
-      await firestoreService.saveUserProfile(profile);
-      setUserProfile(profile);
-      setCurrentUser(fbUser);
-
-      const session: AuthUserSession = {
-        isAuthenticated: true,
-        userType: 'admin',
-        adminRole: assignedRole,
-        displayName: profile.displayName,
-        displayEmail: profile.email,
-        avatarUrl: profile.photoURL,
-        loginTimestamp: new Date().toISOString(),
-        sessionToken: `token-fb-signup-${fbUser.uid}`,
-        authMethod: 'credentials',
-        isHostOrAdminPayer: isPayer,
-      };
-
-      persistSession(session);
-      return session;
-    } catch (error) {
-      console.error('[Firebase Auth] Sign up error:', error);
-      throw error;
-    }
+    throw new Error('Public self-service signup is disabled. Join through a ShiftForce organization invitation or ask your company administrator to provision access.');
   };
 
   // --- Sign In Employee with PIN / Roster Selection ---
   const signInWithEmployeePin = async (employee: Employee, pin?: string): Promise<AuthUserSession> => {
+    const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
+    if (!demoAuthEnabled) {
+      throw new Error('PIN/quick-select login is disabled in production until server-side employee PIN verification is configured.');
+    }
+
     const session: AuthUserSession = {
       isAuthenticated: true,
       userType: 'employee',
@@ -489,6 +438,10 @@ export const FirebaseProvider: React.FC<{
 
   // --- Set Custom Session ---
   const setCustomSession = (session: AuthUserSession) => {
+    const demoAuthEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_AUTH === 'true';
+    if (!currentUser && !demoAuthEnabled && session.userType !== 'employee') {
+      throw new Error('Cannot create a production session without Firebase authentication.');
+    }
     persistSession(session);
   };
 
@@ -504,7 +457,8 @@ export const FirebaseProvider: React.FC<{
       photoURL: currentUser?.photoURL || userProfile?.photoURL,
       role: userProfile?.role || 'role-super-admin',
       isHostOrAdmin: userProfile?.isHostOrAdmin ?? true,
-      userType: userProfile?.userType || 'admin',
+      userType: userProfile?.userType || 'employee',
+      organizationId: userProfile?.organizationId,
       ...userProfile,
       ...updates,
       updatedAt: new Date().toISOString(),
@@ -556,7 +510,8 @@ export const FirebaseProvider: React.FC<{
         signInWithGoogle,
         signInWithEmail,
         signUpWithEmail,
-        signInWithEmployeePin,
+    signInWithEmployeePin,
+    signInEmployee,
         setCustomSession,
         logOutFirebase,
         updateUserProfile,
@@ -574,5 +529,3 @@ export const useFirebase = () => {
   }
   return context;
 };
-
-

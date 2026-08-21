@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  AlertCircle, 
-  CheckCircle2, 
-  Smartphone, 
-  Mail, 
-  Bell, 
-  MapPin, 
-  Zap, 
+import {
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  Smartphone,
+  Mail,
+  Bell,
+  MapPin,
+  Zap,
   ChefHat,
   Sparkles,
   CalendarCheck,
@@ -124,7 +124,7 @@ export const ShiftCountdownBanner: React.FC<ShiftCountdownBannerProps> = ({
       <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
       <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        
+
         {/* Left: Employee info & Shift Details */}
         <div className="flex items-start gap-3.5">
           <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 border border-white/30 shadow-inner">
@@ -168,7 +168,7 @@ export const ShiftCountdownBanner: React.FC<ShiftCountdownBannerProps> = ({
 
         {/* Right: Live Countdown & Clock In Action */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end flex-wrap">
-          
+
           {/* Countdown Clock Display */}
           <div className="bg-white/15 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/20 text-center">
             <div className="text-[10px] uppercase tracking-wider font-semibold text-sky-100">
@@ -257,4 +257,3 @@ export const ShiftCountdownBanner: React.FC<ShiftCountdownBannerProps> = ({
     </div>
   );
 };
-

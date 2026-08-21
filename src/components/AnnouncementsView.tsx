@@ -1,16 +1,19 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
+import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
-import { 
-  Megaphone, 
-  Send, 
-  Sparkles, 
-  Smartphone, 
-  Mail, 
-  Bell, 
-  CheckCircle2, 
-  AlertCircle, 
-  Flame, 
-  Pin, 
-  RefreshCw, 
+import {
+  Megaphone,
+  Send,
+  Sparkles,
+  Smartphone,
+  Mail,
+  Bell,
+  CheckCircle2,
+  AlertCircle,
+  Flame,
+  Pin,
+  RefreshCw,
   Users,
   ShieldCheck,
   Star,
@@ -20,7 +23,6 @@ import {
   Camera
 } from 'lucide-react';
 import { Announcement, Employee, SupportedLanguage, Department, NotificationDispatch } from '../types';
-import { translations } from '../utils/i18n';
 
 interface AnnouncementsViewProps {
   portal: 'admin' | 'employee';
@@ -66,7 +68,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
     setIsDraftingAI(true);
 
     try {
-      const res = await fetch('/api/ai/draft-announcement', {
+      const res = await authenticatedFetch('/api/ai/draft-announcement', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -116,7 +118,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header Banner */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -127,8 +129,8 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            {portal === 'admin' 
-              ? 'Only Admin and GM can publish announcements. Automatically broadcast to all employee phones, emails, and app.' 
+            {portal === 'admin'
+              ? 'Only Admin and GM can publish announcements. Automatically broadcast to all employee phones, emails, and app.'
               : 'Official restaurant announcements, shift guidelines, menu updates, and mandatory notices.'}
           </p>
         </div>
@@ -147,7 +149,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
       {/* Admin Broadcast Publisher (Admin Portal Only) */}
       {portal === 'admin' && (
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-4">
-          
+
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
               <Megaphone className="w-4 h-4 text-sky-600" />
@@ -190,7 +192,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
           )}
 
           <form onSubmit={handlePublish} className="space-y-4 text-xs">
-            
+
             {/* Title & Priority */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2">
@@ -324,7 +326,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
             const readCount = readList.length;
             const totalStaff = employees.length;
             const channelsList = ann.channels || ['in_app'];
-            const audienceText = ann.targetDepartment 
+            const audienceText = ann.targetDepartment
               ? (ann.targetDepartment === 'all' ? 'All Staff' : ann.targetDepartment)
               : (ann.targetDepartments === 'all' || !ann.targetDepartments ? 'All Staff' : Array.isArray(ann.targetDepartments) ? ann.targetDepartments.join(', ') : 'All Staff');
 
@@ -332,8 +334,8 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
               <div
                 key={ann.id}
                 className={`bg-white rounded-2xl p-5 border shadow-xs transition-all space-y-3 ${
-                  ann.priority === 'emergency' 
-                    ? 'border-rose-300 bg-rose-50/20 ring-1 ring-rose-200' 
+                  ann.priority === 'emergency'
+                    ? 'border-rose-300 bg-rose-50/20 ring-1 ring-rose-200'
                     : ann.priority === 'urgent'
                     ? 'border-amber-200 bg-amber-50/20'
                     : 'border-slate-200/80'
@@ -349,10 +351,10 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
                     )}
 
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
-                      ann.priority === 'emergency' 
-                        ? 'bg-rose-100 text-rose-800' 
-                        : ann.priority === 'urgent' 
-                        ? 'bg-amber-100 text-amber-800' 
+                      ann.priority === 'emergency'
+                        ? 'bg-rose-100 text-rose-800'
+                        : ann.priority === 'urgent'
+                        ? 'bg-amber-100 text-amber-800'
                         : 'bg-sky-100 text-sky-800'
                     }`}>
                       {ann.priority}
@@ -392,7 +394,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
                 {/* 5-Star Review Snapshot Card if attached */}
                 {ann.reviewSnapshot && (
                   <div className={`p-4 rounded-xl border space-y-3 ${
-                    ann.reviewSnapshot.theme === 'neon' 
+                    ann.reviewSnapshot.theme === 'neon'
                       ? 'bg-gradient-to-br from-slate-950 via-purple-950 to-indigo-950 border-purple-500/40 text-white'
                       : ann.reviewSnapshot.theme === 'emerald'
                       ? 'bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-950 border-emerald-500/40 text-white'
@@ -474,7 +476,7 @@ export const AnnouncementsView: React.FC<AnnouncementsViewProps> = ({
 
                 {/* Bottom Footer: Author & Read Acknowledgement */}
                 <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-                  
+
                   <div className="flex items-center gap-2 text-slate-500 text-[11px]">
                     <ShieldCheck className="w-4 h-4 text-sky-600" />
                     <span>Posted by <strong>{ann.authorName}</strong> {ann.authorRole ? `(${ann.authorRole})` : ''}</span>

@@ -1,33 +1,35 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
-import { 
-  Sparkles, 
-  Send, 
-  AlertTriangle, 
-  CheckCircle2, 
-  Clock, 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  Calendar, 
-  ShieldAlert, 
-  Sliders, 
-  Zap, 
-  DollarSign, 
-  MapPin, 
-  PhoneCall, 
-  MessageSquare, 
-  Award, 
-  Sun, 
-  FileText, 
-  Layers, 
-  RefreshCw, 
-  Flame, 
-  ArrowRight, 
-  ChevronRight, 
-  Check, 
-  X, 
-  UserCheck, 
-  Bot, 
+import {
+  Sparkles,
+  Send,
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Calendar,
+  ShieldAlert,
+  Sliders,
+  Zap,
+  DollarSign,
+  MapPin,
+  PhoneCall,
+  MessageSquare,
+  Award,
+  Sun,
+  FileText,
+  Layers,
+  RefreshCw,
+  Flame,
+  ArrowRight,
+  ChevronRight,
+  Check,
+  X,
+  UserCheck,
+  Bot,
   PlayCircle,
   HelpCircle,
   BarChart2,
@@ -35,32 +37,32 @@ import {
   Cpu,
   Share2
 } from 'lucide-react';
-import { 
-  Shift, 
-  Employee, 
-  Department, 
-  ShiftRescueEvent, 
-  NoShowRiskShift, 
-  ScheduleHealthPillars, 
-  DemandHourlyForecast, 
-  WhatIfScenarioConfig, 
-  ShiftBiddingListing, 
-  ManagerMorningBriefingData, 
-  EndOfDayReportData, 
-  CrossTrainingBottleneck, 
+import {
+  Shift,
+  Employee,
+  Department,
+  ShiftRescueEvent,
+  NoShowRiskShift,
+  ScheduleHealthPillars,
+  DemandHourlyForecast,
+  WhatIfScenarioConfig,
+  ShiftBiddingListing,
+  ManagerMorningBriefingData,
+  EndOfDayReportData,
+  CrossTrainingBottleneck,
   MultiLocationUnitSummary,
   ShiftForceAIAgent
 } from '../types';
-import { 
-  INITIAL_SHIFT_RESCUE_EVENTS, 
-  INITIAL_NO_SHOW_RISK_SHIFTS, 
-  INITIAL_SCHEDULE_HEALTH_PILLARS, 
-  INITIAL_DEMAND_HOURLY_FORECAST, 
-  INITIAL_WHAT_IF_CONFIG, 
-  INITIAL_SHIFT_BIDDING_LISTINGS, 
-  INITIAL_MORNING_BRIEFING, 
-  INITIAL_END_OF_DAY_REPORT, 
-  INITIAL_CROSS_TRAINING_BOTTLENECK, 
+import {
+  INITIAL_SHIFT_RESCUE_EVENTS,
+  INITIAL_NO_SHOW_RISK_SHIFTS,
+  INITIAL_SCHEDULE_HEALTH_PILLARS,
+  INITIAL_DEMAND_HOURLY_FORECAST,
+  INITIAL_WHAT_IF_CONFIG,
+  INITIAL_SHIFT_BIDDING_LISTINGS,
+  INITIAL_MORNING_BRIEFING,
+  INITIAL_END_OF_DAY_REPORT,
+  INITIAL_CROSS_TRAINING_BOTTLENECK,
   INITIAL_MULTI_LOCATION_SUMMARY,
   INITIAL_AI_AGENTS_SWARM
 } from '../data/commandCenterData';
@@ -80,6 +82,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
   onOpenTemplateModal,
   onNavigateTab
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   // Command Center State
   const [naturalLanguagePrompt, setNaturalLanguagePrompt] = useState('');
   const [isProcessingPrompt, setIsProcessingPrompt] = useState(false);
@@ -355,7 +359,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
       {/* Top Header & Autonomous Swarm Pill */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-xl border border-indigo-500/20 relative overflow-hidden" id="command-center-header">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        
+
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
@@ -421,8 +425,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                   key={agent.id}
                   onClick={() => setSelectedAgent(agent)}
                   className={`p-2.5 rounded-xl text-left transition-all border ${
-                    isSelected 
-                      ? 'bg-indigo-600/30 border-indigo-400 text-white shadow-md shadow-indigo-500/20' 
+                    isSelected
+                      ? 'bg-indigo-600/30 border-indigo-400 text-white shadow-md shadow-indigo-500/20'
                       : 'bg-slate-800/40 border-slate-700/40 text-slate-300 hover:bg-slate-800/80 hover:text-white'
                   }`}
                 >
@@ -469,8 +473,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
               key={tab.id}
               onClick={() => setActiveSection(tab.id as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                isActive 
-                  ? 'bg-indigo-600 text-white shadow-sm' 
+                isActive
+                  ? 'bg-indigo-600 text-white shadow-sm'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -520,7 +524,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center gap-2 flex-wrap text-xs text-slate-500">
                   <span className="font-semibold text-slate-700">Quick Prompt Shortcuts:</span>
-                  <button 
+                  <button
                     onClick={() => {
                       const txt = "Build next week's schedule. Keep labor below 19%, give everyone at least two days off, avoid overtime, approve Jessica's Tuesday request, and make sure every dinner shift has two experienced employees.";
                       setNaturalLanguagePrompt(txt);
@@ -530,7 +534,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                   >
                     ✨ Build Multi-Constraint Schedule
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const txt = "Mateo Morales called out for dinner shift";
                       setNaturalLanguagePrompt(txt);
@@ -540,7 +544,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                   >
                     🚨 Mateo Called Out
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const txt = "Why is overtime high this week?";
                       setNaturalLanguagePrompt(txt);
@@ -550,7 +554,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                   >
                     🔍 Overtime Root-Cause
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       const txt = "What happens if sales increase 20% Saturday?";
                       setNaturalLanguagePrompt(txt);
@@ -678,7 +682,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs text-slate-500">No overtime triggered on recommended candidate.</span>
-                <button 
+                <button
                   onClick={() => setActiveSection('shift_rescue')}
                   className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
                 >
@@ -829,8 +833,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                 <div className="grid grid-cols-1 gap-3">
                   {currentRescue.rankedCandidates.map((cand, idx) => {
                     return (
-                      <div 
-                        key={cand.employeeId} 
+                      <div
+                        key={cand.employeeId}
                         className="bg-white p-4 rounded-xl border border-slate-200 hover:border-indigo-300 shadow-sm transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
                       >
                         <div className="space-y-1.5 max-w-2xl">
@@ -1152,8 +1156,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                       <td className="py-2 px-3 font-medium text-slate-800">{row.clockedInStaffCount || '—'}</td>
                       <td className="py-2 px-3">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          row.varianceStatus === 'optimal' 
-                            ? 'bg-emerald-100 text-emerald-800' 
+                          row.varianceStatus === 'optimal'
+                            ? 'bg-emerald-100 text-emerald-800'
                             : row.varianceStatus === 'understaffed'
                             ? 'bg-red-100 text-red-800'
                             : 'bg-amber-100 text-amber-800'

@@ -1,43 +1,45 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Sparkles, 
-  X, 
-  Check, 
-  AlertTriangle, 
-  Clock, 
-  DollarSign, 
-  UserCheck, 
-  ShieldCheck, 
-  Layers, 
-  Calendar as CalendarIcon, 
-  ChevronRight, 
-  RefreshCw, 
-  Sliders, 
-  HelpCircle, 
-  CheckCircle2, 
+import {
+  Sparkles,
+  X,
+  Check,
+  AlertTriangle,
+  Clock,
+  DollarSign,
+  UserCheck,
+  ShieldCheck,
+  Layers,
+  Calendar as CalendarIcon,
+  ChevronRight,
+  RefreshCw,
+  Sliders,
+  HelpCircle,
+  CheckCircle2,
   ArrowRight,
   TrendingUp,
   Award,
   Zap,
   Info
 } from 'lucide-react';
-import { 
-  Employee, 
-  Shift, 
-  Department, 
-  RestaurantRole, 
-  ShiftTemplate, 
-  AvailabilityRequest, 
-  TimeOffRequest, 
-  DepartmentBudgetsMap, 
-  OpenSlot, 
-  SmartAutoFillPlan, 
+import {
+  Employee,
+  Shift,
+  Department,
+  RestaurantRole,
+  ShiftTemplate,
+  AvailabilityRequest,
+  TimeOffRequest,
+  DepartmentBudgetsMap,
+  OpenSlot,
+  SmartAutoFillPlan,
   SmartAutoFillSlotRecommendation,
   SmartMatchCandidate
 } from '../types';
-import { 
-  detectScheduleOpenSlots, 
-  generateSmartAutoFillPlan 
+import {
+  detectScheduleOpenSlots,
+  generateSmartAutoFillPlan
 } from '../utils/smartAutoFill';
 
 interface SmartAutoFillModalProps {
@@ -67,6 +69,8 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
   onApplyAutoFillShifts,
   selectedDepartmentFilter = 'all',
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeDept, setActiveDept] = useState<Department | 'all'>(selectedDepartmentFilter);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [plan, setPlan] = useState<SmartAutoFillPlan | null>(null);
@@ -135,7 +139,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
     if (!plan) return;
     setPlan({
       ...plan,
-      recommendations: plan.recommendations.map(r => 
+      recommendations: plan.recommendations.map(r =>
         r.slotId === slotId ? { ...r, isIncluded: !r.isIncluded } : r
       ),
     });
@@ -146,7 +150,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
     if (!plan) return;
     setPlan({
       ...plan,
-      recommendations: plan.recommendations.map(r => 
+      recommendations: plan.recommendations.map(r =>
         r.slotId === slotId ? { ...r, selectedCandidateId: employeeId } : r
       ),
     });
@@ -155,7 +159,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
   // Calculate live summary based on current selections
   const liveSummary = useMemo(() => {
     if (!plan) return { totalSlots: 0, includedCount: 0, totalCost: 0, totalHours: 0, otSafeCount: 0 };
-    
+
     let totalCost = 0;
     let totalHours = 0;
     let otSafeCount = 0;
@@ -252,7 +256,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-sky-100 flex flex-col max-h-[90vh] overflow-hidden">
-        
+
         {/* Header */}
         <div className="p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 text-white flex items-start justify-between gap-4 border-b border-slate-700">
           <div className="space-y-1">
@@ -288,7 +292,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
 
         {/* Toolbar & Filters */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          
+
           {/* Department Filter Tabs */}
           <div className="flex items-center gap-1 overflow-x-auto max-w-full pb-1 sm:pb-0">
             {(['all', 'Front of House', 'Back of House', 'Bar & Beverage', 'Kitchen Prep & Dish', 'Management'] as const).map((dept) => (
@@ -321,7 +325,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-          
+
           {/* Loading State */}
           {isLoading && (
             <div className="py-16 text-center space-y-4">
@@ -449,7 +453,7 @@ export const SmartAutoFillModal: React.FC<SmartAutoFillModalProps> = ({
                       >
                         {/* Slot Summary Header Row */}
                         <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          
+
                           <div className="flex items-start gap-3">
                             {/* Checkbox to include/exclude */}
                             <button

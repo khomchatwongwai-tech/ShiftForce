@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Wifi,
@@ -55,6 +57,8 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
   shifts,
   onSyncOfflinePunchesToLive
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<'roster' | 'clock_in' | 'queue' | 'diagnostics'>('roster');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState<string>('all');
@@ -210,13 +214,13 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden text-slate-900">
-        
+
         {/* Modal Top Header with Network Status */}
         <div className="p-5 sm:p-6 bg-linear-to-r from-slate-900 via-slate-850 to-slate-900 text-white border-b border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-md ${
-              effectiveIsOffline 
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' 
+              effectiveIsOffline
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
                 : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
             }`}>
               {effectiveIsOffline ? <WifiOff className="w-6 h-6 animate-pulse" /> : <Wifi className="w-6 h-6" />}

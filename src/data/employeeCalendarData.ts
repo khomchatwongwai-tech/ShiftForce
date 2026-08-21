@@ -1,10 +1,10 @@
-import { 
-  EmployeeDailyReminder, 
-  EmployeeHabit, 
-  EmployeeHabitLog, 
-  EmployeeGoal, 
+import {
+  EmployeeDailyReminder,
+  EmployeeHabit,
+  EmployeeHabitLog,
+  EmployeeGoal,
   Shift,
-  Employee 
+  Employee
 } from '../types';
 
 export const INITIAL_EMPLOYEE_HABITS: EmployeeHabit[] = [
@@ -284,8 +284,8 @@ export const INITIAL_EMPLOYEE_GOALS: EmployeeGoal[] = [
 
 // Helper to generate a full month of shifts for the employee across August 2026
 export function generateMonthShiftsForEmployee(
-  employee: Employee, 
-  year: number = 2026, 
+  employee: Employee,
+  year: number = 2026,
   month: number = 7 // 0-indexed: 7 = August
 ): Shift[] {
   const shifts: Shift[] = [];
@@ -304,10 +304,10 @@ export function generateMonthShiftsForEmployee(
 
     // Standard hospitality schedule: 4-5 shifts per week (e.g. Wednesday through Sunday)
     const isShiftDay = [3, 4, 5, 6, 0].includes(dayOfWeek); // Wed, Thu, Fri, Sat, Sun
-    
+
     if (isShiftDay) {
       const isWeekend = [5, 6, 0].includes(dayOfWeek);
-      const template = isWeekend 
+      const template = isWeekend
         ? (day % 2 === 0 ? shiftTemplates[2] : shiftTemplates[0])
         : (day % 2 === 0 ? shiftTemplates[1] : shiftTemplates[0]);
 

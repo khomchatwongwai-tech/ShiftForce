@@ -1,14 +1,17 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
+import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState, useMemo } from 'react';
-import { 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  Calendar, 
-  ArrowLeftRight, 
-  AlertTriangle, 
-  UserCheck, 
-  Sparkles, 
-  FileText, 
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Calendar,
+  ArrowLeftRight,
+  AlertTriangle,
+  UserCheck,
+  Sparkles,
+  FileText,
   Send,
   RefreshCw,
   User,
@@ -21,19 +24,18 @@ import {
   ChevronRight,
   Info
 } from 'lucide-react';
-import { 
-  TimeOffRequest, 
-  ShiftSwapRequest, 
-  SickDayReport, 
-  AvailabilityRequest, 
+import {
+  TimeOffRequest,
+  ShiftSwapRequest,
+  SickDayReport,
+  AvailabilityRequest,
   ShiftSlotRequest,
   TardinessRecord,
   ShiftSlotContention,
-  Employee, 
-  Shift, 
-  SupportedLanguage 
+  Employee,
+  Shift,
+  SupportedLanguage
 } from '../types';
-import { translations } from '../utils/i18n';
 import { detectShiftSlotContentions } from '../utils/shiftSlotValidation';
 
 interface RequestsApprovalsViewProps {
@@ -85,7 +87,7 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
 }) => {
   const t = translations[currentLanguage];
   const [activeSubTab, setActiveSubTab] = useState<'timeoff' | 'swap' | 'slot_claims' | 'sick' | 'availability'>('slot_claims');
-  
+
   // AI Replacement Recommendation State
   const [aiFindingCoverageFor, setAiFindingCoverageFor] = useState<SickDayReport | null>(null);
   const [aiRecommendations, setAiRecommendations] = useState<any[]>([]);
@@ -94,10 +96,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
   // Detect Active Slot Contentions & Priority Assignment recommendations
   const contentions = useMemo(() => {
     return detectShiftSlotContentions(
-      shiftSlotRequests, 
-      employees, 
-      shifts, 
-      tardinessLog, 
+      shiftSlotRequests,
+      employees,
+      shifts,
+      tardinessLog,
       availabilityRequests
     );
   }, [shiftSlotRequests, employees, shifts, tardinessLog, availabilityRequests]);
@@ -132,25 +134,18 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
           maxHours: e.maxHoursPerWeek,
         }));
 
-      const res = await fetch('/api/ai/recommend-replacement', {
+      const res = await authenticatedFetch('/api/ai/recommend-replacement', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ shift, candidates }),
       });
 
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'AI replacement recommendation unavailable');
       setAiRecommendations(data.recommendations || []);
     } catch (err) {
       console.error(err);
-      // Fallback
-      setAiRecommendations(
-        employees.slice(1, 4).map((c, i) => ({
-          employeeId: c.id,
-          name: c.name,
-          matchScore: 95 - i * 5,
-          reason: `Available for ${report.shiftTime}, matches ${report.department} department.`,
-        }))
-      );
+      setAiRecommendations([]);
     } finally {
       setLoadingAi(false);
     }
@@ -158,7 +153,7 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Top Slot Contention Alert Banner for Admin if collisions detected */}
       {contentions.length > 0 && (
         <div className="bg-gradient-to-r from-amber-500/15 via-purple-500/10 to-sky-500/15 border-2 border-amber-400/90 rounded-2xl p-4.5 shadow-sm animate-in fade-in">
@@ -314,10 +309,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
               <div className="space-y-6">
                 {contentions.map((contention, cIdx) => {
                   const topCandidate = contention.analysis.find(a => a.isRecommendedPriority) || contention.analysis[0];
-                  
+
                   return (
-                    <div 
-                      key={contention.contentionKey || cIdx} 
+                    <div
+                      key={contention.contentionKey || cIdx}
                       className="bg-slate-50/80 rounded-2xl p-4.5 border border-slate-200 space-y-4"
                     >
                       {/* Slot Header */}
@@ -363,11 +358,11 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                           const originalReq = contention.requests.find(r => r.employeeId === candidate.employeeId);
 
                           return (
-                            <div 
+                            <div
                               key={candidate.employeeId}
                               className={`bg-white rounded-xl p-4 border transition-all relative ${
-                                isTop 
-                                  ? 'border-emerald-400 shadow-sm ring-2 ring-emerald-400/20' 
+                                isTop
+                                  ? 'border-emerald-400 shadow-sm ring-2 ring-emerald-400/20'
                                   : 'border-slate-200 opacity-95'
                               }`}
                             >
@@ -383,10 +378,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                                   <div className="flex items-center gap-2">
                                     <span className="font-bold text-sm text-slate-900">{candidate.employeeName}</span>
                                     <span className={`text-[11px] font-black px-2 py-0.5 rounded-full ${
-                                      candidate.priorityScore >= 85 
-                                        ? 'bg-emerald-100 text-emerald-800' 
-                                        : candidate.priorityScore >= 70 
-                                        ? 'bg-sky-100 text-sky-800' 
+                                      candidate.priorityScore >= 85
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : candidate.priorityScore >= 70
+                                        ? 'bg-sky-100 text-sky-800'
                                         : 'bg-amber-100 text-amber-800'
                                     }`}>
                                       {candidate.priorityScore}/100 Score
@@ -479,8 +474,8 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                                     >
                                       <CheckCircle2 className="w-3.5 h-3.5" />
                                       <span>
-                                        {isTop 
-                                          ? 'Approve Priority Candidate (Assign Shift & Reject Others)' 
+                                        {isTop
+                                          ? 'Approve Priority Candidate (Assign Shift & Reject Others)'
                                           : `Assign to ${candidate.employeeName} (Override)`}
                                       </span>
                                     </button>
@@ -523,10 +518,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                           {req.department} • {req.role}
                         </span>
                         <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                          req.status === 'approved' 
-                            ? 'bg-emerald-50 text-emerald-700' 
-                            : req.status === 'rejected' 
-                            ? 'bg-rose-50 text-rose-700' 
+                          req.status === 'approved'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : req.status === 'rejected'
+                            ? 'bg-rose-50 text-rose-700'
                             : 'bg-amber-50 text-amber-700'
                         }`}>
                           {req.status}
@@ -588,10 +583,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                       {req.type}
                     </span>
                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                      req.status === 'approved' 
-                        ? 'bg-emerald-50 text-emerald-700' 
-                        : req.status === 'rejected' 
-                        ? 'bg-rose-50 text-rose-700' 
+                      req.status === 'approved'
+                        ? 'bg-emerald-50 text-emerald-700'
+                        : req.status === 'rejected'
+                        ? 'bg-rose-50 text-rose-700'
                         : 'bg-amber-50 text-amber-700'
                     }`}>
                       {req.status}
@@ -853,10 +848,10 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
                       <div key={day} className="bg-slate-50 p-2 rounded-lg border border-slate-100">
                         <div className="font-bold text-[11px] text-slate-600">{day.slice(0, 3)}</div>
                         <div className={`text-[10px] font-semibold mt-0.5 capitalize ${
-                          statusStr === 'unavailable' 
-                            ? 'text-rose-600' 
-                            : statusStr === 'preferred' 
-                            ? 'text-emerald-600' 
+                          statusStr === 'unavailable'
+                            ? 'text-rose-600'
+                            : statusStr === 'preferred'
+                            ? 'text-emerald-600'
                             : 'text-sky-700'
                         }`}>
                           {statusStr.replace('_', ' ')}
@@ -895,4 +890,3 @@ export const RequestsApprovalsView: React.FC<RequestsApprovalsViewProps> = ({
     </div>
   );
 };
-

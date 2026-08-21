@@ -1,19 +1,20 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useEffect } from 'react';
-import { 
-  Send, 
-  Smartphone, 
-  Mail, 
-  Bell, 
-  CheckCircle2, 
-  Users, 
-  X, 
-  Calendar, 
-  Sparkles, 
+import {
+  Send,
+  Smartphone,
+  Mail,
+  Bell,
+  CheckCircle2,
+  Users,
+  X,
+  Calendar,
+  Sparkles,
   ShieldCheck,
   RefreshCw
 } from 'lucide-react';
 import { Employee, Shift, SupportedLanguage, NotificationDispatch } from '../types';
-import { translations } from '../utils/i18n';
 
 interface PublishBroadcastModalProps {
   isOpen: boolean;
@@ -118,7 +119,7 @@ export const PublishBroadcastModal: React.FC<PublishBroadcastModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95">
-        
+
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-6 py-4 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -140,7 +141,7 @@ export const PublishBroadcastModal: React.FC<PublishBroadcastModalProps> = ({
 
         {/* Modal Content */}
         <div className="p-6 space-y-5">
-          
+
           {/* Target Audience Summary */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-sky-50 border border-sky-100 rounded-xl p-3 text-center">
@@ -168,7 +169,7 @@ export const PublishBroadcastModal: React.FC<PublishBroadcastModalProps> = ({
               Select Simultaneous Delivery Channels:
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              
+
               <label className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
                 selectedChannels.app ? 'bg-white border-sky-500 shadow-xs' : 'bg-slate-100 border-slate-200 opacity-60'
               }`}>
@@ -251,7 +252,7 @@ export const PublishBroadcastModal: React.FC<PublishBroadcastModalProps> = ({
                 <span>{progress}%</span>
               </div>
               <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                <div 
+                <div
                   className="bg-gradient-to-r from-sky-500 to-blue-600 h-2 transition-all duration-300 rounded-full"
                   style={{ width: `${progress}%` }}
                 />
@@ -284,7 +285,7 @@ export const PublishBroadcastModal: React.FC<PublishBroadcastModalProps> = ({
           >
             {broadcastDone ? 'Close' : 'Cancel'}
           </button>
-          
+
           {!broadcastDone ? (
             <button
               id="confirm-publish-broadcast-btn"

@@ -1,17 +1,18 @@
-import { 
-  Employee, 
-  Shift, 
-  Department, 
-  RestaurantRole, 
-  ShiftTemplate, 
-  AvailabilityRequest, 
-  TimeOffRequest, 
-  DepartmentBudgetsMap, 
-  OpenSlot, 
-  SmartMatchCandidate, 
-  SmartAutoFillSlotRecommendation, 
+import { authenticatedFetch } from './apiClient';
+import {
+  Employee,
+  Shift,
+  Department,
+  RestaurantRole,
+  ShiftTemplate,
+  AvailabilityRequest,
+  TimeOffRequest,
+  DepartmentBudgetsMap,
+  OpenSlot,
+  SmartMatchCandidate,
+  SmartAutoFillSlotRecommendation,
   SmartAutoFillPlan,
-  DayOfWeek 
+  DayOfWeek
 } from '../types';
 
 /**
@@ -76,7 +77,7 @@ export function detectScheduleOpenSlots(
   // 2. If fewer than 4 open slots exist, detect essential template coverage needs per day
   // (e.g., weekend dinner rush server, morning prep cook, mid-day bar support, kitchen close)
   const coreTemplates = templates.filter(t => t.isFavorite || ['Opening', 'Mid', 'Rush', 'Closing'].includes(t.patternTag));
-  
+
   weekDates.forEach((wd) => {
     const dayShifts = existingShifts.filter(s => s.date === wd.dateStr);
     const dayOfWeek = wd.dayName;
@@ -88,8 +89,8 @@ export function detectScheduleOpenSlots(
       }
 
       // Check if this template's role/time is already sufficiently staffed on this day
-      const matchingStaffedCount = dayShifts.filter(s => 
-        s.role === tmpl.role && 
+      const matchingStaffedCount = dayShifts.filter(s =>
+        s.role === tmpl.role &&
         s.department === tmpl.department &&
         Math.abs(parseInt(s.startTime) - parseInt(tmpl.startTime)) <= 2
       ).length;
@@ -103,7 +104,7 @@ export function detectScheduleOpenSlots(
         // Only add up to a reasonable set of open slots (e.g. 7 max across the week)
         const slotKey = `${wd.dateStr}_${tmpl.role}_${tmpl.startTime}`;
         const alreadyAdded = openSlots.some(os => os.date === wd.dateStr && os.role === tmpl.role && os.startTime === tmpl.startTime);
-        
+
         if (!alreadyAdded && openSlots.length < 8) {
           openSlots.push({
             id: `open-gap-${slotKey}`,
@@ -204,7 +205,7 @@ export function evaluateCandidateMatchForSlot(
   let score = 50; // base score
 
   // 1. Check Approved / Pending Time-Off
-  const hasTimeOff = timeOffRequests.some(tor => 
+  const hasTimeOff = timeOffRequests.some(tor =>
     tor.employeeId === employee.id &&
     tor.status === 'approved' &&
     slot.date >= tor.startDate &&
@@ -432,10 +433,10 @@ export async function generateSmartAutoFillPlan(
 
   // If server AI is enabled, we can enhance the plan with Gemini insights
   let aiRationale = 'Heuristic optimization balanced role expertise, weekly availability preferences, labor budgets, and overtime prevention.';
-  
+
   if (useServerAI) {
     try {
-      const response = await fetch('/api/ai/smart-autofill', {
+      const response = await authenticatedFetch('/api/ai/smart-autofill', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
