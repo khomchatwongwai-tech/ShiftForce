@@ -708,6 +708,15 @@ export function generateInitialShifts(employees: Employee[], weekDates: { dateSt
         template = (dayIdx + parseInt(emp.id.replace(/\D/g, ''))) % 2 === 0 ? shiftTemplates[0] : shiftTemplates[1];
       }
 
+      const sampleManagerNotes = [
+        'Please lead the pre-shift floor line check and review VIP Booth 4 reservation.',
+        'Oversee wine pairing specials and ensure cocktail garnishes are freshly prepped.',
+        'Coordinate station rotation with Sous Chef and double-check temperature logs.',
+        'Conduct opening sanitation checks and restock server condiment caddies.',
+        undefined
+      ];
+      const assignedManagerNote = sampleManagerNotes[(dayIdx + shiftCount) % sampleManagerNotes.length];
+
       shifts.push({
         id: `shift-${shiftCount++}`,
         employeeId: emp.id,
@@ -722,6 +731,7 @@ export function generateInitialShifts(employees: Employee[], weekDates: { dateSt
         status: 'published',
         color: emp.color,
         notes: isWeekend ? 'High volume service expectation' : 'Standard station rotation',
+        managerNotes: assignedManagerNote,
         organizationId: emp.organizationId || 'org-shiftsky-global',
         hierarchyPath: emp.hierarchyPath || 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
         locationId: emp.locationId || 'loc-sf-flagship-104',

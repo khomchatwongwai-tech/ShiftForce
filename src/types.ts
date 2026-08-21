@@ -112,6 +112,10 @@ export interface Shift {
   status: ShiftStatus;
   color: string;
   notes?: string;
+  managerNotes?: string;
+  overtimeJustification?: string;
+  overtimeApprovedBy?: string;
+  overtimeApprovedAt?: string;
   scheduledBreaks?: ScheduledBreak[];
   rotationCycleId?: string;
   rotationWeekIndex?: number; // 0 for Week A, 1 for Week B, etc.
@@ -135,6 +139,7 @@ export interface ShiftTemplate {
   breakMinutes: number;
   defaultBreaks?: Omit<ScheduledBreak, 'id'>[];
   notes?: string;
+  managerNotes?: string;
   color?: string;
   isFavorite?: boolean;
   stationName?: string;

@@ -56,3 +56,16 @@
     display: block !important;
   }
 }
+
+@keyframes toastShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+.animate-toast-shrink {
+  animation: toastShrink 8s linear forwards;
+}

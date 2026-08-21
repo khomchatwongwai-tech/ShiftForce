@@ -14,6 +14,33 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(__dirname, './src'),
       },
+      dedupe: [
+        'firebase',
+        'firebase/app',
+        'firebase/auth',
+        'firebase/firestore',
+        '@firebase/app',
+        '@firebase/component',
+        '@firebase/util',
+        '@firebase/firestore',
+        '@firebase/auth',
+        'react',
+        'react-dom',
+      ],
+    },
+    optimizeDeps: {
+      exclude: [
+        'firebase',
+        'firebase/app',
+        'firebase/auth',
+        'firebase/firestore',
+        '@firebase/app',
+        '@firebase/auth',
+        '@firebase/firestore',
+        '@firebase/component',
+        '@firebase/util',
+        '@firebase/logger',
+      ],
     },
     server: {
       hmr: process.env.DISABLE_HMR !== 'true',

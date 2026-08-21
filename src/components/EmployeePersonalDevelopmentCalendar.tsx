@@ -36,7 +36,8 @@ import {
   CalendarCheck2,
   Trash2,
   Check,
-  Smartphone
+  Smartphone,
+  FileText
 } from 'lucide-react';
 import {
   INITIAL_EMPLOYEE_HABITS,
@@ -727,6 +728,17 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
                         <p className="font-semibold">{s.role} • {s.department}</p>
                         <p className="text-[11px] text-indigo-600">{s.notes || 'Floor station assignment'}</p>
                       </div>
+                      {s.managerNotes && (
+                        <div className="p-2.5 bg-amber-50/90 border border-amber-200/90 rounded-lg text-amber-950 text-xs space-y-0.5">
+                          <div className="flex items-center gap-1.5 font-bold text-[10px] text-amber-900">
+                            <FileText className="w-3 h-3 text-amber-700 shrink-0" />
+                            <span>Manager Instructions & Notes:</span>
+                          </div>
+                          <p className="text-slate-700 text-[11px] leading-relaxed pl-4 font-normal">
+                            {s.managerNotes}
+                          </p>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between pt-1 border-t border-indigo-200/60 text-[11px] text-indigo-700">
                         <span>Wage: ${s.hourlyWage.toFixed(2)}/hr</span>
                         <span>Break: {s.breakMinutes} min</span>

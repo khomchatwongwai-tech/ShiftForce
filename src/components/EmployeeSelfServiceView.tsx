@@ -22,7 +22,8 @@ import {
   Bell,
   CalendarCheck2,
   Calculator,
-  MapPin
+  MapPin,
+  FileText
 } from 'lucide-react';
 import {
   Employee,
@@ -39,7 +40,6 @@ import { EmployeePersonalDevelopmentCalendar } from './EmployeePersonalDevelopme
 import { EmployeePaycheckCalculatorModal } from './payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from './payroll/StateTaxBracketsExplorerModal';
 import { EmployeeActionLog } from './EmployeeActionLog';
-import { FileText } from 'lucide-react';
 
 interface EmployeeSelfServiceViewProps {
   currentEmployee: Employee;
@@ -594,6 +594,17 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
                     {shift.notes && (
                       <div className="text-[11px] text-slate-500 mt-0.5">
                         📍 Station: {shift.notes}
+                      </div>
+                    )}
+                    {shift.managerNotes && (
+                      <div className="mt-2.5 p-2.5 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-950 text-xs">
+                        <div className="flex items-center gap-1.5 font-bold text-[11px] text-amber-900 mb-0.5">
+                          <FileText className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                          <span>Manager Instructions & Notes:</span>
+                        </div>
+                        <p className="text-slate-700 text-[11px] leading-relaxed pl-5 font-normal">
+                          {shift.managerNotes}
+                        </p>
                       </div>
                     )}
                   </div>

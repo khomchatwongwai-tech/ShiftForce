@@ -27,7 +27,12 @@ import {
   X, 
   Check, 
   Sliders,
-  Camera
+  Camera,
+  ShieldCheck,
+  ShieldAlert,
+  Shield,
+  AlertOctagon,
+  FileText
 } from 'lucide-react';
 import { Shift, Employee, Department, RestaurantRole, SupportedLanguage, ShiftTemplate, ShiftPatternTag, DepartmentBudgetsMap, AvailabilityRequest, TimeOffRequest } from '../types';
 import { translations } from '../utils/i18n';
@@ -35,6 +40,7 @@ import { ShiftTemplatesModal } from './ShiftTemplatesModal';
 import { DepartmentBudgetModal } from './DepartmentBudgetModal';
 import { SmartAutoFillModal } from './SmartAutoFillModal';
 import { AIPaperScheduleScannerModal } from './AIPaperScheduleScannerModal';
+import { OvertimePublishConfirmationModal, OvertimeItemSummary } from './OvertimePublishConfirmationModal';
 import { INITIAL_DEPARTMENT_BUDGETS } from '../data/mockData';
 
 const parseTimeToMinutes = (timeStr: string): number => {
@@ -62,6 +68,21 @@ interface ScheduleCalendarViewProps {
   weeklySalesForecast?: number;
   departmentBudgets?: DepartmentBudgetsMap;
   onUpdateDepartmentBudgets?: (newBudgets: DepartmentBudgetsMap) => void;
+}
+
+export interface LaborCostGuardToastData {
+  id: string;
+  department: Department;
+  budgetLimit: number;
+  newScheduledCost: number;
+  previousScheduledCost: number;
+  excessAmount: number;
+  percentUsed: number;
+  triggerType: 'add_shift' | 'edit_shift' | 'batch_add' | 'template_apply' | 'live_audit';
+  employeeName?: string;
+  shiftDetails?: string;
+  addedCost?: number;
+  timestamp: string;
 }
 
 export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
@@ -97,14 +118,10 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   const [isWarningDetailsExpanded, setIsWarningDetailsExpanded] = useState(false);
   const [warningFilter, setWarningFilter] = useState<'all' | 'daily_8h' | 'weekly_40h' | 'none'>('none');
 
-  // Batch add shifts helper
-  const handleBatchAddShifts = (newShifts: Omit<Shift, 'id'>[]) => {
-    if (onAddBatchShifts) {
-      onAddBatchShifts(newShifts);
-    } else {
-      newShifts.forEach(s => onAddShift(s));
-    }
-  };
+  // Real-time Labor Cost Guard State & Auto-Dismiss Reference
+  const [laborCostGuardToast, setLaborCostGuardToast] = useState<LaborCostGuardToastData | null>(null);
+  const [isGuardEnabled, setIsGuardEnabled] = useState<boolean>(true);
+  const toastTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Quick Dropdown for day-specific template apply
   const [dayTemplatePickerDate, setDayTemplatePickerDate] = useState<string | null>(null);
@@ -115,6 +132,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   const [formEndTime, setFormEndTime] = useState<string>('23:30');
   const [formBreakMinutes, setFormBreakMinutes] = useState<number>(30);
   const [formNotes, setFormNotes] = useState<string>('Dinner rush coverage');
+  const [formManagerNotes, setFormManagerNotes] = useState<string>('');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
   // "Save as template" form fields
@@ -288,6 +306,112 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     };
   }, [liveBudgets, stats, selectedDepartment]);
 
+  // REAL-TIME LABOR COST GUARD: Check if shift addition/modification pushes department over weekly budget
+  const checkAndTriggerLaborCostGuard = (
+    dept: Department,
+    addedCost: number,
+    employeeName?: string,
+    shiftDetails?: string,
+    triggerType: 'add_shift' | 'edit_shift' | 'batch_add' | 'template_apply' | 'live_audit' = 'add_shift'
+  ) => {
+    if (!isGuardEnabled) return;
+    const deptBudget = liveBudgets[dept] || 0;
+    const currentDeptCost = stats.deptBreakdown[dept]?.cost || 0;
+    const newDeptCost = currentDeptCost + addedCost;
+
+    if (deptBudget > 0 && newDeptCost > deptBudget) {
+      const excess = newDeptCost - deptBudget;
+      const pct = (newDeptCost / deptBudget) * 100;
+      
+      const toastData: LaborCostGuardToastData = {
+        id: `guard-toast-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        department: dept,
+        budgetLimit: deptBudget,
+        newScheduledCost: Number(newDeptCost.toFixed(2)),
+        previousScheduledCost: Number(currentDeptCost.toFixed(2)),
+        excessAmount: Number(excess.toFixed(2)),
+        percentUsed: Number(pct.toFixed(1)),
+        triggerType,
+        employeeName,
+        shiftDetails,
+        addedCost: Number(addedCost.toFixed(2)),
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      };
+
+      setLaborCostGuardToast(toastData);
+
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+      toastTimerRef.current = setTimeout(() => {
+        setLaborCostGuardToast(null);
+      }, 8500);
+    }
+  };
+
+  // Batch add shifts with Labor Cost Guard calculation
+  const handleBatchAddShifts = (newShifts: Omit<Shift, 'id'>[]) => {
+    const batchDeptCosts: Record<Department, { cost: number; count: number; names: string[] }> = {
+      'Front of House': { cost: 0, count: 0, names: [] },
+      'Back of House': { cost: 0, count: 0, names: [] },
+      'Bar & Beverage': { cost: 0, count: 0, names: [] },
+      'Kitchen Prep & Dish': { cost: 0, count: 0, names: [] },
+      'Management': { cost: 0, count: 0, names: [] },
+    };
+
+    newShifts.forEach(s => {
+      const hrs = getShiftHours(s as Shift);
+      const cost = hrs * s.hourlyWage;
+      if (batchDeptCosts[s.department]) {
+        batchDeptCosts[s.department].cost += cost;
+        batchDeptCosts[s.department].count += 1;
+        if (!batchDeptCosts[s.department].names.includes(s.employeeName)) {
+          batchDeptCosts[s.department].names.push(s.employeeName);
+        }
+      }
+    });
+
+    Object.entries(batchDeptCosts).forEach(([deptKey, data]) => {
+      if (data.cost > 0) {
+        checkAndTriggerLaborCostGuard(
+          deptKey as Department,
+          data.cost,
+          data.names.slice(0, 2).join(', ') + (data.names.length > 2 ? ` +${data.names.length - 2} more` : ''),
+          `${data.count} Batch Shifts (+${data.cost.toFixed(2)})`,
+          'batch_add'
+        );
+      }
+    });
+
+    if (onAddBatchShifts) {
+      onAddBatchShifts(newShifts);
+    } else {
+      newShifts.forEach(s => onAddShift(s));
+    }
+  };
+
+  // Template Apply with Labor Cost Guard calculation
+  const handleApplyTemplateToShiftWrapped = (template: ShiftTemplate, employeeId: string, dateStr: string) => {
+    const emp = employees.find(e => e.id === employeeId);
+    if (emp) {
+      const targetDept = template.department || emp.department;
+      const startM = parseTimeToMinutes(template.startTime);
+      const endM = parseTimeToMinutes(template.endTime);
+      let diff = endM >= startM ? endM - startM : (24 * 60 - startM) + endM;
+      const durHours = Math.max(0, (diff - (template.breakMinutes || 0)) / 60);
+      const cost = durHours * emp.hourlyWage;
+
+      checkAndTriggerLaborCostGuard(
+        targetDept,
+        cost,
+        emp.name,
+        `${template.name} (${template.startTime}-${template.endTime})`,
+        'template_apply'
+      );
+    }
+    onApplyTemplateToShift(template, employeeId, dateStr);
+  };
+
   // Real-time Employee Weekly Hours & Overtime (>40 hrs) and Daily Duration (>8 hrs) Map per Shift
   const shiftOvertimeMap = useMemo(() => {
     const map: Record<string, {
@@ -377,6 +501,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       setFormEndTime(prefillTemplate.endTime);
       setFormBreakMinutes(prefillTemplate.breakMinutes);
       setFormNotes(prefillTemplate.notes || '');
+      setFormManagerNotes(prefillTemplate.managerNotes || '');
       // Try to find matching employee
       const match = employees.find(e => e.role === prefillTemplate.role) || employees.find(e => e.department === prefillTemplate.department) || employees[0];
       setFormEmployeeId(match?.id || employees[0]?.id || '');
@@ -387,6 +512,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       setFormEndTime('23:30');
       setFormBreakMinutes(30);
       setFormNotes('Dinner rush table station');
+      setFormManagerNotes('');
     }
     setIsAddingShift(true);
   };
@@ -401,6 +527,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     setFormEndTime(tmpl.endTime);
     setFormBreakMinutes(tmpl.breakMinutes);
     setFormNotes(tmpl.notes || '');
+    setFormManagerNotes(tmpl.managerNotes || '');
     
     // Auto-select staff member with matching role or department if current employee does not match
     const currentEmp = employees.find(e => e.id === formEmployeeId);
@@ -417,6 +544,21 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     const emp = employees.find(e => e.id === formEmployeeId) || employees[0];
     if (!emp) return;
 
+    const startM = parseTimeToMinutes(formStartTime);
+    const endM = parseTimeToMinutes(formEndTime);
+    let diff = endM >= startM ? endM - startM : (24 * 60 - startM) + endM;
+    const durHours = Math.max(0, (diff - (formBreakMinutes || 0)) / 60);
+    const shiftCost = durHours * emp.hourlyWage;
+
+    // Real-Time Labor Cost Guard evaluation
+    checkAndTriggerLaborCostGuard(
+      emp.department,
+      shiftCost,
+      emp.name,
+      `${formStartTime} - ${formEndTime} (${durHours.toFixed(1)}h)`,
+      'add_shift'
+    );
+
     onAddShift({
       employeeId: emp.id,
       employeeName: emp.name,
@@ -430,6 +572,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       status: 'draft',
       color: emp.color,
       notes: formNotes,
+      managerNotes: formManagerNotes.trim() || undefined,
     });
 
     // If user selected "Save as new template", save to library
@@ -444,6 +587,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         endTime: formEndTime,
         breakMinutes: formBreakMinutes,
         notes: formNotes.trim(),
+        managerNotes: formManagerNotes.trim() || undefined,
         color: emp.color,
         isFavorite: true,
       };
@@ -460,6 +604,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     setFormEndTime(shift.endTime);
     setFormBreakMinutes(shift.breakMinutes);
     setFormNotes(shift.notes || '');
+    setFormManagerNotes(shift.managerNotes || '');
     setSelectedTemplateId('');
     setSaveAsTemplateChecked(false);
     setNewTemplateName(`${shift.role} ${shift.startTime}-${shift.endTime}`);
@@ -473,6 +618,35 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     const emp = employees.find(e => e.id === formEmployeeId) || employees[0];
     if (!emp) return;
 
+    const oldHours = getShiftHours(editingShift);
+    const oldCost = oldHours * editingShift.hourlyWage;
+
+    const startM = parseTimeToMinutes(formStartTime);
+    const endM = parseTimeToMinutes(formEndTime);
+    let diff = endM >= startM ? endM - startM : (24 * 60 - startM) + endM;
+    const newHours = Math.max(0, (diff - (formBreakMinutes || 0)) / 60);
+    const newCost = newHours * emp.hourlyWage;
+
+    if (editingShift.department === emp.department) {
+      const deltaCost = newCost - oldCost;
+      checkAndTriggerLaborCostGuard(
+        emp.department,
+        deltaCost,
+        emp.name,
+        `${formStartTime} - ${formEndTime} (${newHours.toFixed(1)}h)`,
+        'edit_shift'
+      );
+    } else {
+      // Department changed:
+      checkAndTriggerLaborCostGuard(
+        emp.department,
+        newCost,
+        emp.name,
+        `${formStartTime} - ${formEndTime} (${newHours.toFixed(1)}h)`,
+        'edit_shift'
+      );
+    }
+
     onUpdateShift({
       ...editingShift,
       employeeId: emp.id,
@@ -485,6 +659,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       hourlyWage: emp.hourlyWage,
       color: emp.color,
       notes: formNotes,
+      managerNotes: formManagerNotes.trim() || undefined,
     });
 
     // If user checked save as template
@@ -499,6 +674,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         endTime: formEndTime,
         breakMinutes: formBreakMinutes,
         notes: formNotes.trim(),
+        managerNotes: formManagerNotes.trim() || undefined,
         color: emp.color,
         isFavorite: true,
       };
@@ -518,7 +694,111 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   }, [templates]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+
+      {/* REAL-TIME LABOR COST GUARD TOAST ALERT */}
+      {laborCostGuardToast && (
+        <div 
+          id="labor-cost-guard-toast"
+          className="fixed top-20 right-4 sm:right-6 z-50 max-w-md w-full bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border-2 border-rose-400 p-4 text-slate-900 animate-in slide-in-from-top-4 fade-in duration-300 ring-4 ring-rose-500/10"
+        >
+          {/* Header */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs animate-bounce">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="px-2 py-0.5 bg-rose-100 text-rose-800 text-[10px] font-black uppercase tracking-wider rounded-md border border-rose-300">
+                    Labor Cost Guard Alert
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {laborCostGuardToast.timestamp}
+                  </span>
+                </div>
+                <h4 className="font-black text-sm text-slate-900 mt-0.5">
+                  {laborCostGuardToast.department} Exceeded Budget!
+                </h4>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+                setLaborCostGuardToast(null);
+              }}
+              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Dismiss Alert"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Context Message & Metrics */}
+          <div className="mt-2.5 p-2.5 bg-rose-50/90 rounded-xl border border-rose-200 text-xs text-rose-950 space-y-1.5">
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span>Weekly Department Budget:</span>
+              <span className="font-mono">${laborCostGuardToast.budgetLimit.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-bold">
+              <span>New Scheduled Cost:</span>
+              <span className="font-mono text-rose-700">${laborCostGuardToast.newScheduledCost.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-black pt-1 border-t border-rose-200 text-rose-800">
+              <span>Weekly Budget Overrun:</span>
+              <span className="font-mono bg-rose-200/80 px-1.5 py-0.5 rounded">
+                +${laborCostGuardToast.excessAmount.toFixed(2)} ({laborCostGuardToast.percentUsed}% Allocated)
+              </span>
+            </div>
+            {laborCostGuardToast.employeeName && (
+              <div className="text-[10px] text-slate-600 pt-1 border-t border-rose-200/60 font-medium">
+                Triggered by: <strong>{laborCostGuardToast.employeeName}</strong> {laborCostGuardToast.shiftDetails ? `(${laborCostGuardToast.shiftDetails})` : ''} {laborCostGuardToast.addedCost ? `• +$${laborCostGuardToast.addedCost.toFixed(2)}` : ''}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <button
+              onClick={() => {
+                setSelectedDepartment(laborCostGuardToast.department);
+                if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+                setLaborCostGuardToast(null);
+              }}
+              className="px-2.5 py-1.5 text-xs font-bold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-xl transition-all cursor-pointer flex items-center gap-1"
+            >
+              <span>View {laborCostGuardToast.department}</span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsBudgetModalOpen(true);
+                  if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+                  setLaborCostGuardToast(null);
+                }}
+                className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all cursor-pointer"
+              >
+                Adjust Budget
+              </button>
+              <button
+                onClick={() => {
+                  if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+                  setLaborCostGuardToast(null);
+                }}
+                className="px-3 py-1.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-xs cursor-pointer"
+              >
+                Acknowledge
+              </button>
+            </div>
+          </div>
+
+          {/* Progress Bar for Auto Dismiss */}
+          <div className="mt-2.5 w-full bg-rose-100 h-1 rounded-full overflow-hidden">
+            <div className="h-full bg-rose-500 rounded-full animate-toast-shrink" />
+          </div>
+        </div>
+      )}
       
       {/* Top Controls: Filter Pills, Search, Shift Templates Button, AI Optimizer, Publish */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-sky-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
@@ -555,9 +835,57 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
           </div>
         </div>
 
-        {/* Right: Actions (Shift Templates Manager, Scheduled Reminders, Add Shift, AI Optimize, Publish Schedule) */}
+        {/* Right: Actions (Labor Cost Guard, Scheduled Reminders, Labor Budgets, Templates, AI Vision, AI Optimize, Publish) */}
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap justify-end">
           
+          {/* Real-time Labor Cost Guard Active Indicator & Audit Trigger */}
+          <button
+            id="labor-cost-guard-status-btn"
+            onClick={() => {
+              const overLimitDepts = budgetAnalytics.deptBudgetsList.filter(d => d.status === 'over_budget');
+              if (overLimitDepts.length > 0) {
+                const first = overLimitDepts[0];
+                checkAndTriggerLaborCostGuard(
+                  first.department,
+                  0,
+                  undefined,
+                  `Live Audit: ${first.scheduledHours.toFixed(1)} hrs ($${first.scheduledCost.toFixed(2)}) against $${first.weeklyBudget.toLocaleString()} limit`,
+                  'live_audit'
+                );
+              } else {
+                setIsGuardEnabled(!isGuardEnabled);
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl transition-all shadow-xs cursor-pointer group border ${
+              !isGuardEnabled
+                ? 'text-slate-500 bg-slate-50 border-slate-200 hover:bg-slate-100'
+                : budgetAnalytics.deptBudgetsList.some(d => d.status === 'over_budget')
+                ? 'text-rose-900 bg-rose-50 hover:bg-rose-100 border-rose-300 ring-2 ring-rose-400/30 animate-pulse'
+                : 'text-sky-900 bg-sky-50 hover:bg-sky-100 border-sky-200'
+            }`}
+            title="Real-time Labor Cost Guard: Monitors visible schedule against Department Budgets and fires alerts if any shift pushes a department over limit."
+          >
+            {budgetAnalytics.deptBudgetsList.some(d => d.status === 'over_budget') ? (
+              <ShieldAlert className="w-4 h-4 text-rose-600 group-hover:scale-110 transition-transform" />
+            ) : (
+              <ShieldCheck className={`w-4 h-4 ${isGuardEnabled ? 'text-sky-600' : 'text-slate-400'} group-hover:scale-110 transition-transform`} />
+            )}
+            <span>Labor Cost Guard</span>
+            <span className={`px-1.5 py-0.5 text-[9px] font-black uppercase rounded-md ${
+              !isGuardEnabled
+                ? 'bg-slate-200 text-slate-700'
+                : budgetAnalytics.deptBudgetsList.some(d => d.status === 'over_budget')
+                ? 'bg-rose-200 text-rose-950 font-mono'
+                : 'bg-sky-200 text-sky-900'
+            }`}>
+              {!isGuardEnabled
+                ? 'Paused'
+                : budgetAnalytics.deptBudgetsList.some(d => d.status === 'over_budget')
+                ? `${budgetAnalytics.deptBudgetsList.filter(d => d.status === 'over_budget').length} Over Limit`
+                : 'Active'}
+            </span>
+          </button>
+
           {/* 24-Hour Scheduled Reminders Trigger Button */}
           {onOpenRemindersScheduler && (
             <button
@@ -1309,6 +1637,28 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                           </div>
                         )}
 
+                        {/* Manager Notes Badge */}
+                        {shift.managerNotes && (
+                          <div 
+                            title={`Manager Note: ${shift.managerNotes}`}
+                            className="flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.5 rounded-md mt-1 bg-amber-50 text-amber-900 border border-amber-200 shadow-2xs truncate"
+                          >
+                            <FileText className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                            <span className="truncate">Note: {shift.managerNotes}</span>
+                          </div>
+                        )}
+
+                        {/* Overtime Justification Note Badge if Approved */}
+                        {shift.overtimeJustification && (
+                          <div 
+                            title={`Approved OT Justification: ${shift.overtimeJustification}`}
+                            className="flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-md mt-1.5 bg-sky-50 text-sky-900 border border-sky-200 shadow-2xs truncate"
+                          >
+                            <CheckCircle2 className="w-2.5 h-2.5 text-sky-600 shrink-0" />
+                            <span className="truncate">OT Approved: {shift.overtimeJustification.split('[')[0]}</span>
+                          </div>
+                        )}
+
                         {/* Status Badge & Actions on hover */}
                         <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-slate-100 text-[10px]">
                           <span className={`px-1.5 py-0.2 rounded text-[9px] font-semibold uppercase ${
@@ -1760,8 +2110,31 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                   value={formNotes}
                   onChange={(e) => setFormNotes(e.target.value)}
                   placeholder="e.g. Sauté lead, Bar closing duty, Main dining floor"
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-hidden text-sm"
                 />
+              </div>
+
+              {/* Manager Notes (Visible to Employee) */}
+              <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-1.5">
+                <label className="font-bold text-amber-950 block flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-xs">
+                    <FileText className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                    Manager Notes (Visible to Employee):
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full border border-amber-200">
+                    Employee Self-Service Sync
+                  </span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={formManagerNotes}
+                  onChange={(e) => setFormManagerNotes(e.target.value)}
+                  placeholder="e.g. Lead pre-shift line check, oversee VIP Booth #4, coordinate floor sanitization..."
+                  className="w-full p-2.5 bg-white border border-amber-200 rounded-lg text-slate-800 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-hidden resize-none placeholder:text-slate-400"
+                />
+                <p className="text-[10px] text-amber-800/80">
+                  These instructions will appear highlighted directly in the employee's self-service schedule portal and agenda view.
+                </p>
               </div>
 
               {/* SAVE AS TEMPLATE OPTION */}
@@ -1813,6 +2186,83 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Real-time Labor Cost Guard Live Budget Impact */}
+              {(() => {
+                const selectedEmp = employees.find(e => e.id === formEmployeeId) || employees[0];
+                if (!selectedEmp) return null;
+                const dept = selectedEmp.department;
+                const deptBudget = liveBudgets[dept] || 0;
+                const currentDeptCost = stats.deptBreakdown[dept]?.cost || 0;
+                
+                const startM = parseTimeToMinutes(formStartTime);
+                const endM = parseTimeToMinutes(formEndTime);
+                let diff = endM >= startM ? endM - startM : (24 * 60 - startM) + endM;
+                const durHours = Math.max(0, (diff - (formBreakMinutes || 0)) / 60);
+                const draftShiftCost = durHours * selectedEmp.hourlyWage;
+
+                let projectedDeptCost = currentDeptCost + draftShiftCost;
+                if (editingShift && editingShift.department === dept) {
+                  const oldCost = getShiftHours(editingShift) * editingShift.hourlyWage;
+                  projectedDeptCost = currentDeptCost - oldCost + draftShiftCost;
+                }
+                const isPushedOverBudget = deptBudget > 0 && projectedDeptCost > deptBudget;
+                const overage = projectedDeptCost - deptBudget;
+                const pctUsed = deptBudget > 0 ? (projectedDeptCost / deptBudget) * 100 : 100;
+
+                return (
+                  <div className={`p-3 rounded-xl border-2 transition-all ${
+                    isPushedOverBudget 
+                      ? 'bg-rose-50/95 border-rose-300 text-rose-950 shadow-2xs' 
+                      : 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
+                  }`}>
+                    <div className="flex items-center justify-between font-bold text-xs">
+                      <span className="flex items-center gap-1.5">
+                        {isPushedOverBudget ? (
+                          <ShieldAlert className="w-4 h-4 text-rose-600 animate-pulse shrink-0" />
+                        ) : (
+                          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                        )}
+                        <span>Labor Cost Guard: {dept} Budget Check</span>
+                      </span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        isPushedOverBudget ? 'bg-rose-200 text-rose-900' : 'bg-emerald-200 text-emerald-900'
+                      }`}>
+                        {pctUsed.toFixed(1)}% Used
+                      </span>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-3 gap-2 text-[11px] font-mono">
+                      <div className="bg-white/80 p-1.5 rounded-lg border border-slate-200">
+                        <div className="text-[9px] text-slate-500 font-sans font-semibold uppercase">Shift Cost</div>
+                        <div className="font-bold text-slate-900">${draftShiftCost.toFixed(2)}</div>
+                      </div>
+                      <div className="bg-white/80 p-1.5 rounded-lg border border-slate-200">
+                        <div className="text-[9px] text-slate-500 font-sans font-semibold uppercase">Weekly Budget</div>
+                        <div className="font-bold text-slate-900">${deptBudget.toLocaleString()}</div>
+                      </div>
+                      <div className={`p-1.5 rounded-lg border ${
+                        isPushedOverBudget ? 'bg-rose-100/90 border-rose-300 text-rose-900' : 'bg-emerald-100/90 border-emerald-300 text-emerald-900'
+                      }`}>
+                        <div className="text-[9px] font-sans font-semibold uppercase">Projected Total</div>
+                        <div className="font-bold">${projectedDeptCost.toFixed(2)}</div>
+                      </div>
+                    </div>
+
+                    {isPushedOverBudget ? (
+                      <div className="mt-2 text-[10px] text-rose-800 flex items-center gap-1 font-semibold">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                        <span>Warning: Saving this shift will push {dept} over weekly budget by +${overage.toFixed(2)}.</span>
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-[10px] text-emerald-700 flex items-center gap-1 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Optimal: {dept} remains ${Math.abs(deptBudget - projectedDeptCost).toFixed(2)} under weekly cap.</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Real-time Overtime Threshold Warning Preview in Modal */}
               {(() => {
@@ -1917,7 +2367,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         weekDates={weekDates}
         onSaveTemplate={onSaveTemplate}
         onDeleteTemplate={onDeleteTemplate}
-        onApplyTemplateToShift={onApplyTemplateToShift}
+        onApplyTemplateToShift={handleApplyTemplateToShiftWrapped}
       />
 
       {/* DEPARTMENT LABOR BUDGET MANAGEMENT MODAL */}

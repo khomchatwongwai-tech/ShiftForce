@@ -157,12 +157,19 @@ export const ShiftCountdownBanner: React.FC<ShiftCountdownBannerProps> = ({
             </h2>
 
             <p className="text-xs text-sky-100 mt-0.5 flex items-center gap-2 flex-wrap">
-              <span>📍 Station: Floor Table Rotation A / Station 3</span>
+              <span>📍 Station: {nextShift.notes || 'Floor Table Rotation'}</span>
               <span>•</span>
               <span>Rate: ${nextShift.hourlyWage.toFixed(2)}/hr</span>
               <span>•</span>
               <span className="text-emerald-200 font-medium">Auto-notified via WhatsApp 24h prior</span>
             </p>
+
+            {nextShift.managerNotes && (
+              <div className="mt-1.5 px-2.5 py-1 bg-amber-400/20 border border-amber-300/40 rounded-lg text-amber-100 text-xs flex items-center gap-1.5 max-w-xl">
+                <span className="font-bold text-amber-200 shrink-0">Manager Note:</span>
+                <span className="truncate">{nextShift.managerNotes}</span>
+              </div>
+            )}
           </div>
         </div>
 
