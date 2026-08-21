@@ -10,8 +10,8 @@ import {
   CrossTrainingBottleneck,
   MultiLocationUnitSummary,
   HierarchyNode,
-  ShiftForceAIAgent,
-  ShiftForceIntelligenceOverview,
+  WorkqoraAIAgent,
+  WorkqoraIntelligenceOverview,
   EnterpriseModuleTier,
   CorporateTaskChecklist,
   EnterpriseAuditLogEntry,
@@ -394,7 +394,7 @@ export const INITIAL_CROSS_TRAINING_BOTTLENECK: CrossTrainingBottleneck[] = [
 export const INITIAL_MULTI_LOCATION_SUMMARY: MultiLocationUnitSummary[] = [
   {
     locationId: 'loc-01',
-    name: 'ShiftForce Downtown Flagship',
+    name: 'Workqora Downtown Flagship',
     address: '742 Market St, San Francisco, CA',
     activeStaffCount: 24,
     scheduledLaborPct: 18.7,
@@ -406,7 +406,7 @@ export const INITIAL_MULTI_LOCATION_SUMMARY: MultiLocationUnitSummary[] = [
   },
   {
     locationId: 'loc-02',
-    name: 'ShiftForce Westside Bistro & Lounge',
+    name: 'Workqora Westside Bistro & Lounge',
     address: '1182 Wilshire Blvd, Santa Monica, CA',
     activeStaffCount: 18,
     scheduledLaborPct: 19.2,
@@ -418,7 +418,7 @@ export const INITIAL_MULTI_LOCATION_SUMMARY: MultiLocationUnitSummary[] = [
   },
   {
     locationId: 'loc-03',
-    name: 'ShiftForce Marina Bay Waterfront',
+    name: 'Workqora Marina Bay Waterfront',
     address: '400 Yacht Club Way, San Diego, CA',
     activeStaffCount: 28,
     scheduledLaborPct: 20.1,
@@ -430,7 +430,7 @@ export const INITIAL_MULTI_LOCATION_SUMMARY: MultiLocationUnitSummary[] = [
   },
   {
     locationId: 'loc-04',
-    name: 'ShiftForce Airport Express Terminal 2',
+    name: 'Workqora Airport Express Terminal 2',
     address: 'SFO International Terminal Hub, CA',
     activeStaffCount: 14,
     scheduledLaborPct: 17.9,
@@ -442,7 +442,7 @@ export const INITIAL_MULTI_LOCATION_SUMMARY: MultiLocationUnitSummary[] = [
   }
 ];
 
-export const INITIAL_AI_AGENTS_SWARM: ShiftForceAIAgent[] = [
+export const INITIAL_AI_AGENTS_SWARM: WorkqoraAIAgent[] = [
   {
     id: 'scheduling_agent',
     name: 'Aura-Schedule',
@@ -533,7 +533,7 @@ export const INITIAL_AI_AGENTS_SWARM: ShiftForceAIAgent[] = [
   }
 ];
 
-export const INITIAL_ENTERPRISE_INTELLIGENCE: ShiftForceIntelligenceOverview = {
+export const INITIAL_ENTERPRISE_INTELLIGENCE: WorkqoraIntelligenceOverview = {
   analyzedLocationsCount: 847,
   projectedBudgetOveragesCount: 31,
   seriousStaffingShortagesCount: 14,
@@ -576,7 +576,7 @@ export const INITIAL_ENTERPRISE_INTELLIGENCE: ShiftForceIntelligenceOverview = {
 export const INITIAL_ENTERPRISE_HIERARCHY: HierarchyNode[] = [
   {
     id: 'node-corp-01',
-    name: 'ShiftForce Global Hospitality Corp',
+    name: 'Workqora Global Hospitality Corp',
     level: 'organization',
     locationsCount: 847,
     activeHeadcount: 14250,
@@ -588,7 +588,7 @@ export const INITIAL_ENTERPRISE_HIERARCHY: HierarchyNode[] = [
   },
   {
     id: 'node-brand-01',
-    name: 'ShiftForce Prime Steakhouses & Grills',
+    name: 'Workqora Prime Steakhouses & Grills',
     level: 'brand',
     parentId: 'node-corp-01',
     locationsCount: 420,
@@ -601,7 +601,7 @@ export const INITIAL_ENTERPRISE_HIERARCHY: HierarchyNode[] = [
   },
   {
     id: 'node-brand-02',
-    name: 'ShiftForce Bistro & Cocktail Lounges',
+    name: 'Workqora Bistro & Cocktail Lounges',
     level: 'brand',
     parentId: 'node-corp-01',
     locationsCount: 427,
@@ -669,7 +669,7 @@ export const INITIAL_ENTERPRISE_HIERARCHY: HierarchyNode[] = [
 export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   {
     id: 'mod-schedule',
-    moduleName: 'ShiftForce Schedule',
+    moduleName: 'Workqora Schedule',
     tagline: 'AI Scheduling, Smart Availability, and Fair Roster Generation',
     category: 'core',
     includedInTiers: ['employee', 'manager', 'ai_pro', 'enterprise'],
@@ -678,7 +678,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-time',
-    moduleName: 'ShiftForce Time',
+    moduleName: 'Workqora Time',
     tagline: 'Geofenced Mobile Clock-in, NFC/QR Kiosk, and Real-Time Punch Verification',
     category: 'core',
     includedInTiers: ['employee', 'manager', 'ai_pro', 'enterprise'],
@@ -687,7 +687,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-teams',
-    moduleName: 'ShiftForce Teams',
+    moduleName: 'Workqora Teams',
     tagline: 'Targeted Team Communications, Read Receipts, and Emergency Broadcasts',
     category: 'operations',
     includedInTiers: ['employee', 'manager', 'ai_pro', 'enterprise'],
@@ -696,7 +696,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-tasks',
-    moduleName: 'ShiftForce Tasks',
+    moduleName: 'Workqora Tasks',
     tagline: 'Daily Operations Logbook, Opening/Closing Checklists & Photo Audits',
     category: 'operations',
     includedInTiers: ['manager', 'ai_pro', 'enterprise'],
@@ -705,7 +705,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-learn',
-    moduleName: 'ShiftForce Learn',
+    moduleName: 'Workqora Learn',
     tagline: 'LMS Module, SOP Knowledge Base, and Automated Employee Onboarding',
     category: 'growth',
     includedInTiers: ['ai_pro', 'enterprise'],
@@ -714,7 +714,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-payroll',
-    moduleName: 'ShiftForce Payroll',
+    moduleName: 'Workqora Payroll',
     tagline: 'Live Payroll Preview, Tip Pooling, Compliance Guardrails & 1-Click Sync',
     category: 'core',
     includedInTiers: ['manager', 'ai_pro', 'enterprise'],
@@ -723,7 +723,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-insights',
-    moduleName: 'ShiftForce Insights',
+    moduleName: 'Workqora Insights',
     tagline: 'Real-Time Labor-to-Sales Telemetry, Demand Curves & What-If Simulations',
     category: 'growth',
     includedInTiers: ['ai_pro', 'enterprise'],
@@ -732,7 +732,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-ai',
-    moduleName: 'ShiftForce AI',
+    moduleName: 'Workqora AI',
     tagline: 'Autonomous AI Shift Rescue, No-Show Early Warning & Copilot Swarm',
     category: 'growth',
     includedInTiers: ['ai_pro', 'enterprise'],
@@ -741,7 +741,7 @@ export const INITIAL_ENTERPRISE_MODULES: EnterpriseModuleTier[] = [
   },
   {
     id: 'mod-enterprise',
-    moduleName: 'ShiftForce Enterprise',
+    moduleName: 'Workqora Enterprise',
     tagline: 'Corporate Hierarchy, SCIM / SSO, Custom RBAC & Multi-Unit Command Center',
     category: 'enterprise',
     includedInTiers: ['enterprise'],

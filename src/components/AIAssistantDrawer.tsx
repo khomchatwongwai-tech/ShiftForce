@@ -47,7 +47,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
     {
       id: 'm-1',
       sender: 'assistant',
-      text: `Hello! I'm your ShiftForce Restaurant AI Advisor. I have full real-time awareness of your ${employees.length} team members, 5 departments, and ${shifts.length} active weekly shifts. How can I assist you with scheduling, labor cost reduction, or shift optimization today?`,
+      text: `Hello! I'm your Workqora Restaurant AI Advisor. I have full real-time awareness of your ${employees.length} team members, 5 departments, and ${shifts.length} active weekly shifts. How can I assist you with scheduling, labor cost reduction, or shift optimization today?`,
       timestamp: 'Just now',
     },
   ]);
@@ -109,7 +109,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
       const errorReply: ChatMessage = {
         id: `msg-error-${Date.now()}`,
         sender: 'assistant',
-        text: 'ShiftForce AI is temporarily unavailable. No staffing or labor conclusion was generated.',
+        text: 'Workqora AI is temporarily unavailable. No staffing or labor conclusion was generated.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages(prev => [...prev, errorReply]);
@@ -181,7 +181,7 @@ export const AIAssistantDrawer: React.FC<AIAssistantDrawerProps> = ({
             <Sparkles className="w-5 h-5 text-amber-300" />
           </div>
           <div>
-            <h3 className="font-bold text-sm">ShiftForce Restaurant AI Co-Pilot</h3>
+            <h3 className="font-bold text-sm">Workqora Restaurant AI Co-Pilot</h3>
             <p className="text-[11px] text-sky-100">Powered by Gemini AI Engine</p>
           </div>
         </div>

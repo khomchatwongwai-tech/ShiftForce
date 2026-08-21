@@ -1,4 +1,4 @@
-# ShiftForce Release Runbook
+# Workqora Release Runbook
 
 ## Release-candidate gates
 Run before every staging or production deployment:

@@ -51,7 +51,7 @@ import {
   EndOfDayReportData,
   CrossTrainingBottleneck,
   MultiLocationUnitSummary,
-  ShiftForceAIAgent
+  WorkqoraAIAgent
 } from '../types';
 import {
   INITIAL_SHIFT_RESCUE_EVENTS,
@@ -136,8 +136,8 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
   const [multiLocationUnits] = useState<MultiLocationUnitSummary[]>(INITIAL_MULTI_LOCATION_SUMMARY);
 
   // AI Agent Swarm
-  const [agentsSwarm] = useState<ShiftForceAIAgent[]>(INITIAL_AI_AGENTS_SWARM);
-  const [selectedAgent, setSelectedAgent] = useState<ShiftForceAIAgent>(INITIAL_AI_AGENTS_SWARM[0]);
+  const [agentsSwarm] = useState<WorkqoraAIAgent[]>(INITIAL_AI_AGENTS_SWARM);
+  const [selectedAgent, setSelectedAgent] = useState<WorkqoraAIAgent>(INITIAL_AI_AGENTS_SWARM[0]);
 
   // Active Centerpiece View Tabs
   const [activeSection, setActiveSection] = useState<
@@ -255,7 +255,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
         setPromptResult({
           query: textToRun,
           actionType: 'general_answer',
-          responseHeadline: 'ShiftForce Copilot Intelligent Action Plan',
+          responseHeadline: 'Workqora Copilot Intelligent Action Plan',
           details: [
             'Analyzed current week roster of 24 active employees and $27,850 projected daily revenue.',
             'Coverage health stands at 93/100 with zero unassigned mandatory shifts.',
@@ -364,7 +364,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
               <Sparkles className="w-3.5 h-3.5 text-indigo-300 animate-pulse" />
-              <span>ShiftForce Autonomous Operations Engine</span>
+              <span>Workqora Autonomous Operations Engine</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
               AI Command Center
@@ -755,7 +755,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
               </div>
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                <span>Guardrail: ShiftForce never takes automated punitive actions against workers.</span>
+                <span>Guardrail: Workqora never takes automated punitive actions against workers.</span>
               </div>
             </div>
           </div>
@@ -1185,7 +1185,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
                   Smart Open-Shift & Shift Bidding Marketplace
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Managers post open shifts with optional rush incentives; eligible staff volunteer while ShiftForce auto-validates qualifications & overtime.
+                  Managers post open shifts with optional rush incentives; eligible staff volunteer while Workqora auto-validates qualifications & overtime.
                 </p>
               </div>
 

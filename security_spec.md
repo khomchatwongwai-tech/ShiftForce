@@ -1,4 +1,4 @@
-# Security Specification for ShiftForce Firestore
+# Security Specification for Workqora Firestore
 
 ## 1. Data Invariants & Zero Trust Model
 - User records `/users/{userId}` can only be written by the authenticated user matching `request.auth.uid`.

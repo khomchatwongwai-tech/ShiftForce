@@ -166,7 +166,7 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ShiftForce_Restaurant_Payroll_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `Workqora_Restaurant_Payroll_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
   };
 

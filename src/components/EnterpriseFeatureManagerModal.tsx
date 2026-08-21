@@ -129,7 +129,7 @@ export const EnterpriseFeatureManagerModal: React.FC<EnterpriseFeatureManagerMod
               Modular Plugins & Add-On Licensing Center
             </h2>
             <p className="text-xs text-slate-300 max-w-2xl mt-0.5">
-              Enable or disable dynamic application modules (ShiftForce Learn, ShiftForce Payroll, POS Bridge, etc.) based on your purchased enterprise licenses.
+              Enable or disable dynamic application modules (Workqora Learn, Workqora Payroll, POS Bridge, etc.) based on your purchased enterprise licenses.
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export const EnterpriseFeatureManagerModal: React.FC<EnterpriseFeatureManagerMod
               onClick={() => {
                 onOpenPaymentPortalForPlugin({
                   id: 'enterprise-all-access-bundle',
-                  title: 'ShiftForce All-Access Enterprise Bundle',
+                  title: 'Workqora All-Access Enterprise Bundle',
                   description: 'Unlock all 12 modules including Payroll, LMS, AI Copilot & Multi-Unit Hub',
                   priceUSD: 199,
                   period: 'monthly',

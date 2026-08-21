@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
   <defs>
-    <linearGradient id="shiftforce-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="workqora-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0284c7" />
       <stop offset="60%" stop-color="#0369a1" />
       <stop offset="100%" stop-color="#0f172a" />
     </linearGradient>
   </defs>
   <!-- Blue Rounded Square Background -->
-  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#shiftforce-blue-grad)" />
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#workqora-blue-grad)" />
   
   <!-- Subtle Inner Specular Highlight -->
   <rect x="8" y="8" width="1008" height="1008" rx="216" ry="216" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="6" />

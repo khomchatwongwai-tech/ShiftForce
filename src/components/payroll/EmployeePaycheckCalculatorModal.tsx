@@ -215,7 +215,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `ShiftForce_Paycheck_${selectedEmployeeObj.name.replace(/\s+/g, '_')}_${stateCode}_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute("download", `Workqora_Paycheck_${selectedEmployeeObj.name.replace(/\s+/g, '_')}_${stateCode}_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -924,7 +924,7 @@ export const EmployeePaycheckCalculatorModal: React.FC<EmployeePaycheckCalculato
                   <div className="flex items-center gap-2">
                     <Building2 className="w-6 h-6 text-emerald-700" />
                     <h1 className="text-xl font-black tracking-tight text-slate-900 uppercase">
-                      ShiftForce Restaurant Group, Inc.
+                      Workqora Restaurant Group, Inc.
                     </h1>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">

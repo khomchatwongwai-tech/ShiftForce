@@ -362,7 +362,7 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
                   </div>
                   <div>
                     <h4 className="text-sm font-black tracking-tight text-white uppercase">
-                      ShiftForce Bistro & Bar
+                      Workqora Bistro & Bar
                     </h4>
                     <span className="text-[10px] text-white/70">Verified 5-Star Diner Experience</span>
                   </div>
@@ -436,7 +436,7 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
                     className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 cursor-pointer"
                   >
                     <Sparkles className={`w-3.5 h-3.5 ${isGeneratingAI ? 'animate-spin' : ''}`} />
-                    {isGeneratingAI ? 'Regenerating AI...' : 'Regenerate with ShiftForce AI'}
+                    {isGeneratingAI ? 'Regenerating AI...' : 'Regenerate with Workqora AI'}
                   </button>
                 </label>
                 <input

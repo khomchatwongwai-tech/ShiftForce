@@ -6,7 +6,6 @@ import { GoogleGenAI } from "@google/genai";
 import rateLimit from "express-rate-limit";
 import Stripe from "stripe";
 import crypto from "crypto";
-import { createClient } from "@supabase/supabase-js";
 import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
@@ -40,6 +39,16 @@ const currentDir = getDirname();
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
+
+// Preserve shared old-domain links while permanently directing traffic to the
+// Workqora canonical origin. Configure both legacy domains at the host level.
+const legacyHosts = new Set(["shiftforces.com", "www.shiftforces.com"]);
+app.use((req, res, next) => {
+  if (legacyHosts.has(req.hostname.toLowerCase())) {
+    return res.redirect(301, `https://workqora.com${req.originalUrl}`);
+  }
+  next();
+});
 
 app.disable("x-powered-by");
 app.use((req, res, next) => {
@@ -230,7 +239,7 @@ const employeePinPepper = process.env.EMPLOYEE_PIN_PEPPER?.trim();
 const employeeSessionTtlMs = Number(process.env.EMPLOYEE_SESSION_TTL_MS || 28_800_000);
 const employeeMaxAttempts = Number(process.env.EMPLOYEE_LOGIN_MAX_ATTEMPTS || 5);
 const employeeLockoutMs = Number(process.env.EMPLOYEE_LOGIN_LOCKOUT_MS || 900_000);
-const employeeCookieName = "shiftforce_employee_session";
+const employeeCookieName = "workqora_employee_session";
 function employeeAuthConfigured() { if (!employeeSessionSecret || !employeePinPepper) throw Object.assign(new Error("Employee authentication is not configured"), { statusCode: 503 }); }
 function employeeToken(payload: Record<string, unknown>) { const body = Buffer.from(JSON.stringify(payload)).toString("base64url"); return `${body}.${crypto.createHmac("sha256", employeeSessionSecret!).update(body).digest("base64url")}`; }
 function readEmployeeSession(req: express.Request): any | null { const token = (req.headers.cookie || "").split(";").map(v => v.trim()).find(v => v.startsWith(`${employeeCookieName}=`))?.slice(employeeCookieName.length + 1); if (!token || !employeeSessionSecret) return null; const [body, signature] = token.split("."); const expected = crypto.createHmac("sha256", employeeSessionSecret).update(body || "").digest("base64url"); if (!body || !signature || signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null; try { const value = JSON.parse(Buffer.from(body, "base64url").toString()); return value.type === "employee" && value.exp > Date.now() ? value : null; } catch { return null; } }
@@ -297,6 +306,8 @@ type ServerOrganizationMembershipRow = {
   organization_id: string;
   role: string;
   active: boolean;
+  region_ids: string[];
+  location_ids: string[];
 };
 
 type OrganizationContext = {
@@ -334,11 +345,7 @@ async function getServerUserProfile(uid: string) {
   const supabase = getSupabaseServerClient();
 
   const { data: userRow, error: userError } = await supabase
-    .from("users")
-    .select(
-      "firebase_uid, organization_id, email, display_name, role, employee_id, payload",
-    )
-    .eq("firebase_uid", uid)
+    .from('users').select('*').eq('firebase_uid', uid)
     .maybeSingle();
 
   if (userError) {
@@ -353,11 +360,10 @@ async function getServerUserProfile(uid: string) {
   const user = userRow as unknown as ServerUserProfileRow;
 
   const { data: membershipRow, error: membershipError } = await supabase
-    .from("organization_members")
-    .select("organization_id, role, active")
-    .eq("organization_id", user.organization_id)
-    .eq("firebase_uid", uid)
-    .eq("active", true)
+    .from('organization_members').select('*')
+    .eq('organization_id', user.organization_id)
+    .eq('firebase_uid', uid)
+    .eq('active', true)
     .maybeSingle();
 
   if (membershipError) {
@@ -439,7 +445,6 @@ async function requireAdmin(
 ) {
   try {
     const context = await requireOrganizationContext(res);
-
     if (!ADMIN_MEMBERSHIP_ROLES.has(context.membership.role)) {
       return res.status(403).json({
         error: "Manager access required",
@@ -458,7 +463,7 @@ async function serverAudit(res: express.Response, action: string, entityType: st
   const { authContext, profile, organizationId } = await requireOrganizationContext(res);
   const { error } = await getServerSupabase().from('audit_logs').insert({
     id: crypto.randomUUID(), organization_id: organizationId, actor_firebase_uid: authContext.uid, action, entity_type: entityType, entity_id: entityId,
-    payload: { actorUserId: authContext.uid, actorEmployeeId: profile?.employeeId || null, actorDisplayName: profile?.displayName || authContext.email || 'ShiftForce user', metadata },
+    payload: { actorUserId: authContext.uid, actorEmployeeId: profile?.employeeId || null, actorDisplayName: profile?.displayName || authContext.email || 'Workqora user', metadata },
   });
   if (error) supabaseFailure(error, 'Unable to write audit event');
 }
@@ -946,7 +951,7 @@ function getAI(): GoogleGenAI | null {
 
 // Health check
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "shiftforce", timestamp: new Date().toISOString() });
+  res.json({ status: "ok", service: "workqora", timestamp: new Date().toISOString() });
 });
 
 function hasValidUrl(value: string | undefined, requireHttps = false) {
@@ -997,7 +1002,7 @@ app.post("/api/audit", auditRateLimiter, requireFirebaseUser, async (req, res) =
   try {
     const authContext = res.locals.auth;
     const context = await getServerUserProfile(authContext.uid);
-    const profile = context?.profile;
+    const profile = context;
     const organizationId = context?.organizationId;
     if (!organizationId) return res.status(403).json({ error: "Provisioned organization membership required" });
 
@@ -1019,7 +1024,7 @@ app.post("/api/audit", auditRateLimiter, requireFirebaseUser, async (req, res) =
       organizationId,
       actorUserId: authContext.uid,
       actorEmployeeId: profile?.employeeId || null,
-      actorDisplayName: profile?.displayName || authContext.email || "ShiftForce user",
+      actorDisplayName: profile?.displayName || authContext.email || "Workqora user",
       action: action.trim(),
       entityType: entityType.trim(),
       entityId: entityId.trim(),
@@ -1041,7 +1046,7 @@ app.post("/api/ai/chat", async (req, res) => {
 
     if (!ai) {
       return res.json({
-        reply: `[ShiftForce AI Engine] (${portal === "admin" ? "Admin Management Assistant" : "Staff Concierge"}): I analyzed your request regarding "${message}". In full production, I can balance restaurant labor ratios, auto-fill shift vacancies, check fair workweek guidelines, and draft multilingual staff alerts.`,
+        reply: `[Workqora AI Engine] (${portal === "admin" ? "Admin Management Assistant" : "Staff Concierge"}): I analyzed your request regarding "${message}". In full production, I can balance restaurant labor ratios, auto-fill shift vacancies, check fair workweek guidelines, and draft multilingual staff alerts.`,
         suggestedActions: [
           "Auto-balance weekend dinner shifts",
           "Check overtime threshold alerts",
@@ -1050,7 +1055,7 @@ app.post("/api/ai/chat", async (req, res) => {
       });
     }
 
-    const systemInstruction = `You are ShiftForce AI, the restaurant workforce intelligence and scheduling assistant.
+    const systemInstruction = `You are Workqora AI, the restaurant workforce intelligence and scheduling assistant.
 The user is interacting from the "${portal === "admin" ? "Admin / General Manager Portal" : "Employee Staff Portal"}".
 Current restaurant context:
 ${JSON.stringify(context || {}, null, 2)}
@@ -1077,7 +1082,7 @@ Keep responses clear, professional, warm, and formatted with clean bullet points
     }
     console.warn("AI Chat transient error, using graceful fallback:", error.message);
     res.json({
-      reply: `[ShiftForce AI Assistant]: Based on your schedule context, staffing levels are currently optimized. Primary recommendations: Keep Front of House labor within the 28-32% sales envelope, verify Alcohol Handler RBS certifications before weekend evening rushes, and sync timecards with POS punches to eliminate variance.`,
+      reply: `[Workqora AI Assistant]: Based on your schedule context, staffing levels are currently optimized. Primary recommendations: Keep Front of House labor within the 28-32% sales envelope, verify Alcohol Handler RBS certifications before weekend evening rushes, and sync timecards with POS punches to eliminate variance.`,
       suggestedActions: [
         "Review Open Shift Auto-Fill",
         "Check Alcohol Handler Compliance",
@@ -1189,7 +1194,7 @@ Format as JSON with "title" and "content" fields. Keep it clear, concise, restau
     console.warn("Draft announcement error, returning fallback:", error.message);
     res.json({
       title: `Team Announcement: ${topic || "Service & Roster Update"}`,
-      content: `Team,\n\nPlease review the operational updates regarding ${topic || "our upcoming schedule & hospitality goals"}.\n\nDetails: ${details || "Check your ShiftForce calendar for confirmed station assignments and ensure all break rotations are logged accurately."}\n\nLet's deliver an outstanding service this week!\n- Management`,
+      content: `Team,\n\nPlease review the operational updates regarding ${topic || "our upcoming schedule & hospitality goals"}.\n\nDetails: ${details || "Check your Workqora calendar for confirmed station assignments and ensure all break rotations are logged accurately."}\n\nLet's deliver an outstanding service this week!\n- Management`,
     });
   }
 });
@@ -1321,7 +1326,7 @@ app.post("/api/ai/scan-schedule-image", async (req, res) => {
       });
     }
 
-    const systemPrompt = `You are ShiftForce AI Schedule Vision Engine, an advanced computer vision model specialized in reading restaurant schedules, handwritten paper sheets, printed rosters, whiteboard shift boards, and clipboard timetables.
+    const systemPrompt = `You are Workqora AI Schedule Vision Engine, an advanced computer vision model specialized in reading restaurant schedules, handwritten paper sheets, printed rosters, whiteboard shift boards, and clipboard timetables.
 
 Given the image of a restaurant schedule sheet, extract all individual shifts and match them to the restaurant's active employee roster.
 
@@ -1570,7 +1575,7 @@ Return JSON with key "recommendations": array of { employeeId, name, matchScore 
 
 // AI 5-Star Review Snapshot & Community Celebration Generator
 app.post("/api/ai/review-snapshot-celebration", async (req, res) => {
-  const { review, restaurantName = "ShiftForce Bistro & Grill" } = req.body;
+  const { review, restaurantName = "Workqora Bistro & Grill" } = req.body;
   try {
     const ai = getAI();
 
@@ -1636,7 +1641,7 @@ app.post("/api/ai/smart-autofill", async (req, res) => {
       });
     }
 
-    const prompt = `You are ShiftForce AI, a master restaurant scheduler and labor controller.
+    const prompt = `You are Workqora AI, a master restaurant scheduler and labor controller.
 Analyze these open shift slot candidate recommendations for a high-volume restaurant:
 
 Open Slots & Proposed Matches:
@@ -1697,8 +1702,8 @@ app.post("/api/scheduler/trigger-shift-reminders", async (req, res) => {
 
       // 1. 24-Hour WhatsApp / SMS Trigger
       if (config.enable24HrReminder !== false && (is24hCandidate || forceAll)) {
-        const whatsappBody = `🍽️ *ShiftForce 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 *Station*: ${shift.notes || 'Station Floor Rotation'}\n⏳ Need a swap or time adjustment? Submit via ShiftForce staff portal at least 12h prior.\nReply *CONFIRM* to acknowledge receipt.`;
-        const smsBody = `ShiftForce Reminder: Hi ${emp.name}, you are scheduled tomorrow ${shift.date} at ${shift.startTime} (${shift.role}). Reply 1 to confirm or visit app to swap.`;
+        const whatsappBody = `🍽️ *Workqora 24-Hour Shift Reminder*\nHi *${emp.name}*, your next shift as *${shift.role}* (${shift.department}) starts tomorrow at *${shift.startTime}* on *${shift.date}*.\n\n📍 *Station*: ${shift.notes || 'Station Floor Rotation'}\n⏳ Need a swap or time adjustment? Submit via Workqora staff portal at least 12h prior.\nReply *CONFIRM* to acknowledge receipt.`;
+        const smsBody = `Workqora Reminder: Hi ${emp.name}, you are scheduled tomorrow ${shift.date} at ${shift.startTime} (${shift.role}). Reply 1 to confirm or visit app to swap.`;
 
         const channels = config.channels24Hr || ['whatsapp', 'sms'];
         const task24h = {
@@ -1796,7 +1801,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[ShiftForce] Server running on http://localhost:${PORT}`);
+    console.log(`[Workqora] Server running on http://localhost:${PORT}`);
   });
 }
 

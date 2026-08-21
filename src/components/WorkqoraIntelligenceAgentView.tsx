@@ -45,13 +45,13 @@ import {
   INITIAL_MODULE_HEALTH_SCORECARDS
 } from '../data/commandCenterData';
 
-interface ShiftForceIntelligenceAgentViewProps {
+interface WorkqoraIntelligenceAgentViewProps {
   shifts: Shift[];
   employees: Employee[];
   onNavigateTab?: (tab: any) => void;
 }
 
-export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAgentViewProps> = ({
+export const WorkqoraIntelligenceAgentView: React.FC<WorkqoraIntelligenceAgentViewProps> = ({
   shifts,
   employees,
   onNavigateTab
@@ -157,14 +157,14 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
       } else if (lower.includes('saving') || lower.includes('optimization') || lower.includes('midday')) {
         setNlpResponse({
           query: textToRun,
-          answer: 'ShiftForce identified $6,490 in monthly labor optimization opportunities. Top recommendation: Dynamic midday kitchen staggering on Tue/Wed/Thu saves $2,840/mo by trimming 1.5h per prep cook during low 2:00 PM order volume.',
+          answer: 'Workqora identified $6,490 in monthly labor optimization opportunities. Top recommendation: Dynamic midday kitchen staggering on Tue/Wed/Thu saves $2,840/mo by trimming 1.5h per prep cook during low 2:00 PM order volume.',
           relatedModule: 'Labor Optimization Suite'
         });
       } else {
         setNlpResponse({
           query: textToRun,
-          answer: `ShiftForce Intelligence aggregated 12,450 data points across 6 connected modules. Workforce health score is 94/100. All rest periods, POS sales integrations, and geofenced time punches are functioning within target compliance parameters.`,
-          relatedModule: 'ShiftForce Executive Telemetry'
+          answer: `Workqora Intelligence aggregated 12,450 data points across 6 connected modules. Workforce health score is 94/100. All rest periods, POS sales integrations, and geofenced time punches are functioning within target compliance parameters.`,
+          relatedModule: 'Workqora Executive Telemetry'
         });
       }
     }, 450);
@@ -192,7 +192,7 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
               <span>Cross-Module Intelligence & Proactive Agent Layer</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-              ShiftForce Intelligence Agent
+              Workqora Intelligence Agent
             </h1>
             <p className="text-slate-300 text-sm mt-1 max-w-2xl">
               Continuously synthesizes scheduling velocity, Toast POS sales streams, customer reviews, compliance guardrails, and ADP payroll to surface high-impact workforce optimizations.
@@ -264,7 +264,7 @@ export const ShiftForceIntelligenceAgentView: React.FC<ShiftForceIntelligenceAge
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-indigo-600" />
           <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-            Ask ShiftForce Intelligence (Multi-Module Synthesizer)
+            Ask Workqora Intelligence (Multi-Module Synthesizer)
           </h2>
         </div>
 

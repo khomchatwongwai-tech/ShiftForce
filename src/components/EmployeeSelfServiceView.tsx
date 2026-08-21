@@ -201,7 +201,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
       symptomsSummary: sickSymptoms,
     });
 
-    setSubmittedFeedback('Sick day reported! ShiftForce dispatched notifications to GM & will initiate coverage.');
+    setSubmittedFeedback('Sick day reported! Workqora dispatched notifications to GM & will initiate coverage.');
     setTimeout(() => setSubmittedFeedback(null), 4000);
   };
 
@@ -230,7 +230,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-xs text-slate-900">ShiftForce Employee Portal • 100% Free for Staff</span>
+              <span className="font-bold text-xs text-slate-900">Workqora Employee Portal • 100% Free for Staff</span>
               <span className="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                 $0 Staff Cost
               </span>
@@ -412,7 +412,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
                 <span>Claim Shift Slot (With Contention Resolution)</span>
               </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Submit a request for an open shift slot. If multiple team members request the same slot, ShiftForce's validation layer evaluates availability history, attendance reliability, and overtime limits to generate a Priority Assignment recommendation for the General Manager.
+                Submit a request for an open shift slot. If multiple team members request the same slot, Workqora's validation layer evaluates availability history, attendance reliability, and overtime limits to generate a Priority Assignment recommendation for the General Manager.
               </p>
             </div>
 
@@ -770,7 +770,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
               <span>{t.reportSickDay} (Immediate Call-Out)</span>
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Food safety protocol requires immediate reporting of fever, vomiting, or flu symptoms. ShiftForce automatically flags the shift for GM replacement dispatch.
+              Food safety protocol requires immediate reporting of fever, vomiting, or flu symptoms. Workqora automatically flags the shift for GM replacement dispatch.
             </p>
           </div>
 

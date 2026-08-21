@@ -228,7 +228,7 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
-                  ShiftForce Offline Mode & Local Roster Cache
+                  Workqora Offline Mode & Local Roster Cache
                 </h2>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
                   effectiveIsOffline
@@ -288,7 +288,7 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
             <span>
               {effectiveIsOffline
                 ? '⚠️ Internet Outage Detected or Simulated: Operating 100% on Service Worker Local Cache. All rosters and offline clock-ins are safely saved.'
-                : '✅ Connected to ShiftForce Cloud: Real-time synchronization active. Background service worker keeps offline cache warm.'}
+                : '✅ Connected to Workqora Cloud: Real-time synchronization active. Background service worker keeps offline cache warm.'}
             </span>
           </div>
 
@@ -794,7 +794,7 @@ export const OfflineRosterClockInModal: React.FC<OfflineRosterClockInModalProps>
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${effectiveIsOffline ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-            <span>ShiftForce Emergency Mode Active</span>
+            <span>Workqora Emergency Mode Active</span>
           </div>
 
           <button

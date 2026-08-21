@@ -142,8 +142,8 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'enterprise', label: 'Enterprise Hub', icon: Building2, pluginId: 'enterprise' },
     { id: 'schedule', label: t.schedule, icon: Calendar, pluginId: 'core_scheduling' },
     { id: 'employees', label: `${t.employees} (${totalEmployees.toLocaleString()})`, icon: Users, pluginId: 'employees' },
-    { id: 'payroll', label: 'ShiftForce Payroll', icon: DollarSign, pluginId: 'payroll' },
-    { id: 'learn', label: 'ShiftForce Learn', icon: GraduationCap, pluginId: 'learn' },
+    { id: 'payroll', label: 'Workqora Payroll', icon: DollarSign, pluginId: 'payroll' },
+    { id: 'learn', label: 'Workqora Learn', icon: GraduationCap, pluginId: 'learn' },
     { id: 'performance', label: t.performance || 'Restaurant Score & Reviews', icon: Star, pluginId: 'performance' },
     { id: 'integrations', label: t.integrations || 'WorkForce & POS Hub', icon: Layers, pluginId: 'integrations' },
     { id: 'analytics', label: t.analytics || 'Analytics', icon: BarChart3, pluginId: 'analytics' },
@@ -187,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <img
               src="/logo.svg"
-              alt="ShiftForce Logo"
+              alt="Workqora Logo"
               className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shadow-md shadow-sky-500/20 object-cover shrink-0"
             />
             <div className="min-w-0">
@@ -574,7 +574,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </div>
                   ) : (
                     <div className="px-4 py-2 border-b border-slate-100 text-center">
-                      <h4 className="font-bold text-slate-900">ShiftForce Sign-In</h4>
+                      <h4 className="font-bold text-slate-900">Workqora Sign-In</h4>
                       <p className="text-[11px] text-slate-500">{t.switchPortal}</p>
                     </div>
                   )}
@@ -720,7 +720,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 text-xs font-bold bg-sky-100 text-sky-800 rounded-full border border-sky-200">
-                ShiftForce Restaurant Edition
+                Workqora Restaurant Edition
               </span>
               {activeRole && portal === 'admin' && (
                 <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-800 rounded-md">

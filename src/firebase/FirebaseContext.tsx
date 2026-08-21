@@ -215,7 +215,7 @@ export const FirebaseProvider: React.FC<{
             userType: isEmployeeMode ? 'employee' : 'admin',
             adminRole: matchingRole,
             employee: matchedEmployee,
-            displayName: fbUser.displayName || profile.displayName || matchedEmployee?.name || fbUser.email?.split('@')[0] || 'ShiftForce User',
+            displayName: fbUser.displayName || profile.displayName || matchedEmployee?.name || fbUser.email?.split('@')[0] || 'Workqora User',
             displayEmail: fbUser.email || profile.email || matchedEmployee?.email || '',
             avatarUrl: fbUser.photoURL || profile.photoURL || matchedEmployee?.avatarUrl || undefined,
             loginTimestamp: new Date().toISOString(),
@@ -305,7 +305,7 @@ export const FirebaseProvider: React.FC<{
 
       const existingProfile = await firestoreService.getUserProfile(fbUser.uid);
       if (!existingProfile?.organizationId) {
-        throw new Error('This Google account is not provisioned yet. Use a valid ShiftForce organization invitation or ask an administrator to provision access.');
+        throw new Error('This Google account is not provisioned yet. Use a valid Workqora organization invitation or ask an administrator to provision access.');
       }
       const assignedRole = INITIAL_CUSTOM_ROLES.find(r => r.id === existingProfile?.role) ||
                            INITIAL_CUSTOM_ROLES.find(r => r.id === 'role-employee') || INITIAL_CUSTOM_ROLES[1];
@@ -359,7 +359,7 @@ export const FirebaseProvider: React.FC<{
 
       if (!profile?.organizationId) {
         await signOut(auth);
-        throw new Error('This account is not provisioned for ShiftForce. Ask an administrator to invite you.');
+        throw new Error('This account is not provisioned for Workqora. Ask an administrator to invite you.');
       }
 
       const assignedRole = INITIAL_CUSTOM_ROLES.find(r => r.id === profile.role) ||
@@ -370,7 +370,7 @@ export const FirebaseProvider: React.FC<{
 
       if (!isAdminProfile && !isEmployeeProfile) {
         await signOut(auth);
-        throw new Error('This account exists but is not linked to an active ShiftForce workforce identity. Ask an administrator to provision it.');
+        throw new Error('This account exists but is not linked to an active Workqora workforce identity. Ask an administrator to provision it.');
       }
 
       setUserProfile(profile);
@@ -408,7 +408,7 @@ export const FirebaseProvider: React.FC<{
     _displayName?: string,
     _preferredRole?: CustomRole
   ): Promise<AuthUserSession> => {
-    throw new Error('Public self-service signup is disabled. Join through a ShiftForce organization invitation or ask your company administrator to provision access.');
+    throw new Error('Public self-service signup is disabled. Join through a Workqora organization invitation or ask your company administrator to provision access.');
   };
 
   // --- Sign In Employee with PIN / Roster Selection ---
@@ -452,7 +452,7 @@ export const FirebaseProvider: React.FC<{
     const merged: UserProfileDoc = {
       userId: uid,
       email: currentUser?.email || userProfile?.email || '',
-      displayName: currentUser?.displayName || userProfile?.displayName || 'ShiftForce User',
+      displayName: currentUser?.displayName || userProfile?.displayName || 'Workqora User',
       photoURL: currentUser?.photoURL || userProfile?.photoURL,
       role: userProfile?.role || 'role-super-admin',
       isHostOrAdmin: userProfile?.isHostOrAdmin ?? true,

@@ -70,15 +70,15 @@ export const ScheduledRemindersModal: React.FC<ScheduledRemindersModalProps> = (
   // Preview employee
   const previewEmp = employees.find(e => e.id === selectedPreviewShift?.employeeId) || employees[0];
 
-  const whatsappMessagePreview = `🍽️ *ShiftForce 24-Hour Shift Reminder*
+  const whatsappMessagePreview = `🍽️ *Workqora 24-Hour Shift Reminder*
 Hi *${previewEmp?.name || 'Elena'}*, your upcoming shift as *${selectedPreviewShift?.role || 'Head Server'}* (${selectedPreviewShift?.department || 'Front of House'}) starts tomorrow at *${selectedPreviewShift?.startTime || '16:00'}* on *${selectedPreviewShift?.date || 'Tomorrow'}*.
 
 📍 *Station*: ${selectedPreviewShift?.notes || 'Floor & Dining Room'}
-⏳ *Swap / Coverage*: Need an adjustment? Submit via ShiftForce employee portal at least 12h prior.
+⏳ *Swap / Coverage*: Need an adjustment? Submit via Workqora employee portal at least 12h prior.
 
 Reply *CONFIRM* to acknowledge receipt.`;
 
-  const smsMessagePreview = `ShiftForce Alert: Hi ${previewEmp?.name || 'Elena'}, you are scheduled tomorrow ${selectedPreviewShift?.date || 'Tomorrow'} at ${selectedPreviewShift?.startTime || '16:00'} (${selectedPreviewShift?.role || 'Head Server'}). Tap app to confirm or request swap.`;
+  const smsMessagePreview = `Workqora Alert: Hi ${previewEmp?.name || 'Elena'}, you are scheduled tomorrow ${selectedPreviewShift?.date || 'Tomorrow'} at ${selectedPreviewShift?.startTime || '16:00'} (${selectedPreviewShift?.role || 'Head Server'}). Tap app to confirm or request swap.`;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
@@ -340,7 +340,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-100 flex items-center gap-1.5">
-                          <span>ShiftForce Restaurant Dispatch</span>
+                          <span>Workqora Restaurant Dispatch</span>
                           <span className="w-2 h-2 rounded-full bg-emerald-400" />
                         </div>
                         <div className="text-[10px] text-emerald-400 font-medium">WhatsApp Business Verified</div>
@@ -359,7 +359,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
 
                     <div className="bg-[#005c4b] text-slate-100 p-3.5 rounded-2xl rounded-tl-xs shadow-md space-y-2 text-xs leading-relaxed max-w-[90%]">
                       <div className="font-bold text-emerald-200 flex items-center gap-1.5 text-xs pb-1 border-b border-emerald-600/50">
-                        <span>🍽️ ShiftForce 24-Hour Shift Reminder</span>
+                        <span>🍽️ Workqora 24-Hour Shift Reminder</span>
                       </div>
                       <p>
                         Hi <strong>{previewEmp?.name || 'Elena'}</strong>, your next shift as <strong>{selectedPreviewShift?.role || 'Head Server'}</strong> ({selectedPreviewShift?.department || 'Front of House'}) starts tomorrow at <strong>{selectedPreviewShift?.startTime || '16:00'}</strong> on <strong>{selectedPreviewShift?.date || 'Tomorrow'}</strong>.
@@ -369,7 +369,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
                         <div>⏱️ <strong>Duration:</strong> {selectedPreviewShift?.startTime || '16:00'} - {selectedPreviewShift?.endTime || '23:30'}</div>
                       </div>
                       <p className="text-[11px] text-slate-200">
-                        ⏳ Need a swap or time adjustment? Submit via ShiftForce staff portal at least 12h prior.
+                        ⏳ Need a swap or time adjustment? Submit via Workqora staff portal at least 12h prior.
                       </p>
                       <div className="text-right text-[10px] text-emerald-200/80 flex items-center justify-end gap-1 pt-1">
                         <span>15:00</span>
@@ -395,7 +395,7 @@ Reply *CONFIRM* to acknowledge receipt.`;
                       </div>
                       <div>
                         <div className="font-bold text-sm text-slate-100">+1 (555) 234-8901</div>
-                        <div className="text-[10px] text-slate-400">ShiftForce Automated SMS Gateway</div>
+                        <div className="text-[10px] text-slate-400">Workqora Automated SMS Gateway</div>
                       </div>
                     </div>
                     <span className="text-[11px] text-sky-400 bg-sky-950 px-2 py-0.5 rounded-full border border-sky-800">

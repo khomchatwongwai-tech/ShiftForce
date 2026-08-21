@@ -112,11 +112,11 @@ const COURSES: CourseModule[] = [
   }
 ];
 
-interface ShiftForceLearnViewProps {
+interface WorkqoraLearnViewProps {
   employees: Employee[];
 }
 
-export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employees }) => {
+export const WorkqoraLearnView: React.FC<WorkqoraLearnViewProps> = ({ employees }) => {
   const { currentLanguage, t } = useLanguage();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -147,7 +147,7 @@ export const ShiftForceLearnView: React.FC<ShiftForceLearnViewProps> = ({ employ
             <div className="flex items-center gap-2 mb-2">
               <span className="px-3 py-1 bg-indigo-500/30 text-indigo-300 border border-indigo-400/30 rounded-full text-xs font-bold tracking-wide uppercase flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                ShiftForce Learn • LMS & Training Academy
+                Workqora Learn • LMS & Training Academy
               </span>
               <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-semibold">
                 Plugin Active

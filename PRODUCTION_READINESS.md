@@ -1,4 +1,4 @@
-# ShiftForce Production Readiness
+# Workqora Production Readiness
 
 ## Current milestone: release-candidate code hardening complete
 

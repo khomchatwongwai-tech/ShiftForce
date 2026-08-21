@@ -1256,7 +1256,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-xs tracking-wide text-amber-300">
-                ShiftForce Smart Labor Insights:
+                Workqora Smart Labor Insights:
               </span>
               <span className="px-2 py-0.2 text-[10px] bg-white/10 rounded font-mono text-slate-300">
                 Live Audit
@@ -1877,7 +1877,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 <div className="flex items-center gap-2 text-[10px]">
                   <span className="flex items-center gap-1 text-emerald-700 font-bold">
                     <span className="w-2.5 h-2.5 rounded-xs bg-emerald-500 inline-block" />
-                    ShiftForce Restaurant ({reputationAnalytics.avgReputation} pts)
+                    Workqora Restaurant ({reputationAnalytics.avgReputation} pts)
                   </span>
                   <span className="flex items-center gap-1 text-slate-500 font-semibold">
                     <span className="w-2.5 h-2.5 rounded-xs bg-slate-400 inline-block" />
@@ -1905,7 +1905,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
                     {/* Current Restaurant Performance Radar */}
                     <Radar
-                      name="ShiftForce Actual"
+                      name="Workqora Actual"
                       dataKey="currentScore"
                       stroke="#059669"
                       fill="#10b981"

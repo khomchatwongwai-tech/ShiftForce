@@ -38,12 +38,12 @@ import {
 import { EmployeePaycheckCalculatorModal } from '../payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from '../payroll/StateTaxBracketsExplorerModal';
 
-interface ShiftForcePayrollViewProps {
+interface WorkqoraPayrollViewProps {
   employees: Employee[];
   shifts: Shift[];
 }
 
-export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ employees, shifts }) => {
+export const WorkqoraPayrollView: React.FC<WorkqoraPayrollViewProps> = ({ employees, shifts }) => {
   const { currentLanguage, t } = useLanguage();
 
   const [payPeriod, setPayPeriod] = useState<'current_biweekly' | 'previous_biweekly'>('current_biweekly');
@@ -186,7 +186,7 @@ export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ em
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `ShiftForce_Payroll_Ledger_${selectedStateCode}_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute("download", `Workqora_Payroll_Ledger_${selectedStateCode}_${new Date().toISOString().slice(0, 10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -215,7 +215,7 @@ export const ShiftForcePayrollView: React.FC<ShiftForcePayrollViewProps> = ({ em
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <span className="px-3 py-1 bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold tracking-wide uppercase flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                ShiftForce Payroll • 50-State Tax & Paycheck Engine
+                Workqora Payroll • 50-State Tax & Paycheck Engine
               </span>
               <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-semibold">
                 IRS 2026 Compliant

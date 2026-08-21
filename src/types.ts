@@ -74,7 +74,7 @@ export interface Employee {
   };
   notes?: string;
   organizationId?: string;
-  hierarchyPath?: string; // e.g. "ShiftForce Corp > North America > Pacific Coast > Bay Area District > SF Flagship #104"
+  hierarchyPath?: string; // e.g. "Workqora Corp > North America > Pacific Coast > Bay Area District > SF Flagship #104"
   locationId?: string;
   districtId?: string;
   regionId?: string;
@@ -120,7 +120,7 @@ export interface Shift {
   rotationCycleId?: string;
   rotationWeekIndex?: number; // 0 for Week A, 1 for Week B, etc.
   organizationId?: string;
-  hierarchyPath?: string; // e.g. "ShiftForce Corp > North America > Pacific Coast > Bay Area District > SF Flagship #104"
+  hierarchyPath?: string; // e.g. "Workqora Corp > North America > Pacific Coast > Bay Area District > SF Flagship #104"
   locationId?: string;
   districtId?: string;
   regionId?: string;
@@ -999,7 +999,7 @@ export interface EmployeeGoal {
 // AI Command Center & Autonomous Operations Types
 // ----------------------------------------------------
 
-export type ShiftForceTier = 'employee' | 'manager' | 'ai_pro' | 'enterprise';
+export type WorkqoraTier = 'employee' | 'manager' | 'ai_pro' | 'enterprise';
 
 export interface RescueCandidateRanked {
   employeeId: string;
@@ -1214,7 +1214,7 @@ export type AIAgentRole =
   | 'analytics_agent'
   | 'executive_agent';
 
-export interface ShiftForceAIAgent {
+export interface WorkqoraAIAgent {
   id: AIAgentRole;
   name: string;
   title: string;
@@ -1226,7 +1226,7 @@ export interface ShiftForceAIAgent {
   autonomousCapability: string;
 }
 
-export interface ShiftForceIntelligenceOverview {
+export interface WorkqoraIntelligenceOverview {
   analyzedLocationsCount: number;
   projectedBudgetOveragesCount: number;
   seriousStaffingShortagesCount: number;
@@ -1251,7 +1251,7 @@ export interface EnterpriseModuleTier {
   moduleName: string;
   tagline: string;
   category: 'core' | 'operations' | 'growth' | 'enterprise';
-  includedInTiers: ShiftForceTier[];
+  includedInTiers: WorkqoraTier[];
   isActive: boolean;
   featureHighlights: string[];
 }
@@ -1359,7 +1359,7 @@ export interface CustomRole {
   description: string;
   badgeColor: string;
   hierarchyScopeLevel: HierarchyLevel;
-  assignedHierarchyPath: string; // e.g. "ShiftForce Global Hospitality Corp" or "Pacific West Coast Region (CA, WA, OR)" or "Downtown Flagship #101"
+  assignedHierarchyPath: string; // e.g. "Workqora Global Hospitality Corp" or "Pacific West Coast Region (CA, WA, OR)" or "Downtown Flagship #101"
   assignedNodeId: string; // e.g. "node-corp-01", "node-region-01", "node-loc-01"
   authorizedLocationIds?: string[];
   permissions: RBACPermission;

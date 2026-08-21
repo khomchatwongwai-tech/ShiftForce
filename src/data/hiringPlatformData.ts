@@ -26,7 +26,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['Instant Webhook Intake', 'Apply with LinkedIn Button', 'Skill Endorsements Match', 'Direct InMail Sync'],
     externalUrl: 'https://www.linkedin.com/talent',
     authType: 'oauth2',
-    accountName: 'ShiftForce Hospitality Talent Hub',
+    accountName: 'Workqora Hospitality Talent Hub',
     autoImportApplicants: true,
     dailySponsorshipBudget: 15.0,
   },
@@ -49,7 +49,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['Indeed Apply Integration', 'Automated Screening Questions', 'Pay Transparency Verified', 'Sponsorship Engine'],
     externalUrl: 'https://employers.indeed.com',
     authType: 'api_key',
-    accountName: 'ShiftForce Flagship Enterprise',
+    accountName: 'Workqora Flagship Enterprise',
     autoImportApplicants: true,
     dailySponsorshipBudget: 25.0,
   },
@@ -94,7 +94,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['Facebook Page Job Postings', 'Instagram Story QR Stickers', 'Messenger Chat Intake', 'Local Geofenced Reach'],
     externalUrl: 'https://business.facebook.com/job_posts',
     authType: 'oauth2',
-    accountName: 'ShiftForce Bistro & Lounge FB Page',
+    accountName: 'Workqora Bistro & Lounge FB Page',
     autoImportApplicants: true,
     dailySponsorshipBudget: 10.0,
   },
@@ -117,7 +117,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['1-Click Multi-Distribute', 'Phil AI Candidate Match', 'Quick Apply Mobile', 'Resume Parsing'],
     externalUrl: 'https://www.ziprecruiter.com/hiring',
     authType: 'api_key',
-    accountName: 'ShiftForce Enterprise Corp',
+    accountName: 'Workqora Enterprise Corp',
     autoImportApplicants: true,
   },
   {
@@ -161,7 +161,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['Sommelier & Mixologist Network', 'Stage (Audition) Scheduler', 'Michelin & Upscale Chef Profiles', 'Direct Industry Portfolio'],
     externalUrl: 'https://culinaryagents.com',
     authType: 'api_key',
-    accountName: 'ShiftForce Fine Dining & Lounge',
+    accountName: 'Workqora Fine Dining & Lounge',
     autoImportApplicants: true,
   },
   {
@@ -183,7 +183,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     features: ['Culture & Salary Transparency', 'Verified Employee Reviews Feed', 'Syndicated Indeed Network', 'Candidate Q&A Sync'],
     externalUrl: 'https://www.glassdoor.com/employers',
     authType: 'api_key',
-    accountName: 'ShiftForce Global Group',
+    accountName: 'Workqora Global Group',
     autoImportApplicants: true,
   },
   {
@@ -221,7 +221,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     hourlyMax: 28.0,
     tipEligible: true,
     locationName: 'SF Flagship Bistro & Lounge #104',
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
     description: 'We are seeking an experienced, energetic Lead Bartender to helm our craft cocktail program. Must possess strong spirit knowledge, high-volume speed, and passion for memorable hospitality.',
     requirements: [
@@ -232,7 +232,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     ],
     benefits: [
       'Competitive base wage ($24-$28/hr) + generous tip share ($35-$50/hr effective)',
-      'Flexible 7-day predictive scheduling via ShiftForce App with shift swap freedom',
+      'Flexible 7-day predictive scheduling via Workqora App with shift swap freedom',
       'Daily staff family meal provided by executive chef',
       'Full healthcare, dental & vision benefits for 30+ hrs/wk',
     ],
@@ -256,7 +256,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     hourlyMax: 25.0,
     tipEligible: false,
     locationName: 'SF Flagship Bistro & Lounge #104',
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
     description: 'Join our award-winning kitchen team! We are looking for a disciplined Line Cook who excels at sauté and grill execution during peak dinner services.',
     requirements: [
@@ -291,7 +291,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     hourlyMax: 24.0,
     tipEligible: true,
     locationName: 'SF Flagship Bistro & Lounge #104',
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
     description: 'Seeking a warm, charismatic Head Server to lead dining room sections, guide guest tasting menus, and uphold Five-Star service standards.',
     requirements: [
@@ -302,7 +302,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     ],
     benefits: [
       '$20 - $24/hr base + high-check average tips ($40-$55/hr effective take-home)',
-      'ShiftForce auto-calculated daily tip pool transparency',
+      'Workqora auto-calculated daily tip pool transparency',
       'Paid time off accrual and anniversary bonuses',
       'Discounted dining across all 840+ network locations',
     ],
@@ -326,7 +326,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     hourlyMax: 22.0,
     tipEligible: true,
     locationName: 'SF Flagship Bistro & Lounge #104',
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
     description: 'The primary ambassador of our dining room. Greet guests, manage reservation pacing on OpenTable, and coordinate smooth table turns with service staff.',
     requirements: [
@@ -359,7 +359,7 @@ export const INITIAL_JOB_OPENINGS: JobOpening[] = [
     hourlyMax: 21.5,
     tipEligible: false,
     locationName: 'SF Flagship Bistro & Lounge #104',
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
     description: 'Early morning & mid-day prep powerhouse needed. Prepare fresh produce, sauces, marinades, and maintain pristine food safety standards.',
     requirements: [
@@ -414,7 +414,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -444,7 +444,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: true,
       uniformAssigned: true,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -472,7 +472,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -500,7 +500,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -528,7 +528,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -559,7 +559,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: true,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -587,7 +587,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   },
   {
@@ -615,7 +615,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
       directDeposit: false,
       uniformAssigned: false,
     },
-    hierarchyPath: 'ShiftForce Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
+    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
     locationId: 'loc-sf-flagship-104',
   }
 ];
@@ -716,7 +716,7 @@ https://shiftsky.app/apply/${job.directApplyCode}
 Or reply directly to this posting with your phone number, availability, and brief work history.
 We review applications within 24 hours!
 
-ShiftForce Hospitality is an Equal Opportunity Employer.`;
+Workqora Hospitality is an Equal Opportunity Employer.`;
 }
 
 // Helper to generate Google for Jobs SEO JSON-LD schema
@@ -731,7 +731,7 @@ export function generateGoogleJobsJsonLd(job: JobOpening): string {
     "employmentType": job.jobType === 'full_time' ? 'FULL_TIME' : 'PART_TIME',
     "hiringOrganization": {
       "@type": "Organization",
-      "name": "ShiftForce Flagship Hospitality",
+      "name": "Workqora Flagship Hospitality",
       "sameAs": "https://shiftsky.app",
       "logo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=150"
     },

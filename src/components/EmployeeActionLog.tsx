@@ -466,7 +466,7 @@ export function EmployeeActionLog({
                 <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                   <div className="text-right">
                     <div className="text-xs font-semibold text-slate-700">{entry.date}</div>
-                    <div className="text-[10px] text-slate-400">{entry.metadata?.source || 'ShiftForce'}</div>
+                    <div className="text-[10px] text-slate-400">{entry.metadata?.source || 'Workqora'}</div>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>

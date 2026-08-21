@@ -33,7 +33,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Core Systems',
+    author: 'Workqora Core Systems',
     minTierRequired: 'starter',
     features: [
       'Visual multi-department timeline & grid',
@@ -65,7 +65,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Core Systems',
+    author: 'Workqora Core Systems',
     minTierRequired: 'starter',
     features: [
       'Scale anywhere from 1 to 100,000 active staff',
@@ -86,7 +86,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
   },
   {
     id: 'payroll',
-    name: 'ShiftForce Payroll Engine',
+    name: 'Workqora Payroll Engine',
     shortCode: 'PAYROLL',
     tagline: 'Live Wage, Tip Pool & Tax Compliance Engine',
     description: 'Automated gross-to-net pay calculation, tip pool distribution (FOH/BOH share), tax withholding, and 2-way ADP/Gusto export.',
@@ -99,7 +99,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'purchased',
     monthlyAddonPrice: 49,
-    author: 'ShiftForce Financial Cloud',
+    author: 'Workqora Financial Cloud',
     minTierRequired: 'pro',
     features: [
       'Automated bi-weekly gross-to-net calculations',
@@ -120,7 +120,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
   },
   {
     id: 'learn',
-    name: 'ShiftForce Learn & LMS',
+    name: 'Workqora Learn & LMS',
     shortCode: 'LEARN',
     tagline: 'Hospitality Training & Certification Academy',
     description: 'Interactive ServSafe Food Handler, California RBS Alcohol compliance, culinary knife skills, and OSHA restaurant safety micro-modules.',
@@ -133,7 +133,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'purchased',
     monthlyAddonPrice: 39,
-    author: 'ShiftForce Academy',
+    author: 'Workqora Academy',
     minTierRequired: 'pro',
     features: [
       'ServSafe & California RBS certification modules',
@@ -154,7 +154,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
   },
   {
     id: 'intelligence_agent',
-    name: 'ShiftForce AI Intelligence Agent',
+    name: 'Workqora AI Intelligence Agent',
     shortCode: 'AI-AGENT',
     tagline: 'Proactive Cross-Module Autonomous Optimization',
     description: 'Gemini-powered operational copilot that analyzes weather forecasts, local events, overtime risks, and auto-generates optimized rosters.',
@@ -167,7 +167,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce AI Labs',
+    author: 'Workqora AI Labs',
     minTierRequired: 'starter',
     features: [
       'Real-time staffing gap & overtime risk detection',
@@ -201,7 +201,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Global Systems',
+    author: 'Workqora Global Systems',
     minTierRequired: 'enterprise',
     features: [
       'Multi-city restaurant telemetry & revenue tracking',
@@ -234,7 +234,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Guest Insights',
+    author: 'Workqora Guest Insights',
     minTierRequired: 'starter',
     features: [
       'Aggregated Yelp, Google & OpenTable guest reviews',
@@ -268,7 +268,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Integration Network',
+    author: 'Workqora Integration Network',
     minTierRequired: 'starter',
     features: [
       'Live Toast / Square / Clover sales & timeclock feed',
@@ -301,7 +301,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Analytics',
+    author: 'Workqora Analytics',
     minTierRequired: 'starter',
     features: [
       'Target labor percentage tracking (e.g. 24.5% target)',
@@ -334,7 +334,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Core Systems',
+    author: 'Workqora Core Systems',
     minTierRequired: 'starter',
     features: [
       'Peer-to-peer shift swap approval workflows',
@@ -367,7 +367,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Operations',
+    author: 'Workqora Operations',
     minTierRequired: 'starter',
     features: [
       'Late clock-in penalty & punctuality scoring',
@@ -400,7 +400,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce Team Comms',
+    author: 'Workqora Team Comms',
     minTierRequired: 'starter',
     features: [
       'Daily 86-lists & chef special announcements',
@@ -433,7 +433,7 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
     enabledByDefault: true,
     licenseStatus: 'included_in_plan',
     monthlyAddonPrice: 0,
-    author: 'ShiftForce HR Systems',
+    author: 'Workqora HR Systems',
     minTierRequired: 'starter',
     features: [
       'Interactive Kanban recruitment pipeline',

@@ -289,7 +289,7 @@ export const EmployeePersonalDevelopmentCalendar: React.FC<EmployeePersonalDevel
       progressPct: 0,
       status: 'in_progress',
       milestones,
-      actionPlan: 'Track milestones daily on the ShiftForce employee calendar.',
+      actionPlan: 'Track milestones daily on the Workqora employee calendar.',
     };
 
     setGoals(prev => [newGoal, ...prev]);

@@ -509,7 +509,7 @@ export const DepartmentBudgetModal: React.FC<DepartmentBudgetModalProps> = ({
           <div className="bg-sky-50/60 border border-sky-100 rounded-xl p-3 flex items-start gap-2.5 text-slate-600">
             <Info className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
             <div className="text-[11px] leading-relaxed">
-              <strong>ShiftForce Real-Time Labor Guard:</strong> Changes saved here will update the live
+              <strong>Workqora Real-Time Labor Guard:</strong> Changes saved here will update the live
               <span className="text-sky-700 font-semibold"> 'Budget Remaining'</span> indicator on the Schedule Calendar View.
               As managers add, edit, or adjust shifts, the remaining allowance recalculates in real-time.
             </div>

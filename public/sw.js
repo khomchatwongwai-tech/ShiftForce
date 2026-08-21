@@ -1,4 +1,4 @@
-// ShiftForce Offline Service Worker (Cache & Background Sync Engine)
+// Workqora Offline Service Worker (Cache & Background Sync Engine)
 const CACHE_NAME = 'shiftsky-cache-v1';
 const ROSTER_CACHE_NAME = 'shiftsky-roster-cache-v1';
 

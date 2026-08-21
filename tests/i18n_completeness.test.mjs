@@ -58,7 +58,7 @@ test('i18n multi-screen translation coverage across major components', () => {
     'src/components/ScheduleCalendarView.tsx',
     'src/components/EmployeeManagementView.tsx',
     'src/components/AICommandCenterView.tsx',
-    'src/components/ShiftForceIntelligenceAgentView.tsx',
+    'src/components/WorkqoraIntelligenceAgentView.tsx',
     'src/components/EnterpriseCommandHubView.tsx',
     'src/components/AnalyticsDashboardView.tsx',
     'src/components/RequestsApprovalsView.tsx',
@@ -69,8 +69,8 @@ test('i18n multi-screen translation coverage across major components', () => {
     'src/components/HiringPlatformHub.tsx',
     'src/components/RestaurantPerformanceReviewsView.tsx',
     'src/components/IntegrationsHubView.tsx',
-    'src/components/plugins/ShiftForcePayrollView.tsx',
-    'src/components/plugins/ShiftForceLearnView.tsx',
+    'src/components/plugins/WorkqoraPayrollView.tsx',
+    'src/components/plugins/WorkqoraLearnView.tsx',
     'src/components/DualLoginModal.tsx',
     'src/components/PricingTiersModal.tsx',
     'src/components/PaymentPortalModal.tsx',
@@ -92,7 +92,7 @@ test('i18n multi-screen translation coverage across major components', () => {
 
 
 test('i18n 100% completeness report - all 8 languages verified', () => {
-  console.log('--- SHIFTFORCE CI LOCALE COMPLETENESS REPORT ---');
+  console.log('--- WORKQORA CI LOCALE COMPLETENESS REPORT ---');
   for (const lang of supportedLanguages) {
     console.log(lang + ': 100%');
   }
