@@ -1,21 +1,24 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
+import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
-import { 
-  Star, 
-  Award, 
-  Sparkles, 
-  MessageSquare, 
-  ThumbsUp, 
-  Heart, 
-  Flame, 
-  Rocket, 
-  Camera, 
-  Share2, 
-  CheckCircle2, 
-  TrendingUp, 
-  ShieldCheck, 
-  ChefHat, 
-  GlassWater, 
-  Clock, 
+import {
+  Star,
+  Award,
+  Sparkles,
+  MessageSquare,
+  ThumbsUp,
+  Heart,
+  Flame,
+  Rocket,
+  Camera,
+  Share2,
+  CheckCircle2,
+  TrendingUp,
+  ShieldCheck,
+  ChefHat,
+  GlassWater,
+  Clock,
   Send,
   ExternalLink,
   ChevronRight,
@@ -23,9 +26,9 @@ import {
   DollarSign,
   Users
 } from 'lucide-react';
-import { 
-  GuestReview, 
-  RestaurantPerformanceScore, 
+import {
+  GuestReview,
+  RestaurantPerformanceScore,
   Employee,
   Announcement
 } from '../types';
@@ -49,6 +52,8 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
   onPostCelebrationToCommunity,
   portal = 'admin'
 }) => {
+  const { currentLanguage, t } = useLanguage();
+
   const [selectedReviewForSnapshot, setSelectedReviewForSnapshot] = useState<GuestReview>(reviews[0]);
   const [snapshotTheme, setSnapshotTheme] = useState<'gold' | 'neon' | 'emerald' | 'sunset'>('gold');
   const [isGeneratingAI, setIsGeneratingAI] = useState<boolean>(false);
@@ -69,19 +74,20 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
     setSelectedReviewForSnapshot(review);
     setIsGeneratingAI(true);
     try {
-      const res = await fetch('/api/ai/review-snapshot-celebration', {
+      const res = await authenticatedFetch('/api/ai/review-snapshot-celebration', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ review }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'AI snapshot unavailable');
       if (data.headline) setAiHeadline(data.headline);
       if (data.celebrationCaption) setAiCaption(data.celebrationCaption);
       if (data.kudosAwarded) setKudosToAward(data.kudosAwarded);
     } catch (e) {
-      console.warn('AI fallback for snapshot:', e);
-      setAiHeadline(`⭐ 5-Star Recognition on ${review.source.toUpperCase()}!`);
-      setAiCaption(`Warmest congratulations to ${review.mentionedEmployeeNames.join(' & ')} for delivering outstanding guest service!`);
+      console.warn('AI snapshot unavailable:', e);
+      setAiHeadline('AI snapshot unavailable');
+      setAiCaption('No AI-generated recognition text was produced. Review the source feedback directly.');
     } finally {
       setIsGeneratingAI(false);
     }
@@ -308,7 +314,7 @@ export const RestaurantPerformanceReviewsView: React.FC<RestaurantPerformanceRev
 
       {/* Main Section: 5-Star Screenshot Spotlight Studio & Live Review Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+
         {/* LEFT / TOP STUDIO: 5-Star Screenshot Snapshot Studio (lg:col-span-7) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">

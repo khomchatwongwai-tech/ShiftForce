@@ -1,13 +1,15 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  Calendar, 
-  Clock, 
-  ArrowLeftRight, 
-  AlertTriangle, 
-  UserCheck, 
-  Send, 
-  CheckCircle2, 
-  Sparkles, 
+import {
+  Calendar,
+  Clock,
+  ArrowLeftRight,
+  AlertTriangle,
+  UserCheck,
+  Send,
+  CheckCircle2,
+  Sparkles,
   DollarSign,
   User,
   Check,
@@ -22,18 +24,17 @@ import {
   Calculator,
   MapPin
 } from 'lucide-react';
-import { 
-  Employee, 
-  Shift, 
-  TimeOffRequest, 
-  ShiftSwapRequest, 
-  SickDayReport, 
-  AvailabilityRequest, 
+import {
+  Employee,
+  Shift,
+  TimeOffRequest,
+  ShiftSwapRequest,
+  SickDayReport,
+  AvailabilityRequest,
   ShiftSlotRequest,
   TardinessRecord,
-  SupportedLanguage 
+  SupportedLanguage
 } from '../types';
-import { translations } from '../utils/i18n';
 import { EmployeePersonalDevelopmentCalendar } from './EmployeePersonalDevelopmentCalendar';
 import { EmployeePaycheckCalculatorModal } from './payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from './payroll/StateTaxBracketsExplorerModal';
@@ -220,7 +221,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
 
   return (
     <div className="space-y-6">
-      
+
       {/* 100% Free Staff Account Notice */}
       <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border border-emerald-200/90 rounded-2xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-center gap-3">
@@ -247,7 +248,7 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
       {/* Employee Switcher Bar */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-sky-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div 
+          <div
             className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-xs"
             style={{ backgroundColor: currentEmployee.color }}
           >
@@ -288,8 +289,8 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
         <button
           onClick={() => setActiveTab('personal_development')}
           className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all ${
-            activeTab === 'personal_development' 
-              ? 'bg-linear-to-r from-sky-600 to-indigo-600 text-white font-bold shadow-xs' 
+            activeTab === 'personal_development'
+              ? 'bg-linear-to-r from-sky-600 to-indigo-600 text-white font-bold shadow-xs'
               : 'text-slate-700 hover:text-slate-900 bg-white/60 font-semibold'
           }`}
         >
@@ -301,8 +302,8 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
         <button
           onClick={() => setActiveTab('action_log')}
           className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all ${
-            activeTab === 'action_log' 
-              ? 'bg-white text-sky-800 font-bold shadow-xs' 
+            activeTab === 'action_log'
+              ? 'bg-white text-sky-800 font-bold shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -488,10 +489,10 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-slate-900">{req.date}</span>
                       <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                        req.status === 'approved' 
-                          ? 'bg-emerald-100 text-emerald-800' 
-                          : req.status === 'rejected' 
-                          ? 'bg-rose-100 text-rose-800' 
+                        req.status === 'approved'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : req.status === 'rejected'
+                          ? 'bg-rose-100 text-rose-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
                         {req.status}
@@ -576,8 +577,8 @@ export const EmployeeSelfServiceView: React.FC<EmployeeSelfServiceViewProps> = (
             <h3 className="font-bold text-sm text-slate-900">My 7-Day Assigned Shifts</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {myShifts.map((shift) => (
-                <div 
-                  key={shift.id} 
+                <div
+                  key={shift.id}
                   className="p-3.5 rounded-xl border border-sky-100 bg-sky-50/40 flex items-start justify-between gap-3"
                 >
                   <div>

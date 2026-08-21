@@ -1,3 +1,5 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
 import {
   TrendingUp,
@@ -67,20 +69,19 @@ import {
   Scatter,
   ZAxis
 } from 'recharts';
-import { 
-  Shift, 
-  Employee, 
-  Department, 
-  SupportedLanguage, 
-  TardinessRecord, 
-  RestaurantPerformanceScore, 
+import {
+  Shift,
+  Employee,
+  Department,
+  SupportedLanguage,
+  TardinessRecord,
+  RestaurantPerformanceScore,
   GuestReview,
   POSPlatformId,
   POSDepartmentMapping,
   DepartmentBudgetsMap,
   POSLaborAlert
 } from '../types';
-import { translations } from '../utils/i18n';
 import { INITIAL_TARDINESS_LOG, INITIAL_RESTAURANT_PERFORMANCE_SCORE, INITIAL_GUEST_REVIEWS } from '../data/mockData';
 import { INITIAL_POS_DEPARTMENT_MAPPINGS } from '../data/posMappingData';
 import { POSDepartmentMappingModal } from './POSDepartmentMappingModal';
@@ -256,7 +257,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
     return weekDates.map((wd) => {
       const dayShifts = shifts.filter(s => s.date === wd.dateStr);
       const filteredDayShifts = filteredShifts.filter(s => s.date === wd.dateStr);
-      
+
       const totalHours = dayShifts.reduce((sum, s) => sum + getShiftHours(s), 0);
       const filteredHours = filteredDayShifts.reduce((sum, s) => sum + getShiftHours(s), 0);
 
@@ -409,7 +410,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
     // Compute average active staff per hour across the schedule
     return hoursSeq.map(hour => {
       const profile = HOURLY_TRAFFIC_PROFILE[hour] || { name: `${hour}:00`, weekdayCovers: 20, weekendCovers: 30 };
-      
+
       let expectedCovers = profile.weekdayCovers;
       if (trafficDayType === 'weekend') expectedCovers = profile.weekendCovers;
       else if (trafficDayType === 'all') expectedCovers = Math.round((profile.weekdayCovers * 5 + profile.weekendCovers * 2) / 7);
@@ -527,12 +528,12 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
       const dayShifts = shifts.filter(s => s.date === wd.dateStr);
       const totalHours = dayShifts.reduce((sum, s) => sum + getShiftHours(s), 0);
       const laborCost = dayShifts.reduce((sum, s) => sum + getShiftHours(s) * (s.hourlyWage || 20), 0);
-      
+
       const weight = dailySalesWeights[wd.dayName] || (1 / 7);
       const daySales = customSalesForecast * weight;
       const splh = totalHours > 0 ? Math.round(daySales / totalHours) : 0; // Sales Per Labor Hour ($)
       const laborPct = daySales > 0 ? Number(((laborCost / daySales) * 100).toFixed(1)) : 0;
-      
+
       // Estimated daily guest covers (traffic volume)
       const isWeekend = wd.dayName === 'Friday' || wd.dayName === 'Saturday' || wd.dayName === 'Sunday';
       const covers = isWeekend ? Math.round(520 + (daySales / 60)) : Math.round(280 + (daySales / 80));
@@ -606,10 +607,10 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
       const empShifts = shifts.filter(s => s.employeeId === emp.id);
       const totalHours = empShifts.reduce((sum, s) => sum + getShiftHours(s), 0);
       const shiftCount = empShifts.length;
-      
+
       // Calculate review mentions from mock reviews
       const nameParts = emp.name.toLowerCase().split(' ');
-      const reviewMentions = reviews.filter(r => 
+      const reviewMentions = reviews.filter(r =>
         (r.mentionedEmployeeIds && r.mentionedEmployeeIds.includes(emp.id)) ||
         (r.mentionedEmployeeNames && r.mentionedEmployeeNames.some(n => nameParts.some(part => n.toLowerCase().includes(part))))
       ).length;
@@ -980,10 +981,10 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12">
-      
+
       {/* 1. TOP HEADER & INTERACTIVE CONTROLS */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-sky-100 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
-        
+
         {/* Left: Title & Subtitle */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-blue-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20 shrink-0">
@@ -1006,7 +1007,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Right: Controls (Sales Target Adjuster, Target %, Export CSV) */}
         <div className="flex items-center gap-2.5 flex-wrap justify-end">
-          
+
           {/* Target Labor % Picker */}
           <div className="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
             <Target className="w-3.5 h-3.5 text-sky-600" />
@@ -1073,7 +1074,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 2. TOP KPI EXECUTIVE METRIC CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
+
         {/* Card 1: Total Labor Cost & Variance */}
         <div className="bg-white rounded-2xl p-4.5 border border-sky-100 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between text-xs mb-1">
@@ -1105,8 +1106,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Card 2: Labor % vs Sales */}
         <div className={`rounded-2xl p-4.5 border shadow-xs relative overflow-hidden transition-all ${
-          overallMetrics.actualLaborPct > targetLaborRatio 
-            ? 'bg-rose-50/40 border-rose-200 ring-1 ring-rose-300/30' 
+          overallMetrics.actualLaborPct > targetLaborRatio
+            ? 'bg-rose-50/40 border-rose-200 ring-1 ring-rose-300/30'
             : 'bg-white border-sky-100'
         }`}>
           <div className="flex items-center justify-between text-xs mb-1">
@@ -1168,8 +1169,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Card 4: Overtime Exposure & 40h Threshold Status */}
         <div className={`rounded-2xl p-4.5 border shadow-xs relative overflow-hidden transition-all ${
-          overallMetrics.overtimeCount > 0 
-            ? 'bg-gradient-to-br from-rose-50/90 via-red-50/40 to-white border-rose-300 ring-2 ring-rose-400/20' 
+          overallMetrics.overtimeCount > 0
+            ? 'bg-gradient-to-br from-rose-50/90 via-red-50/40 to-white border-rose-300 ring-2 ring-rose-400/20'
             : 'bg-white border-sky-100'
         }`}>
           <div className="flex items-center justify-between text-xs mb-1">
@@ -1262,7 +1263,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              {overallMetrics.overtimeCount > 0 
+              {overallMetrics.overtimeCount > 0
                 ? `⚠️ Detected ${overallMetrics.overtimeCount} employees with overtime violations costing $${overallMetrics.overtimeCostTotal}. Reassigning 8 hours to part-time roster can save ~$240.`
                 : `✅ Zero overtime violations detected across current 7-day schedule. Labor ratio is operating at ${overallMetrics.actualLaborPct}%.`}
               {' '}Peak lunch (12-2 PM) and dinner (6-9 PM) coverage ratios are currently optimal.
@@ -1295,7 +1296,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 4. VISUALIZATION 1: DAILY LABOR COST TRENDS & SALES CORRELATION */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-4">
-        
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
           <div>
             <div className="flex items-center gap-2">
@@ -1335,8 +1336,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               margin={{ top: 15, right: 25, left: 10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-              <XAxis 
-                dataKey="label" 
+              <XAxis
+                dataKey="label"
                 tick={{ fontSize: 11, fill: '#64748b' }}
                 tickLine={false}
               />
@@ -1398,7 +1399,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 iconType="circle"
                 wrapperStyle={{ paddingBottom: '10px', fontSize: '11px' }}
               />
-              
+
               {/* Sales as soft background Area */}
               <Area
                 yAxisId="left"
@@ -1473,7 +1474,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 4.5 NEW VISUALIZATION: REPUTATION SCORE & LABOR PRODUCTIVITY CORRELATION */}
       <div id="analytics-reputation-score-section" className="bg-white rounded-2xl p-5 shadow-xs border border-amber-100 space-y-6">
-        
+
         {/* Section Header with Live Rating Badges */}
         <div className="flex flex-col xl:flex-row xl:items-center justify-between pb-4 border-b border-slate-100 gap-4">
           <div className="flex items-start gap-3">
@@ -1557,7 +1558,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Top 4 Diagnostic Correlation KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          
+
           {/* Card 1: Composite Reputation Score & Star Ratings */}
           <div className="bg-amber-50/50 p-4 rounded-xl border border-amber-200/80 relative overflow-hidden">
             <div className="flex items-center justify-between">
@@ -1645,7 +1646,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         {/* TAB 1: DAILY CORRELATION TREND (RECHARTS COMPOSED CHART) */}
         {reputationSubTab === 'correlation' && (
           <div className="space-y-4">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200/80">
               <div>
                 <h4 className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
@@ -1684,9 +1685,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                   margin={{ top: 15, right: 30, left: 10, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                  
-                  <XAxis 
-                    dataKey="label" 
+
+                  <XAxis
+                    dataKey="label"
                     tick={{ fontSize: 11, fill: '#64748b' }}
                     tickLine={false}
                   />
@@ -1732,7 +1733,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                             <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
                               <span className="text-slate-400">Reputation Score:</span>
                               <span className="font-bold font-mono text-amber-300 text-right">{d.reputationScore} / 100 ({d.starRating}★)</span>
-                              
+
                               <span className="text-slate-400">Sales / Labor Hr (SPLH):</span>
                               <span className="font-bold font-mono text-sky-300 text-right">${d.splh}/hr</span>
 
@@ -1860,7 +1861,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         {/* TAB 2: MULTI-PILLAR PERFORMANCE RADAR PROFILE */}
         {reputationSubTab === 'pillars' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            
+
             {/* Left: Recharts RadarChart */}
             <div className="lg:col-span-7 bg-slate-50/60 p-4 rounded-2xl border border-slate-200/80">
               <div className="flex items-center justify-between pb-2 border-b border-slate-200/70 mb-2">
@@ -1891,7 +1892,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                     <PolarGrid stroke="#e2e8f0" />
                     <PolarAngleAxis dataKey="pillar" tick={{ fontSize: 10, fill: '#334155', fontWeight: 600 }} />
                     <PolarRadiusAxis angle={30} domain={[60, 100]} tick={{ fontSize: 9, fill: '#94a3b8' }} />
-                    
+
                     {/* Industry Benchmark Radar */}
                     <Radar
                       name="Industry Benchmark"
@@ -1969,7 +1970,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         {/* TAB 3: SERVER PRODUCTIVITY & 5-STAR PRAISE MATRIX */}
         {reputationSubTab === 'servers' && (
           <div className="space-y-4">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-slate-100">
               <div>
                 <h4 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
@@ -2028,7 +2029,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 <tbody className="divide-y divide-slate-100 font-medium">
                   {reputationAnalytics.filteredServerProductivityList.map((item) => (
                     <tr key={`server-rep-${item.employee.id}`} className="hover:bg-slate-50/80 transition-colors">
-                      
+
                       {/* Employee Avatar & Name */}
                       <td className="py-3 px-3.5">
                         <div className="flex items-center gap-2.5">
@@ -2107,7 +2108,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         {/* TAB 4: INTERACTIVE STAFFING LEVEL & REPUTATION SIMULATOR */}
         {reputationSubTab === 'simulation' && (
           <div className="space-y-4 bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 p-5 rounded-2xl text-white shadow-md border border-slate-700">
-            
+
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-700 pb-3">
               <div>
                 <div className="flex items-center gap-2">
@@ -2167,7 +2168,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
             {/* Real-time Projected Metric Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              
+
               <div className="bg-white/10 p-3.5 rounded-xl border border-white/10">
                 <div className="text-[11px] text-slate-300">Projected Reputation Score</div>
                 <div className="text-2xl font-black font-mono text-amber-300 mt-1">
@@ -2230,10 +2231,10 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 5. VISUALIZATION 2 & 3: PEAK TRAFFIC HOURS & OVERTIME EXPOSURE (2-COLUMN GRID) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* CHART 2: PEAK TRAFFIC HOURS VS ACTIVE STAFFING */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-4">
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
             <div>
               <div className="flex items-center gap-2">
@@ -2284,8 +2285,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 margin={{ top: 10, right: 15, left: -10, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
-                <XAxis 
-                  dataKey="hourLabel" 
+                <XAxis
+                  dataKey="hourLabel"
                   tick={{ fontSize: 10, fill: '#64748b' }}
                   tickLine={false}
                 />
@@ -2341,7 +2342,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                   iconType="circle"
                   wrapperStyle={{ paddingBottom: '8px', fontSize: '10px' }}
                 />
-                
+
                 {/* Traffic volume as warm gradient Area */}
                 <Area
                   yAxisId="traffic"
@@ -2411,7 +2412,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* CHART 3: OVERTIME METRICS & EMPLOYEE RISK ANALYSIS */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-4">
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
             <div>
               <div className="flex items-center gap-2">
@@ -2445,8 +2446,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 id="ot-filter-overtime"
                 onClick={() => setOvertimeFilter('overtime_only')}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all flex items-center gap-1 ${
-                  overtimeFilter === 'overtime_only' 
-                    ? 'bg-rose-600 text-white shadow-xs' 
+                  overtimeFilter === 'overtime_only'
+                    ? 'bg-rose-600 text-white shadow-xs'
                     : 'text-rose-700 hover:bg-rose-50'
                 }`}
               >
@@ -2500,8 +2501,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                 margin={{ top: 15, right: 35, left: 40, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-                <XAxis 
-                  type="number" 
+                <XAxis
+                  type="number"
                   domain={[0, 48]}
                   tick={{ fontSize: 10, fill: '#64748b' }}
                   tickFormatter={(val) => `${val}h`}
@@ -2549,7 +2550,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                             </span>
                             <span className="text-[10px] text-slate-300 font-mono">{data.employee.role}</span>
                           </div>
-                          
+
                           {isOver && (
                             <div className="bg-rose-950/80 text-rose-200 px-2 py-1 rounded-md border border-rose-500/50 text-[11px] font-bold">
                               ⚠️ EXCEEDS 40H THRESHOLD (+{data.overtimeHours}h OT)
@@ -2617,12 +2618,12 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                   barSize={16}
                 >
                   {filteredOvertimeList.slice(0, 8).map((entry) => (
-                    <Cell 
-                      key={`reg-${entry.employee.id}`} 
+                    <Cell
+                      key={`reg-${entry.employee.id}`}
                       fill={
                         entry.status === 'overtime' ? '#e11d48' :
                         entry.status === 'approaching' ? '#f59e0b' : '#0284c7'
-                      } 
+                      }
                     />
                   ))}
                 </Bar>
@@ -2636,9 +2637,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                   barSize={16}
                 >
                   {filteredOvertimeList.slice(0, 8).map((entry) => (
-                    <Cell 
-                      key={`ot-${entry.employee.id}`} 
-                      fill="#881337" 
+                    <Cell
+                      key={`ot-${entry.employee.id}`}
+                      fill="#881337"
                     />
                   ))}
                 </Bar>
@@ -2659,13 +2660,13 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               const thresholdLinePct = (40 / 48) * 100; // 83.33%
 
               return (
-                <div 
-                  key={item.employee.id} 
+                <div
+                  key={item.employee.id}
                   className={`p-3 rounded-xl border transition-all text-xs space-y-2 ${
-                    isOvertime 
-                      ? 'bg-rose-50/90 border-rose-300 border-l-4 border-l-rose-600 ring-1 ring-rose-400/30 shadow-xs' 
-                      : isApproaching 
-                      ? 'bg-amber-50/70 border-amber-200 border-l-4 border-l-amber-500' 
+                    isOvertime
+                      ? 'bg-rose-50/90 border-rose-300 border-l-4 border-l-rose-600 ring-1 ring-rose-400/30 shadow-xs'
+                      : isApproaching
+                      ? 'bg-amber-50/70 border-amber-200 border-l-4 border-l-amber-500'
                       : 'bg-slate-50/80 border-slate-200 border-l-4 border-l-emerald-500'
                   }`}
                 >
@@ -2716,14 +2717,14 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
                     <div className="relative h-4 w-full bg-slate-200 rounded-full overflow-hidden flex">
                       {/* Dotted 40h Threshold Marker Line */}
-                      <div 
+                      <div
                         className="absolute top-0 bottom-0 z-10 w-0.5 bg-red-600 border-r border-white/60"
                         style={{ left: `${thresholdLinePct}%` }}
                         title="40-Hour Weekly Threshold Line"
                       />
 
                       {/* Regular Hours Segment */}
-                      <div 
+                      <div
                         className={`h-full transition-all rounded-l-full ${
                           isOvertime ? 'bg-rose-500' :
                           isApproaching ? 'bg-amber-500' : 'bg-sky-600'
@@ -2733,7 +2734,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
                       {/* Overtime Hours Segment (>40h) */}
                       {isOvertime && (
-                        <div 
+                        <div
                           className="h-full bg-red-900 transition-all rounded-r-full relative overflow-hidden"
                           style={{ width: `${overtimePct}%` }}
                           title={`+${item.overtimeHours} Overtime Hours`}
@@ -2781,7 +2782,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 6. VISUALIZATION 4 & 5: DEPARTMENT COST SHARE & DETAIL BREAKDOWN */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Donut PieChart of Department Share */}
         <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-3 flex flex-col justify-between">
           <div>
@@ -2928,7 +2929,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* 7. VISUALIZATION: DEPARTMENT TARDINESS FREQUENCY & STAFFING RELIABILITY ANALYTICS */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-6">
-        
+
         {/* Section Header */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-4 border-b border-slate-100 gap-4">
           <div className="flex items-start gap-3">
@@ -2963,7 +2964,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Top 4 Diagnostic KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-          
+
           {/* Card 1: Restaurant Average Tardiness Frequency */}
           <div className="bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
             <div className="flex items-center justify-between">
@@ -3040,7 +3041,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         {/* Visual Charts Grid: Frequency Bar Chart + Delay Severity Bar Chart */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          
+
           {/* Chart 1: Average Tardiness Frequency (%) by Department */}
           <div className="lg:col-span-7 bg-slate-50/50 p-4 rounded-xl border border-slate-200 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -3293,7 +3294,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
             <div className="space-y-3">
               {/* Filter controls */}
               <div className="flex flex-wrap items-center justify-between gap-2.5 bg-slate-50/80 p-2.5 rounded-xl border border-slate-200 text-xs">
-                
+
                 {/* Department filter pills */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-slate-500 font-medium">Department:</span>
@@ -3367,7 +3368,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                         const isLate = record.status === 'late' || record.status === 'no_show';
                         return (
                           <tr key={record.id} className="hover:bg-slate-50/80 transition-colors">
-                            
+
                             {/* Employee */}
                             <td className="py-2.5 px-3">
                               <div className="flex items-center gap-2.5">
@@ -3531,8 +3532,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <button
                 onClick={() => setOvertimeFilter('overtime_only')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  overtimeFilter === 'overtime_only' 
-                    ? 'bg-rose-600 text-white shadow-xs' 
+                  overtimeFilter === 'overtime_only'
+                    ? 'bg-rose-600 text-white shadow-xs'
                     : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
                 }`}
               >
@@ -3544,8 +3545,8 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <button
                 onClick={() => setOvertimeFilter('approaching')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  overtimeFilter === 'approaching' 
-                    ? 'bg-amber-500 text-white shadow-xs' 
+                  overtimeFilter === 'approaching'
+                    ? 'bg-amber-500 text-white shadow-xs'
                     : 'bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200'
                 }`}
               >
@@ -3584,13 +3585,13 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
                     const thresholdLinePct = (40 / 48) * 100; // 83.33%
 
                     return (
-                      <tr 
-                        key={`table-${item.employee.id}`} 
+                      <tr
+                        key={`table-${item.employee.id}`}
                         className={`transition-colors ${
-                          isOvertime 
-                            ? 'bg-rose-50/70 hover:bg-rose-100/60 font-semibold' 
-                            : isApproaching 
-                            ? 'bg-amber-50/40 hover:bg-amber-50' 
+                          isOvertime
+                            ? 'bg-rose-50/70 hover:bg-rose-100/60 font-semibold'
+                            : isApproaching
+                            ? 'bg-amber-50/40 hover:bg-amber-50'
                             : 'hover:bg-slate-50/80'
                         }`}
                       >
@@ -3644,14 +3645,14 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
                             <div className="relative h-2.5 w-full bg-slate-200 rounded-full overflow-hidden flex">
                               {/* 40h Indicator Vertical Line */}
-                              <div 
+                              <div
                                 className="absolute top-0 bottom-0 z-10 w-0.5 bg-red-600 shadow-xs"
                                 style={{ left: `${thresholdLinePct}%` }}
                                 title="40-Hour Overtime Limit Line"
                               />
 
                               {/* Regular Hours portion */}
-                              <div 
+                              <div
                                 className={`h-full ${
                                   isOvertime ? 'bg-rose-500' :
                                   isApproaching ? 'bg-amber-500' : 'bg-sky-600'
@@ -3661,7 +3662,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
                               {/* Overtime portion (>40h) */}
                               {isOvertime && (
-                                <div 
+                                <div
                                   className="h-full bg-red-900 relative"
                                   style={{ width: `${overtimePct}%` }}
                                 />

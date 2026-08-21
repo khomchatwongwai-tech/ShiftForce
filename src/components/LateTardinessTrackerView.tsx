@@ -1,18 +1,19 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState } from 'react';
-import { 
-  Clock, 
-  AlertTriangle, 
-  CheckCircle2, 
-  UserX, 
-  TrendingDown, 
-  ShieldCheck, 
-  Plus, 
+import {
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+  UserX,
+  TrendingDown,
+  ShieldCheck,
+  Plus,
   Search,
   Filter,
   Flame
 } from 'lucide-react';
 import { TardinessRecord, Employee, SupportedLanguage } from '../types';
-import { translations } from '../utils/i18n';
 
 interface LateTardinessTrackerViewProps {
   tardinessLog: TardinessRecord[];
@@ -83,7 +84,7 @@ export const LateTardinessTrackerView: React.FC<LateTardinessTrackerViewProps> =
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header Banner */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -231,14 +232,14 @@ export const LateTardinessTrackerView: React.FC<LateTardinessTrackerViewProps> =
       {isAddingRecord && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95">
-            
+
             <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-6 py-4 text-white flex items-center justify-between">
               <h3 className="font-bold text-base">Record Attendance Punch</h3>
               <button onClick={() => setIsAddingRecord(false)} className="text-white/80 hover:text-white">✕</button>
             </div>
 
             <form onSubmit={handleSaveRecord} className="p-6 space-y-4 text-xs">
-              
+
               <div>
                 <label className="font-bold text-slate-700 block mb-1">Employee:</label>
                 <select

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle2, 
-  X, 
-  RotateCcw, 
-  Sparkles, 
-  Sliders, 
-  Save, 
-  Utensils, 
-  Wine, 
-  ChefHat, 
-  ShieldCheck, 
+import {
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  X,
+  RotateCcw,
+  Sparkles,
+  Sliders,
+  Save,
+  Utensils,
+  Wine,
+  ChefHat,
+  ShieldCheck,
   Clock,
   ArrowRight,
   Zap,
@@ -208,7 +208,7 @@ export const DepartmentBudgetModal: React.FC<DepartmentBudgetModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 max-h-[92vh] flex flex-col">
-        
+
         {/* Header */}
         <div className="bg-gradient-to-r from-sky-700 via-sky-600 to-blue-700 px-6 py-4 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
@@ -234,11 +234,11 @@ export const DepartmentBudgetModal: React.FC<DepartmentBudgetModalProps> = ({
 
         {/* Content Body */}
         <div className="p-5 sm:p-6 overflow-y-auto space-y-6 flex-1 text-xs">
-          
+
           {/* Top High-Level Budget & Revenue Intelligence Bar */}
           <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 rounded-2xl p-4 text-white shadow-md border border-slate-700/80">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center divide-x divide-slate-700/60">
-              
+
               {/* Total Weekly Budget */}
               <div className="px-2">
                 <div className="text-[11px] font-semibold text-sky-300 uppercase tracking-wider">
@@ -385,7 +385,7 @@ export const DepartmentBudgetModal: React.FC<DepartmentBudgetModalProps> = ({
                     }`}
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                      
+
                       {/* Left: Department Info & Icon */}
                       <div className="flex items-start gap-3 min-w-[200px]">
                         <div
@@ -509,8 +509,8 @@ export const DepartmentBudgetModal: React.FC<DepartmentBudgetModalProps> = ({
           <div className="bg-sky-50/60 border border-sky-100 rounded-xl p-3 flex items-start gap-2.5 text-slate-600">
             <Info className="w-4 h-4 text-sky-600 shrink-0 mt-0.5" />
             <div className="text-[11px] leading-relaxed">
-              <strong>ShiftForce Real-Time Labor Guard:</strong> Changes saved here will update the live 
-              <span className="text-sky-700 font-semibold"> 'Budget Remaining'</span> indicator on the Schedule Calendar View. 
+              <strong>ShiftForce Real-Time Labor Guard:</strong> Changes saved here will update the live
+              <span className="text-sky-700 font-semibold"> 'Budget Remaining'</span> indicator on the Schedule Calendar View.
               As managers add, edit, or adjust shifts, the remaining allowance recalculates in real-time.
             </div>
           </div>

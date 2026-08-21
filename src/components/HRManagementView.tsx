@@ -1,16 +1,19 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
+import { authenticatedFetch } from '../utils/apiClient';
 import React, { useState } from 'react';
-import { 
-  UserPlus, 
-  Users, 
-  Calendar, 
-  DollarSign, 
-  CheckSquare, 
-  Star, 
-  Sparkles, 
-  Download, 
-  FileText, 
-  Plus, 
-  Clock, 
+import {
+  UserPlus,
+  Users,
+  Calendar,
+  DollarSign,
+  CheckSquare,
+  Star,
+  Sparkles,
+  Download,
+  FileText,
+  Plus,
+  Clock,
   ShieldCheck,
   Award,
   ChevronRight,
@@ -20,7 +23,6 @@ import {
   MapPin
 } from 'lucide-react';
 import { OnboardingCandidate, Employee, Shift, SupportedLanguage, Department, RestaurantRole } from '../types';
-import { translations } from '../utils/i18n';
 import { HiringPlatformHub } from './HiringPlatformHub';
 import { EmployeePaycheckCalculatorModal } from './payroll/EmployeePaycheckCalculatorModal';
 import { StateTaxBracketsExplorerModal } from './payroll/StateTaxBracketsExplorerModal';
@@ -46,13 +48,13 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
 }) => {
   const t = translations[currentLanguage];
   const [activeTab, setActiveTab] = useState<'hiring_platforms' | 'onboarding' | 'hiring' | 'interviews' | 'payroll'>('hiring_platforms');
-  
+
   // Tax & Paycheck Modal State
   const [isPaycheckModalOpen, setIsPaycheckModalOpen] = useState(false);
   const [isTaxBracketsModalOpen, setIsTaxBracketsModalOpen] = useState(false);
   const [selectedCalcEmployee, setSelectedCalcEmployee] = useState<Employee | null>(null);
   const [activeStateCode, setActiveStateCode] = useState<string>('CA');
-  
+
   // AI Interview Prep modal state
   const [selectedCandidateForAI, setSelectedCandidateForAI] = useState<OnboardingCandidate | null>(null);
   const [aiInterviewQuestions, setAiInterviewQuestions] = useState<string[]>([]);
@@ -73,7 +75,7 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
     setLoadingAI(true);
 
     try {
-      const res = await fetch('/api/ai/interview-prep', {
+      const res = await authenticatedFetch('/api/ai/interview-prep', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -156,10 +158,10 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
 
   const handleExportCSV = () => {
     const headers = 'Employee Name,Department,Role,Hourly Wage,Regular Hours,Overtime Hours,Total Hours,Gross Pay\n';
-    const rows = payrollSummary.map(p => 
+    const rows = payrollSummary.map(p =>
       `"${p.employee.name}","${p.employee.department}","${p.employee.role}",${p.employee.hourlyWage.toFixed(2)},${p.regularHours.toFixed(1)},${p.overtimeHours.toFixed(1)},${p.totalHrs.toFixed(1)},${p.grossPay.toFixed(2)}`
     ).join('\n');
-    
+
     const blob = new Blob([headers + rows], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -170,7 +172,7 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header Banner */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
@@ -352,7 +354,7 @@ export const HRManagementView: React.FC<HRManagementViewProps> = ({
                         <div className="font-bold text-slate-900">{cand.name}</div>
                         <div className="text-[11px] text-sky-700 font-semibold">{cand.role}</div>
                         <div className="text-[10px] text-slate-500">{cand.phone}</div>
-                        
+
                         <div className="pt-1 flex items-center justify-between">
                           <button
                             onClick={() => handleGenerateAIInterviewQuestions(cand)}

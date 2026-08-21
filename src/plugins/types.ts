@@ -2,7 +2,7 @@ import React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { ActiveTab, SupportedLanguage, Employee, Shift, ShiftTemplate, DepartmentBudgetsMap, TimeOffRequest, ShiftSwapRequest, SickDayReport, AvailabilityRequest, TardinessRecord, OnboardingCandidate, NotificationDispatch, Announcement, POSPlatformInfo, WorkforcePlatformInfo, WorkforceSyncLog, POSServerSalesMetric, POSTimeclockPunch, POSPlatformId, POSDepartmentMapping, RestaurantPerformanceScore, GuestReview } from '../types';
 
-export type PluginCategory = 
+export type PluginCategory =
   | 'core_scheduling'
   | 'operations'
   | 'payroll_finance'

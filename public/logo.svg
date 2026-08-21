@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="shiftforce-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="60%" stop-color="#0369a1" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+  <!-- Blue Rounded Square Background -->
+  <rect width="1024" height="1024" rx="224" ry="224" fill="url(#shiftforce-blue-grad)" />
+  
+  <!-- Subtle Inner Specular Highlight -->
+  <rect x="8" y="8" width="1008" height="1008" rx="216" ry="216" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="6" />
+
+  <!-- White Chef Hat Symbol (Lucide precision geometry scaled 28x, centered at 176,176) -->
+  <g transform="translate(176, 176) scale(28)" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 10.58 0A4 4 0 0 1 18 13.87" />
+    <path d="M6 17h12" />
+    <path d="M6 21h12" />
+    <path d="M6 14v7" />
+    <path d="M18 14v7" />
+  </g>
+</svg>

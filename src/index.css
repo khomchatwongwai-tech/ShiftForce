@@ -1,10 +1,18 @@
 @import "tailwindcss";
 
 @layer base {
+  html, body, #root {
+    max-width: 100vw;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
   body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   }
-  
+
   code, pre, .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
@@ -28,6 +36,15 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Utility to hide scrollbars while maintaining scroll functionality */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Print optimizations for schedule export */

@@ -1,17 +1,19 @@
+import { useLanguage } from '../context/LanguageContext';
+import { translations } from '../utils/i18n';
 import React, { useState, useMemo } from 'react';
-import { 
-  UserPlus, 
-  Search, 
-  Filter, 
-  Phone, 
-  Mail, 
-  Clock, 
-  DollarSign, 
-  Edit3, 
-  Trash2, 
-  ShieldCheck, 
-  Users, 
-  CheckCircle2, 
+import {
+  UserPlus,
+  Search,
+  Filter,
+  Phone,
+  Mail,
+  Clock,
+  DollarSign,
+  Edit3,
+  Trash2,
+  ShieldCheck,
+  Users,
+  CheckCircle2,
   AlertCircle,
   Zap,
   Sparkles,
@@ -24,7 +26,6 @@ import {
   FileCheck
 } from 'lucide-react';
 import { Employee, Department, RestaurantRole, SupportedLanguage, AlcoholHandlerCard, FoodHandlerCard } from '../types';
-import { translations } from '../utils/i18n';
 import { EMPLOYEE_COLORS, generateLargeEmployeePool } from '../data/mockData';
 
 interface EmployeeManagementViewProps {
@@ -69,7 +70,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
   const [color, setColor] = useState<string>(EMPLOYEE_COLORS[0]);
   const [status, setStatus] = useState<'active' | 'on_leave' | 'inactive'>('active');
   const [notes, setNotes] = useState('');
-  
+
   // WorkForce, POS & Cert Fields
   const [adpEmployeeId, setAdpEmployeeId] = useState('');
   const [posServerCode, setPosServerCode] = useState('');
@@ -236,7 +237,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
 
   return (
     <div className="space-y-6">
-      
+
       {/* Top Header & Bulk Scale Engine */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div>
@@ -348,7 +349,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
                       ✕
                     </button>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div>
                       <div className="flex justify-between text-[11px] font-semibold text-slate-600 mb-1">
@@ -408,7 +409,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-sky-100 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        
+
         {/* Department tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           {departments.map((dept) => (
@@ -470,7 +471,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
             className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs hover:shadow-md transition-all flex flex-col justify-between relative overflow-hidden group"
           >
             {/* Top Color Accent Line */}
-            <div 
+            <div
               className="absolute top-0 left-0 right-0 h-1.5"
               style={{ backgroundColor: emp.color }}
             />
@@ -479,7 +480,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
               {/* Top Row: Name, Status badge & Color Indicator */}
               <div className="flex items-start justify-between gap-2 mt-1 mb-2">
                 <div className="flex items-center gap-2.5">
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0"
                     style={{ backgroundColor: emp.color }}
                   >
@@ -496,7 +497,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
                 </div>
 
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
-                  emp.status === 'active' 
+                  emp.status === 'active'
                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                     : emp.status === 'on_leave'
                     ? 'bg-amber-50 text-amber-700 border border-amber-200'
@@ -582,7 +583,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
             {/* Bottom Actions */}
             <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
               <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                <span 
+                <span
                   className="w-2.5 h-2.5 rounded-full inline-block"
                   style={{ backgroundColor: emp.color }}
                 />
@@ -660,7 +661,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
-          
+
           <div className="flex items-center gap-1">
             <span className="font-semibold text-slate-700">Page</span>
             <input
@@ -708,7 +709,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
       {(isAddModalOpen || editingEmployee) && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-            
+
             <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-6 py-4 text-white flex items-center justify-between">
               <h3 className="font-bold text-base">
                 {isAddModalOpen ? t.addEmployee : 'Edit Employee Profile'}
@@ -725,7 +726,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
-              
+
               {/* Name */}
               <div>
                 <label className="font-bold text-slate-700 block mb-1">
