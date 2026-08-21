@@ -1,12 +1,9 @@
 {
-  "projectId": "gen-lang-client-0282286222",
-  "appId": "1:606263003589:web:8e62b9b6e95f795d03a3ac",
-  "apiKey": "AIzaSyByrBR4eLuiUu30ZesCBLbtFsONQ5WoIXY",
-  "authDomain": "gen-lang-client-0282286222.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-shiftskyrestaura-04b9b201-a1ba-4c87-80c8-e1bda2ba8fb3",
-  "storageBucket": "gen-lang-client-0282286222.firebasestorage.app",
-  "messagingSenderId": "606263003589",
-  "measurementId": "",
-  "oAuthClientId": "606263003589-k8cj3b2h405cmqgvgedooj2lka08h1t2.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "shift-flow-gj0bu8",
+  "appId": "1:1081687902277:web:91ba68293345ece8a7bb2c",
+  "apiKey": "AIzaSyB77pWteDWc7hp6hTxABxhCxpu-deKxL_M",
+  "authDomain": "shift-flow-gj0bu8.firebaseapp.com",
+  "storageBucket": "shift-flow-gj0bu8.firebasestorage.app",
+  "messagingSenderId": "1081687902277",
+  "measurementId": "G-9DNN4E9826"
 }
