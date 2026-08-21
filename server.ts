@@ -52,7 +52,7 @@ app.use((req, res, next) => {
   next();
 });
 
-const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "gen-lang-client-0282286222";
+const firebaseProjectId = process.env.FIREBASE_PROJECT_ID?.trim() || "shift-flow-gj0bu8";
 const rawFirebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY?.trim();
 
 function parseFirebaseServiceAccount(raw?: string) {
