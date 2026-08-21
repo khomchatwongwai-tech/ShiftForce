@@ -94,6 +94,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
   const [isPaperScannerOpen, setIsPaperScannerOpen] = useState(false);
   const [isQuickShelfExpanded, setIsQuickShelfExpanded] = useState(true);
+  const [isWarningDetailsExpanded, setIsWarningDetailsExpanded] = useState(false);
+  const [warningFilter, setWarningFilter] = useState<'all' | 'daily_8h' | 'weekly_40h' | 'none'>('none');
 
   // Batch add shifts helper
   const handleBatchAddShifts = (newShifts: Omit<Shift, 'id'>[]) => {
@@ -129,18 +131,6 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     'Management',
   ];
 
-  // Filtered shifts based on department and search
-  const filteredShifts = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-    return shifts.filter(s => {
-      const matchesDept = selectedDepartment === 'all' || s.department === selectedDepartment;
-      const matchesSearch = q === '' || 
-        (s.employeeName || '').toLowerCase().includes(q) ||
-        (s.role || '').toLowerCase().includes(q);
-      return matchesDept && matchesSearch;
-    });
-  }, [shifts, selectedDepartment, searchQuery]);
-
   // Helper to calculate total hours for a shift
   const getShiftHours = (s: Shift) => {
     const [sh, sm] = s.startTime.split(':').map(Number);
@@ -149,6 +139,32 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     if (diff < 0) diff += 24 * 60;
     return Math.max(0, (diff - s.breakMinutes) / 60);
   };
+
+  // Filtered shifts based on department, search, and warning compliance filters
+  const filteredShifts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    return shifts.filter(s => {
+      const matchesDept = selectedDepartment === 'all' || s.department === selectedDepartment;
+      const matchesSearch = q === '' || 
+        (s.employeeName || '').toLowerCase().includes(q) ||
+        (s.role || '').toLowerCase().includes(q);
+
+      let matchesWarning = true;
+      if (warningFilter === 'daily_8h') {
+        matchesWarning = getShiftHours(s) > 8;
+      } else if (warningFilter === 'weekly_40h') {
+        const empShifts = shifts.filter(other => other.employeeId === s.employeeId);
+        const totalWkHours = empShifts.reduce((sum, other) => sum + getShiftHours(other), 0);
+        matchesWarning = totalWkHours > 40;
+      } else if (warningFilter === 'all') {
+        const empShifts = shifts.filter(other => other.employeeId === s.employeeId);
+        const totalWkHours = empShifts.reduce((sum, other) => sum + getShiftHours(other), 0);
+        matchesWarning = getShiftHours(s) > 8 || totalWkHours > 40;
+      }
+
+      return matchesDept && matchesSearch && matchesWarning;
+    });
+  }, [shifts, selectedDepartment, searchQuery, warningFilter]);
 
   // Underneath Schedule Calculations (Labor, Hours, Overtime risks)
   const stats = useMemo(() => {
@@ -162,14 +178,23 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       'Management': { hours: 0, cost: 0, shiftsCount: 0 },
     };
 
-    // Track employee total hours for overtime alert (>40 hrs)
-    const empHoursMap: Record<string, { name: string; hours: number }> = {};
+    // Track employee total hours for overtime alert (>40 hrs) and single shifts >8h
+    const empHoursMap: Record<string, { employeeId: string; name: string; hours: number; shiftsCount: number }> = {};
+    const shiftsExceeding8h: { shift: Shift; hours: number; excessHours: number }[] = [];
 
     shifts.forEach(s => {
       const hrs = getShiftHours(s);
       const cost = hrs * s.hourlyWage;
       totalHours += hrs;
       totalLaborCost += cost;
+
+      if (hrs > 8) {
+        shiftsExceeding8h.push({
+          shift: s,
+          hours: Number(hrs.toFixed(2)),
+          excessHours: Number((hrs - 8).toFixed(2)),
+        });
+      }
 
       if (deptBreakdown[s.department]) {
         deptBreakdown[s.department].hours += hrs;
@@ -178,19 +203,30 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       }
 
       if (!empHoursMap[s.employeeId]) {
-        empHoursMap[s.employeeId] = { name: s.employeeName, hours: 0 };
+        empHoursMap[s.employeeId] = { employeeId: s.employeeId, name: s.employeeName, hours: 0, shiftsCount: 0 };
       }
       empHoursMap[s.employeeId].hours += hrs;
+      empHoursMap[s.employeeId].shiftsCount += 1;
     });
 
-    const overtimeEmployees = Object.values(empHoursMap).filter(e => e.hours > 40);
+    const overtimeEmployees = Object.values(empHoursMap)
+      .filter(e => e.hours > 40)
+      .map(e => ({
+        ...e,
+        hours: Number(e.hours.toFixed(2)),
+        overtimeHours: Number((e.hours - 40).toFixed(2)),
+      }));
+
     const laborPercentage = weeklySalesForecast > 0 ? (totalLaborCost / weeklySalesForecast) * 100 : 0;
+    const hasAnyWarning = shiftsExceeding8h.length > 0 || overtimeEmployees.length > 0;
 
     return {
       totalHours,
       totalLaborCost,
       deptBreakdown,
       overtimeEmployees,
+      shiftsExceeding8h,
+      hasAnyWarning,
       laborPercentage,
     };
   }, [shifts, weeklySalesForecast]);
@@ -252,17 +288,23 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     };
   }, [liveBudgets, stats, selectedDepartment]);
 
-  // Real-time Employee Weekly Hours & Overtime (>40 hrs) Map per Shift
+  // Real-time Employee Weekly Hours & Overtime (>40 hrs) and Daily Duration (>8 hrs) Map per Shift
   const shiftOvertimeMap = useMemo(() => {
     const map: Record<string, {
+      isDailyOver8h: boolean;
+      dailyExcessHours: number;
       isOvertime: boolean;
+      isWeeklyOvertime: boolean;
       triggersOvertime: boolean;
+      triggersWeeklyOvertime: boolean;
       hoursBeforeShift: number;
       hoursAfterShift: number;
       shiftHours: number;
       overtimeHoursOnThisShift: number;
       totalEmployeeWeekHours: number;
+      weeklyExcessHours: number;
       employeeName: string;
+      hasWarning: boolean;
     }> = {};
 
     // Group shifts by employeeId
@@ -290,21 +332,32 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         runningCumulativeHours += shiftHours;
         const hoursAfterShift = runningCumulativeHours;
 
+        const isDailyOver8h = shiftHours > 8;
+        const dailyExcessHours = Math.max(0, shiftHours - 8);
+
+        const isWeeklyOvertime = totalEmployeeWeekHours > 40;
+        const triggersWeeklyOvertime = hoursBeforeShift < 40 && hoursAfterShift > 40;
         const isOvertime = hoursAfterShift > 40;
-        const triggersOvertime = hoursBeforeShift < 40 && hoursAfterShift > 40;
         const overtimeHoursOnThisShift = isOvertime
           ? Math.max(0, hoursAfterShift - Math.max(40, hoursBeforeShift))
           : 0;
+        const weeklyExcessHours = Math.max(0, totalEmployeeWeekHours - 40);
 
         map[shift.id] = {
+          isDailyOver8h,
+          dailyExcessHours: Number(dailyExcessHours.toFixed(2)),
           isOvertime,
-          triggersOvertime,
+          isWeeklyOvertime,
+          triggersOvertime: triggersWeeklyOvertime,
+          triggersWeeklyOvertime,
           hoursBeforeShift: Number(hoursBeforeShift.toFixed(2)),
           hoursAfterShift: Number(hoursAfterShift.toFixed(2)),
           shiftHours: Number(shiftHours.toFixed(2)),
           overtimeHoursOnThisShift: Number(overtimeHoursOnThisShift.toFixed(2)),
           totalEmployeeWeekHours: Number(totalEmployeeWeekHours.toFixed(2)),
+          weeklyExcessHours: Number(weeklyExcessHours.toFixed(2)),
           employeeName: shift.employeeName,
+          hasWarning: isDailyOver8h || isWeeklyOvertime,
         };
       });
     });
@@ -955,6 +1008,168 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
       </div>
 
+      {/* MANAGER OVERTIME & LABOR COMPLIANCE WARNING BANNER */}
+      {stats.hasAnyWarning && (
+        <div className="bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-amber-500/10 border-2 border-amber-400/80 rounded-2xl p-4 shadow-xs text-slate-900 animate-in fade-in">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex items-start md:items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs animate-pulse">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-black text-sm text-slate-900 flex items-center gap-1.5">
+                    <span>Manager Overtime &amp; Duration Alert</span>
+                  </h4>
+                  {stats.shiftsExceeding8h.length > 0 && (
+                    <span className="px-2 py-0.5 bg-amber-200/90 text-amber-950 border border-amber-400 rounded-md text-[11px] font-bold font-mono">
+                      ⚠️ {stats.shiftsExceeding8h.length} Shift{stats.shiftsExceeding8h.length === 1 ? '' : 's'} &gt; 8h Daily
+                    </span>
+                  )}
+                  {stats.overtimeEmployees.length > 0 && (
+                    <span className="px-2 py-0.5 bg-rose-200/90 text-rose-950 border border-rose-400 rounded-md text-[11px] font-bold font-mono">
+                      ⚠️ {stats.overtimeEmployees.length} Staff &gt; 40h Weekly
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {stats.shiftsExceeding8h.length > 0 && stats.overtimeEmployees.length > 0
+                    ? `Detected single shifts exceeding the 8.0-hour daily limit and employee weekly schedules exceeding the 40.0-hour cap.`
+                    : stats.shiftsExceeding8h.length > 0
+                    ? `Detected single shift durations exceeding the standard 8.0-hour daily limit.`
+                    : `Detected employee weekly schedules exceeding the standard 40.0-hour weekly overtime threshold.`
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Quick Filter & Details Toggle */}
+            <div className="flex items-center gap-2 flex-wrap shrink-0">
+              <div className="flex items-center bg-white border border-amber-300 rounded-xl p-0.5 text-xs font-semibold shadow-2xs">
+                <button
+                  type="button"
+                  onClick={() => setWarningFilter(warningFilter === 'all' ? 'none' : 'all')}
+                  className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                    warningFilter === 'all' ? 'bg-amber-500 text-white font-bold' : 'text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  All Alerts ({stats.shiftsExceeding8h.length + stats.overtimeEmployees.length})
+                </button>
+                {stats.shiftsExceeding8h.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setWarningFilter(warningFilter === 'daily_8h' ? 'none' : 'daily_8h')}
+                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                      warningFilter === 'daily_8h' ? 'bg-amber-500 text-white font-bold' : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    &gt;8h Shifts ({stats.shiftsExceeding8h.length})
+                  </button>
+                )}
+                {stats.overtimeEmployees.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setWarningFilter(warningFilter === 'weekly_40h' ? 'none' : 'weekly_40h')}
+                    className={`px-2.5 py-1 rounded-lg transition-colors cursor-pointer ${
+                      warningFilter === 'weekly_40h' ? 'bg-rose-500 text-white font-bold' : 'text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    &gt;40h Staff ({stats.overtimeEmployees.length})
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsWarningDetailsExpanded(!isWarningDetailsExpanded)}
+                className="px-3 py-1.5 text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl shadow-2xs flex items-center gap-1 cursor-pointer transition-all"
+              >
+                <span>{isWarningDetailsExpanded ? 'Hide Details' : 'View Breakdown'}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isWarningDetailsExpanded ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Expandable Breakdown Drawer */}
+          {isWarningDetailsExpanded && (
+            <div className="mt-3.5 pt-3 border-t border-amber-200/80 grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              {/* Shifts > 8h list */}
+              <div className="bg-white/90 rounded-xl p-3 border border-amber-200 shadow-2xs">
+                <div className="font-bold text-slate-800 flex items-center justify-between mb-2">
+                  <span className="flex items-center gap-1.5 text-amber-900 font-bold">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Single Shifts Exceeding 8 Hours ({stats.shiftsExceeding8h.length})</span>
+                  </span>
+                </div>
+                {stats.shiftsExceeding8h.length === 0 ? (
+                  <div className="text-[11px] text-slate-500 italic py-1">No single shifts exceed the 8h daily limit.</div>
+                ) : (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {stats.shiftsExceeding8h.map(({ shift, hours, excessHours }) => (
+                      <div
+                        key={shift.id}
+                        onClick={() => handleOpenEditModal(shift)}
+                        className="p-2 rounded-lg bg-amber-50/80 hover:bg-amber-100/90 border border-amber-200 flex items-center justify-between cursor-pointer transition-colors"
+                        title="Click to edit shift timing"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <div className="font-bold text-slate-900 text-[11px] truncate flex items-center gap-1">
+                            <span>{shift.employeeName}</span>
+                            <span className="text-[10px] text-slate-500 font-normal">({shift.department})</span>
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono">
+                            {shift.date} • {shift.startTime}-{shift.endTime} ({shift.role})
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="px-1.5 py-0.5 bg-amber-200 text-amber-950 font-bold font-mono rounded text-[10px] block">
+                            {hours.toFixed(1)}h (+{excessHours.toFixed(1)}h OT)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Staff > 40h list */}
+              <div className="bg-white/90 rounded-xl p-3 border border-rose-200 shadow-2xs">
+                <div className="font-bold text-slate-800 flex items-center justify-between mb-2">
+                  <span className="flex items-center gap-1.5 text-rose-900 font-bold">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Weekly Schedules Exceeding 40 Hours ({stats.overtimeEmployees.length})</span>
+                  </span>
+                </div>
+                {stats.overtimeEmployees.length === 0 ? (
+                  <div className="text-[11px] text-slate-500 italic py-1">No employee weekly totals exceed the 40h cap.</div>
+                ) : (
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {stats.overtimeEmployees.map((emp) => (
+                      <div
+                        key={emp.employeeId}
+                        className="p-2 rounded-lg bg-rose-50/80 border border-rose-200 flex items-center justify-between"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <div className="font-bold text-slate-900 text-[11px] truncate">{emp.name}</div>
+                          <div className="text-[10px] text-slate-500">
+                            {emp.shiftsCount} shifts scheduled this week
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="px-1.5 py-0.5 bg-rose-200 text-rose-950 font-bold font-mono rounded text-[10px] block">
+                            {emp.hours.toFixed(1)}h (+{emp.overtimeHours.toFixed(1)}h OT)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 7-Day Schedule Calendar Grid */}
       <div className="bg-white rounded-2xl shadow-xs border border-sky-100 overflow-hidden">
         
@@ -1000,6 +1215,9 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                   {dayShifts.map((shift) => {
                     const hrs = getShiftHours(shift);
                     const otInfo = shiftOvertimeMap[shift.id];
+                    const isDaily8h = otInfo?.isDailyOver8h;
+                    const isWeekly40h = otInfo?.isWeeklyOvertime;
+                    const hasWarning = isDaily8h || isWeekly40h;
 
                     return (
                       <div
@@ -1007,8 +1225,12 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                         onClick={() => handleOpenEditModal(shift)}
                         style={{ borderLeftColor: shift.color }}
                         className={`p-2.5 rounded-xl border border-l-4 shadow-xs transition-all cursor-pointer group text-left relative ${
-                          otInfo?.isOvertime
-                            ? otInfo.triggersOvertime
+                          isDaily8h && isWeekly40h
+                            ? 'bg-gradient-to-br from-amber-50/95 via-rose-50/90 to-amber-50/95 border-amber-400 ring-2 ring-amber-500/70 hover:shadow-md'
+                            : isDaily8h
+                            ? 'bg-amber-50/90 border-amber-300 ring-2 ring-amber-400/60 hover:bg-amber-100/90 hover:shadow-md'
+                            : isWeekly40h
+                            ? otInfo?.triggersWeeklyOvertime
                               ? 'bg-amber-50/95 border-amber-300 ring-2 ring-amber-400/60 hover:bg-amber-100/90 hover:shadow-md'
                               : 'bg-rose-50/90 border-rose-300 ring-2 ring-rose-400/60 hover:bg-rose-100/90 hover:shadow-md'
                             : 'bg-white hover:bg-sky-50/40 border-slate-200 hover:shadow-md'
@@ -1017,30 +1239,32 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                         {/* Header: Employee Name & Overtime Alert Warning Icon */}
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1 min-w-0 pr-1">
-                            {otInfo?.isOvertime && (
+                            {hasWarning && (
                               <span 
-                                title={`Overtime Alert: ${shift.employeeName}'s weekly total reaches ${otInfo.totalEmployeeWeekHours}h (${
-                                  otInfo.triggersOvertime 
-                                    ? `Causes weekly hours to exceed 40h (+${otInfo.overtimeHoursOnThisShift}h OT)` 
-                                    : `Overtime Shift (+${otInfo.shiftHours}h OT)`
-                                })`}
+                                title={
+                                  isDaily8h && isWeekly40h
+                                    ? `⚠️ Labor Alert: Single shift exceeds 8h (${hrs.toFixed(1)}h | +${otInfo?.dailyExcessHours}h) AND weekly schedule exceeds 40h (${otInfo?.totalEmployeeWeekHours}h | +${otInfo?.weeklyExcessHours}h OT)`
+                                    : isDaily8h
+                                    ? `⚠️ Daily Overtime Alert: Single shift is ${hrs.toFixed(1)} hrs (exceeds standard 8.0h limit by +${otInfo?.dailyExcessHours}h)`
+                                    : `⚠️ Weekly Overtime Alert: ${shift.employeeName}'s weekly total reaches ${otInfo?.totalEmployeeWeekHours}h (+${otInfo?.weeklyExcessHours}h OT)`
+                                }
                                 className="shrink-0"
                               >
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                                <AlertTriangle className={`w-3.5 h-3.5 ${isDaily8h && isWeekly40h ? 'text-rose-600' : isDaily8h ? 'text-amber-600' : 'text-rose-600'} animate-pulse`} />
                               </span>
                             )}
-                            <span className={`font-bold text-xs truncate ${otInfo?.isOvertime ? 'text-amber-950 font-black' : 'text-slate-900'}`}>
+                            <span className={`font-bold text-xs truncate ${hasWarning ? 'text-amber-950 font-black' : 'text-slate-900'}`}>
                               {shift.employeeName}
                             </span>
                           </div>
                           <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
-                            otInfo?.isOvertime
-                              ? otInfo.triggersOvertime
-                                ? 'bg-amber-200/90 text-amber-950 font-black border border-amber-300'
-                                : 'bg-rose-200/90 text-rose-950 font-black border border-rose-300'
+                            isDaily8h
+                              ? 'bg-amber-200/90 text-amber-950 font-black border border-amber-300'
+                              : isWeekly40h
+                              ? 'bg-rose-200/90 text-rose-950 font-black border border-rose-300'
                               : 'bg-slate-100 text-slate-700'
                           }`}>
-                            {hrs.toFixed(1)}h
+                            {hrs.toFixed(1)}h {isDaily8h && '⚠️'}
                           </span>
                         </div>
 
@@ -1055,19 +1279,32 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                           <span>{shift.startTime} - {shift.endTime}</span>
                         </div>
 
-                        {/* Overtime Threshold Warning Badge (>40 Weekly Hours) */}
-                        {otInfo?.isOvertime && (
-                          <div className={`flex items-center justify-between gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 border shadow-2xs ${
-                            otInfo.triggersOvertime 
+                        {/* Visual Daily Shift Duration Warning (>8 Hours) */}
+                        {isDaily8h && (
+                          <div className="flex items-center justify-between gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md mt-1.5 bg-amber-100/90 text-amber-900 border border-amber-300 shadow-2xs">
+                            <span className="flex items-center gap-1 truncate">
+                              <Clock className="w-2.5 h-2.5 text-amber-700 shrink-0" />
+                              <span>&gt;8h Shift ({hrs.toFixed(1)}h)</span>
+                            </span>
+                            <span className="font-mono text-[9px] shrink-0 font-black text-amber-950">
+                              +{otInfo?.dailyExcessHours}h OT
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Visual Weekly Overtime Warning (>40 Weekly Hours) */}
+                        {isWeekly40h && (
+                          <div className={`flex items-center justify-between gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md ${isDaily8h ? 'mt-1' : 'mt-1.5'} border shadow-2xs ${
+                            otInfo?.triggersWeeklyOvertime 
                               ? 'bg-amber-100/90 text-amber-900 border-amber-300' 
                               : 'bg-rose-100/90 text-rose-900 border-rose-300'
                           }`}>
                             <span className="flex items-center gap-1 truncate">
-                              <AlertTriangle className="w-2.5 h-2.5 text-amber-600 shrink-0" />
-                              <span>{otInfo.triggersOvertime ? `>40h Breached (+${otInfo.overtimeHoursOnThisShift}h OT)` : `OT (+${otInfo.shiftHours}h OT)`}</span>
+                              <AlertTriangle className="w-2.5 h-2.5 text-rose-600 shrink-0" />
+                              <span>{otInfo?.triggersWeeklyOvertime ? `>40h Breached` : `Weekly OT`}</span>
                             </span>
                             <span className="font-mono text-[9px] shrink-0 font-black">
-                              {otInfo.hoursAfterShift}h Wk
+                              {otInfo?.totalEmployeeWeekHours}h (+{otInfo?.weeklyExcessHours}h)
                             </span>
                           </div>
                         )}
@@ -1231,18 +1468,24 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
           </div>
 
           <div className={`border rounded-xl p-4 ${
-            stats.overtimeEmployees.length > 0 ? 'bg-amber-50/80 border-amber-200' : 'bg-slate-50 border-slate-200'
+            stats.hasAnyWarning ? 'bg-amber-50/90 border-amber-300 shadow-2xs' : 'bg-slate-50 border-slate-200'
           }`}>
-            <div className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
-              Overtime Thresholds (&gt;40h)
+            <div className="text-xs font-semibold text-amber-800 uppercase tracking-wider flex items-center justify-between">
+              <span>Overtime &amp; Duration Alerts</span>
+              {stats.hasAnyWarning && (
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              )}
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-1">
-              {stats.overtimeEmployees.length} <span className="text-sm font-medium text-slate-500">Alerts</span>
+            <div className="text-2xl font-black text-slate-900 mt-1 flex items-baseline gap-1.5">
+              {stats.shiftsExceeding8h.length + stats.overtimeEmployees.length}
+              <span className="text-xs font-medium text-slate-500">
+                ({stats.shiftsExceeding8h.length} &gt;8h • {stats.overtimeEmployees.length} &gt;40h)
+              </span>
             </div>
             <div className="text-[11px] text-slate-600 mt-0.5 truncate">
-              {stats.overtimeEmployees.length > 0
-                ? stats.overtimeEmployees.map(e => e.name).join(', ')
-                : 'No overtime violations'}
+              {stats.hasAnyWarning
+                ? `${stats.shiftsExceeding8h.length} shift(s) >8h daily, ${stats.overtimeEmployees.length} employee(s) >40h weekly`
+                : 'All shifts and schedules compliant'}
             </div>
           </div>
 
@@ -1581,25 +1824,51 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                 const durMinutes = Math.max(0, (endM >= startM ? endM - startM : (24 * 60 - startM) + endM) - (formBreakMinutes || 0));
                 const currentDraftHours = durMinutes / 60;
                 const projectedHours = priorHours + currentDraftHours;
-                const willExceed = projectedHours > 40;
-                const overtimeExcess = Math.max(0, projectedHours - 40);
+                const isShiftOver8h = currentDraftHours > 8;
+                const isWeeklyOver40h = projectedHours > 40;
 
-                if (!willExceed) return null;
+                if (!isShiftOver8h && !isWeeklyOver40h) return null;
 
                 return (
-                  <div className="p-3 bg-amber-50/90 border border-amber-300 rounded-xl flex items-start gap-2.5 text-amber-900 animate-in fade-in">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 animate-pulse" />
-                    <div>
-                      <div className="font-bold text-xs flex items-center gap-1.5">
-                        <span>Overtime Threshold Warning (&gt;40h)</span>
-                        <span className="px-1.5 py-0.2 bg-amber-200/80 text-amber-950 font-mono rounded text-[10px]">
-                          +{overtimeExcess.toFixed(1)}h OT
-                        </span>
-                      </div>
-                      <div className="text-[11px] text-amber-800 mt-0.5">
-                        Scheduling this shift will bring <strong>{selectedEmp?.name || 'Employee'}</strong> to <strong>{projectedHours.toFixed(1)} hrs</strong> this week ({priorHours.toFixed(1)}h existing + {currentDraftHours.toFixed(1)}h new).
-                      </div>
+                  <div className="p-3 bg-amber-50/95 border-2 border-amber-300 rounded-xl text-amber-950 space-y-2 animate-in fade-in">
+                    <div className="flex items-center gap-2 font-black text-xs text-amber-900">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 animate-pulse shrink-0" />
+                      <span>Manager Labor Alert: Compliance Warning</span>
                     </div>
+
+                    {isShiftOver8h && (
+                      <div className="bg-white/90 p-2.5 rounded-lg border border-amber-300 text-[11px] flex items-start gap-2">
+                        <Clock className="w-3.5 h-3.5 text-amber-700 mt-0.5 shrink-0" />
+                        <div>
+                          <div className="font-bold text-amber-900 flex items-center gap-1.5">
+                            <span>Single Shift Duration Exceeds 8.0 Hours</span>
+                            <span className="px-1.5 py-0.2 bg-amber-200 text-amber-950 font-mono font-bold rounded text-[10px]">
+                              {currentDraftHours.toFixed(1)}h (+{(currentDraftHours - 8).toFixed(1)}h daily OT)
+                            </span>
+                          </div>
+                          <div className="text-slate-600 text-[10px] mt-0.5">
+                            This single shift spans <strong>{currentDraftHours.toFixed(1)} net hours</strong> (after {formBreakMinutes}m break), triggering daily overtime policy thresholds.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {isWeeklyOver40h && (
+                      <div className="bg-white/90 p-2.5 rounded-lg border border-rose-300 text-[11px] flex items-start gap-2">
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-600 mt-0.5 shrink-0" />
+                        <div>
+                          <div className="font-bold text-rose-900 flex items-center gap-1.5">
+                            <span>Weekly Schedule Exceeds 40.0 Hours Cap</span>
+                            <span className="px-1.5 py-0.2 bg-rose-200 text-rose-950 font-mono font-bold rounded text-[10px]">
+                              {projectedHours.toFixed(1)}h (+{(projectedHours - 40).toFixed(1)}h weekly OT)
+                            </span>
+                          </div>
+                          <div className="text-slate-600 text-[10px] mt-0.5">
+                            Scheduling this shift will bring <strong>{selectedEmp?.name || 'Employee'}</strong> to <strong>{projectedHours.toFixed(1)} hrs</strong> this week ({priorHours.toFixed(1)}h existing + {currentDraftHours.toFixed(1)}h new).
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
