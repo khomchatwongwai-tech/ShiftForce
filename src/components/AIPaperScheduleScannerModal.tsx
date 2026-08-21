@@ -59,6 +59,27 @@ export interface ParsedScannedShift {
   isEditing?: boolean;
 }
 
+export function hasUsableCameraFrame(video: HTMLVideoElement): boolean {
+  return video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0 && video.videoHeight > 0;
+}
+
+export function canvasHasVisibleContent(ctx: CanvasRenderingContext2D, width: number, height: number): boolean {
+  if (width <= 0 || height <= 0) return false;
+  try {
+    const pixels = ctx.getImageData(0, 0, width, height).data;
+    const step = Math.max(4, Math.floor(Math.sqrt((width * height) / 2048)));
+    let opaqueSamples = 0;
+    let visibleSamples = 0;
+    for (let y = 0; y < height; y += step) for (let x = 0; x < width; x += step) {
+      const offset = (y * width + x) * 4;
+      if (pixels[offset + 3] < 16) continue;
+      opaqueSamples += 1;
+      if (pixels[offset] > 16 || pixels[offset + 1] > 16 || pixels[offset + 2] > 16) visibleSamples += 1;
+    }
+    return opaqueSamples > 0 && visibleSamples / opaqueSamples >= 0.02;
+  } catch { return false; }
+}
+
 export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalProps> = ({
   isOpen,
   onClose,
@@ -78,12 +99,15 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [rotation, setRotation] = useState<number>(0);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const cameraRequestRef = useRef(0);
 
   // Target Week selection
   const [selectedWeekDateStr, setSelectedWeekDateStr] = useState<string>(weekDates[0]?.dateStr || '');
@@ -106,72 +130,107 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [addedCount, setAddedCount] = useState<number>(0);
 
-  // Initialize Camera Stream
+  const stopCamera = useCallback(() => {
+    cameraRequestRef.current += 1;
+    setCameraReady(false);
+    const stream = cameraStreamRef.current;
+    cameraStreamRef.current = null;
+    stream?.getTracks().forEach(track => track.stop());
+    setCameraStream(null);
+    setIsCameraActive(false);
+    const video = videoRef.current;
+    if (video) { video.pause(); video.srcObject = null; }
+  }, []);
+
   const startCamera = useCallback(async () => {
+    stopCamera();
+    const requestId = ++cameraRequestRef.current;
     try {
       setCameraError(null);
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-      }
-
+      setCameraReady(false);
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera capture is not supported by this browser.');
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: facingMode,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-        },
-        audio: false,
+        video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false,
       });
-
+      if (requestId !== cameraRequestRef.current) { stream.getTracks().forEach(track => track.stop()); return; }
+      cameraStreamRef.current = stream;
       setCameraStream(stream);
       setIsCameraActive(true);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(() => {});
-      }
     } catch (err: any) {
+      if (requestId !== cameraRequestRef.current) return;
       console.warn('[Camera Access Warning]', err);
       setCameraError('Camera access unavailable or blocked. You can upload an image file or test with sample schedule presets.');
       setIsCameraActive(false);
+      setCameraReady(false);
     }
-  }, [facingMode, cameraStream]);
+  }, [facingMode, stopCamera]);
 
-  // Stop Camera
-  const stopCamera = useCallback(() => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-      setCameraStream(null);
-    }
-    setIsCameraActive(false);
+  useEffect(() => {
+    const stream = cameraStream;
+    const video = videoRef.current;
+    if (!stream || !video) return;
+    let cancelled = false;
+    let frameRequest: number | null = null;
+    const checkFrame = () => {
+      if (cancelled) return;
+      if (hasUsableCameraFrame(video)) { setCameraReady(true); return; }
+      frameRequest = requestAnimationFrame(checkFrame);
+    };
+    const beginFrameCheck = () => { setCameraReady(false); checkFrame(); };
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
+    video.addEventListener('loadedmetadata', beginFrameCheck);
+    video.addEventListener('canplay', beginFrameCheck);
+    video.addEventListener('loadeddata', beginFrameCheck);
+    void video.play().then(beginFrameCheck).catch(() => !cancelled && setCameraError('Camera preview could not start. Please allow camera access or upload an image instead.'));
+    const delayedWarning = window.setTimeout(() => {
+      if (!cancelled && !hasUsableCameraFrame(video)) setCameraError('Camera is open but no image frame has arrived yet. Please wait a moment or upload an image instead.');
+    }, 5000);
+    return () => {
+      cancelled = true;
+      if (frameRequest !== null) cancelAnimationFrame(frameRequest);
+      window.clearTimeout(delayedWarning);
+      video.removeEventListener('loadedmetadata', beginFrameCheck);
+      video.removeEventListener('canplay', beginFrameCheck);
+      video.removeEventListener('loadeddata', beginFrameCheck);
+    };
   }, [cameraStream]);
 
   // Manage Camera on open/close
   useEffect(() => {
     if (isOpen && inputMode === 'camera' && !capturedImage) {
-      startCamera();
+      void startCamera();
     } else {
       stopCamera();
     }
 
-    return () => {
-      stopCamera();
-    };
-  }, [isOpen, inputMode, capturedImage]);
+  }, [isOpen, inputMode, capturedImage, startCamera, stopCamera]);
+
+  useEffect(() => () => stopCamera(), [stopCamera]);
 
   // Capture Snapshot from Camera
   const handleSnapPhoto = () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !cameraReady || !hasUsableCameraFrame(videoRef.current)) {
+      setCameraReady(false);
+      setErrorMessage('Camera frame is not ready yet. Please wait a moment and try again.');
+      return;
+    }
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 1280;
-    canvas.height = video.videoHeight || 720;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) { setErrorMessage('Camera image processing is unavailable. Please upload an image instead.'); return; }
 
     // Draw video frame to canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (!canvasHasVisibleContent(ctx, canvas.width, canvas.height)) {
+      setErrorMessage('The captured camera frame was empty or too dark. Please improve lighting, wait for the preview, and try again.');
+      return;
+    }
     const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    setErrorMessage(null);
     setCapturedImage(dataUrl);
     stopCamera();
   };
@@ -465,11 +524,11 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
     setCapturedImage(null);
     setExtractedShifts([]);
     setErrorMessage(null);
+    setCameraReady(false);
     setStep('capture');
-    if (inputMode === 'camera') {
-      startCamera();
-    }
   };
+
+  const handleClose = () => { stopCamera(); onClose(); };
 
   if (!isOpen) return null;
 
@@ -499,7 +558,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -625,12 +684,19 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                           type="button"
                           id="camera-shutter-snap-btn"
                           onClick={handleSnapPhoto}
-                          className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-                          title="Snap Photo"
+                          disabled={!cameraReady}
+                          className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                          title={cameraReady ? 'Snap Photo' : 'Waiting for camera frame'}
                         >
                           <Camera className="w-7 h-7" />
                         </button>
                       </div>
+                      {!cameraReady && (
+                        <div className="absolute top-4 inset-x-0 flex flex-col items-center gap-2 pointer-events-none px-4">
+                          <span className="bg-slate-950/80 text-sky-200 text-[11px] font-semibold px-3 py-1.5 rounded-full border border-sky-400/30">Preparing camera frame…</span>
+                          {cameraError && <span className="bg-rose-950/85 text-rose-100 text-[11px] font-medium px-3 py-1.5 rounded-full border border-rose-400/30 text-center">{cameraError}</span>}
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="p-8 text-center max-w-md">
@@ -641,7 +707,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                       </p>
                       <div className="flex gap-2 justify-center">
                         <button
-                          onClick={startCamera}
+                          onClick={() => void startCamera()}
                           className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl cursor-pointer"
                         >
                           Retry Camera
@@ -1105,7 +1171,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
 
               <div className="flex gap-3 pt-3">
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="px-6 py-2.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white text-xs font-bold rounded-xl shadow-md cursor-pointer"
                 >
                   View Schedule Calendar
