@@ -6,6 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import rateLimit from "express-rate-limit";
 import Stripe from "stripe";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
 import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
@@ -249,25 +250,97 @@ async function requireFirebaseUser(req: express.Request, res: express.Response, 
   }
 }
 
-function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+const ADMIN_MEMBERSHIP_ROLES = new Set(["owner", "corporate_admin", "regional_manager", "general_manager", "assistant_manager"]);
+
+async function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
   const authContext = res.locals.auth;
   if (!authContext?.admin) {
     return res.status(403).json({ error: "Administrator access required" });
   }
-  next();
+  try {
+    const profile = await getServerUserProfile(authContext.uid);
+    if (!profile || profile.userType !== "admin" || !ADMIN_MEMBERSHIP_ROLES.has(profile.membershipRole)) {
+      return res.status(403).json({ error: "Active administrator membership required" });
+    }
+    res.locals.serverProfile = profile;
+    return next();
+  } catch (error: any) {
+    return res.status(error?.statusCode || 503).json({ error: "Administrator profile is unavailable" });
+  }
+}
+
+let supabaseServerClient: ReturnType<typeof createClient> | null = null;
+type ServerUserProfileRow = {
+  firebase_uid: string;
+  organization_id: string;
+  email: string | null;
+  display_name: string | null;
+  role: string;
+  employee_id: string | null;
+  payload: unknown;
+};
+type ServerOrganizationMembershipRow = {
+  organization_id: string;
+  role: string;
+  active: boolean;
+};
+
+function getSupabaseServerClient() {
+  const url = process.env.SUPABASE_URL?.trim();
+  const secret = process.env.SUPABASE_SECRET_KEY?.trim();
+  if (!url || !secret) throw Object.assign(new Error("Supabase server credentials are not configured"), { statusCode: 503 });
+  if (!supabaseServerClient) {
+    supabaseServerClient = createClient(url, secret, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    });
+  }
+  return supabaseServerClient;
 }
 
 async function getServerUserProfile(uid: string) {
-  const snap = await getAdminFirestore().doc(`users/${uid}`).get();
-  return snap.exists ? snap.data() : null;
+  const supabase = getSupabaseServerClient();
+  const { data: userRow, error: userError } = await supabase
+    .from("users")
+    .select("firebase_uid, organization_id, email, display_name, role, employee_id, payload")
+    .eq("firebase_uid", uid)
+    .maybeSingle();
+  if (userError) throw Object.assign(new Error("Supabase user profile lookup failed"), { statusCode: 503 });
+  if (!userRow) return null;
+  const user = userRow as unknown as ServerUserProfileRow;
+
+  const { data: membershipRow, error: membershipError } = await supabase
+    .from("organization_members")
+    .select("organization_id, role, active")
+    .eq("organization_id", user.organization_id)
+    .eq("firebase_uid", uid)
+    .eq("active", true)
+    .maybeSingle();
+  if (membershipError) throw Object.assign(new Error("Supabase organization membership lookup failed"), { statusCode: 503 });
+  if (!membershipRow) return null;
+  const membership = membershipRow as unknown as ServerOrganizationMembershipRow;
+
+  const payload = user.payload && typeof user.payload === "object" ? user.payload as Record<string, unknown> : {};
+  const ownerProfile = user.role === "role-super-admin" && membership.role === "owner";
+  return {
+    ...payload,
+    userId: user.firebase_uid,
+    organizationId: user.organization_id,
+    email: user.email,
+    displayName: user.display_name,
+    role: user.role,
+    employeeId: user.employee_id,
+    membershipRole: membership.role,
+    userType: payload.userType || (ownerProfile ? "admin" : "employee"),
+    isHostOrAdmin: Boolean(payload.isHostOrAdmin) || ownerProfile,
+  };
 }
 
 
 async function requireOrganizationContext(res: express.Response) {
   const authContext = res.locals.auth;
-  const profile = await getServerUserProfile(authContext.uid);
+  const profile = res.locals.serverProfile || await getServerUserProfile(authContext.uid);
   const organizationId = profile?.organizationId;
-  if (!organizationId) throw Object.assign(new Error("Provisioned organization membership required"), { statusCode: 403 });
+  if (!organizationId) throw Object.assign(new Error("Active organization membership required"), { statusCode: 403 });
   return { authContext, profile, organizationId };
 }
 
