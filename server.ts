@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { applicationDefault, cert, getApps as getAdminApps, initializeApp as initializeAdminApp } from "firebase-admin/app";
 import { getAuth as getAdminAuth } from "firebase-admin/auth";
 import { getFirestore as getAdminFirestore } from "firebase-admin/firestore";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
@@ -683,6 +684,44 @@ function validateAiPayload(req: express.Request, res: express.Response, next: ex
 
 app.use("/api/ai", aiRateLimiter, requireFirebaseUser, requireConfiguredAI, validateAiPayload);
 app.use("/api/scheduler", requireFirebaseUser, requireAdmin);
+
+const SCHEDULE_SCAN_BUCKET = process.env.SUPABASE_SCHEDULE_SCANS_BUCKET?.trim() || "shiftforce-files";
+function getScheduleScanStorage() {
+  const url = process.env.SUPABASE_URL?.trim();
+  const key = process.env.SUPABASE_SECRET_KEY?.trim();
+  if (!url || !key) throw Object.assign(new Error("Schedule image storage is not configured"), { statusCode: 503 });
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+/** Stores a compressed schedule image server-side and scopes its record to the signed-in organization and user. */
+app.post("/api/schedule-scans", requireFirebaseUser, requireAdmin, async (req, res) => {
+  try {
+    const image = typeof req.body?.image === "string" ? req.body.image : "";
+    const weekStart = typeof req.body?.weekStart === "string" ? req.body.weekStart : "";
+    const match = image.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+    if (!match) return res.status(400).json({ error: "Upload a valid JPG, PNG, or WebP schedule image." });
+    const bytes = Buffer.from(match[2], "base64");
+    if (!bytes.length || bytes.length > 1_500_000) return res.status(413).json({ error: "The compressed image must be 1.5 MB or smaller." });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(weekStart)) return res.status(400).json({ error: "A valid schedule week is required." });
+
+    const { authContext, profile, organizationId } = await requireOrganizationContext(res);
+    const scanRef = getAdminFirestore().collection("scheduleScans").doc();
+    const extension = match[1] === "image/png" ? "png" : match[1] === "image/webp" ? "webp" : "jpg";
+    const objectPath = `${organizationId}/${authContext.uid}/${scanRef.id}.${extension}`;
+    const storage = getScheduleScanStorage();
+    const { error: uploadError } = await storage.storage.from(SCHEDULE_SCAN_BUCKET).upload(objectPath, bytes, { contentType: match[1], upsert: false });
+    if (uploadError) throw Object.assign(new Error("Schedule image upload failed"), { statusCode: 502 });
+    const { data: signed, error: signedError } = await storage.storage.from(SCHEDULE_SCAN_BUCKET).createSignedUrl(objectPath, 60 * 60 * 24 * 7);
+    if (signedError || !signed?.signedUrl) throw Object.assign(new Error("Schedule image was saved but could not be prepared for viewing"), { statusCode: 502 });
+    const scan = { id: scanRef.id, organizationId, uploadedByUserId: authContext.uid, uploadedByEmployeeId: profile?.employeeId || null, scheduleWeekStart: weekStart, storageProvider: "supabase", bucket: SCHEDULE_SCAN_BUCKET, objectPath, imageUrl: signed.signedUrl, contentType: match[1], byteSize: bytes.length, createdAt: new Date().toISOString() };
+    await scanRef.set(scan);
+    await serverAudit(res, "schedule_scan.upload", "scheduleScan", scan.id, { scheduleWeekStart: weekStart, byteSize: bytes.length });
+    return res.status(201).json({ scan: { id: scan.id, imageUrl: scan.imageUrl, scheduleWeekStart: scan.scheduleWeekStart, createdAt: scan.createdAt } });
+  } catch (error: any) {
+    console.error("Schedule scan upload failed:", error?.message || error);
+    return res.status(error?.statusCode || 500).json({ error: error?.statusCode === 503 ? "Schedule image storage is not configured." : "The schedule image could not be saved. Please try again." });
+  }
+});
 
 // Lazy initialize Gemini client
 let aiClient: GoogleGenAI | null = null;

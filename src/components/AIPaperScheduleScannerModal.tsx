@@ -78,12 +78,46 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isStartingCamera, setIsStartingCamera] = useState(false);
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'uploaded' | 'error'>('idle');
+  const [uploadedScanId, setUploadedScanId] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
   const [rotation, setRotation] = useState<number>(0);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+
+  const MAX_SOURCE_BYTES = 15 * 1024 * 1024;
+  const MAX_UPLOAD_BYTES = 1.5 * 1024 * 1024;
+
+  const friendlyCameraError = (error: unknown) => {
+    const name = error instanceof DOMException ? error.name : '';
+    if (name === 'NotAllowedError' || name === 'SecurityError') return 'Camera permission was denied. Allow camera access in your browser settings, then try again, or upload a photo instead.';
+    if (name === 'NotFoundError') return 'No camera was found on this device. Upload a schedule image instead.';
+    if (name === 'NotReadableError') return 'Your camera is being used by another app. Close it and try again, or upload a photo instead.';
+    return 'Camera access is unavailable in this browser. You can upload a schedule image instead.';
+  };
+
+  const compressDataUrl = async (source: string): Promise<string> => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => {
+      const maxDimension = 2048;
+      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext('2d');
+      if (!context) return reject(new Error('Image preparation is not supported by this browser.'));
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const output = canvas.toDataURL('image/jpeg', 0.82);
+      if (Math.ceil((output.length - output.indexOf(',') - 1) * 0.75) > MAX_UPLOAD_BYTES) return reject(new Error('This image is still too large after compression. Please use a clearer, closer photo.'));
+      resolve(output);
+    };
+    image.onerror = () => reject(new Error('This image could not be read. Please use a JPG, PNG, or WebP photo.'));
+    image.src = source;
+  });
 
   // Target Week selection
   const [selectedWeekDateStr, setSelectedWeekDateStr] = useState<string>(weekDates[0]?.dateStr || '');
@@ -108,11 +142,14 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
 
   // Initialize Camera Stream
   const startCamera = useCallback(async () => {
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError('Camera access requires HTTPS and a supported browser. You can upload a JPG, PNG, or WebP schedule image instead.');
+      return;
+    }
     try {
       setCameraError(null);
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-      }
+      setIsStartingCamera(true);
+      cameraStreamRef.current?.getTracks().forEach(track => track.stop());
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -123,45 +160,45 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
         audio: false,
       });
 
+      cameraStreamRef.current = stream;
       setCameraStream(stream);
       setIsCameraActive(true);
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(() => {});
-      }
     } catch (err: any) {
       console.warn('[Camera Access Warning]', err);
-      setCameraError('Camera access unavailable or blocked. You can upload an image file or test with sample schedule presets.');
+      setCameraError(friendlyCameraError(err));
       setIsCameraActive(false);
+    } finally {
+      setIsStartingCamera(false);
     }
-  }, [facingMode, cameraStream]);
+  }, [facingMode]);
 
   // Stop Camera
   const stopCamera = useCallback(() => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-      setCameraStream(null);
-    }
+    cameraStreamRef.current?.getTracks().forEach(track => track.stop());
+    cameraStreamRef.current = null;
+    setCameraStream(null);
     setIsCameraActive(false);
-  }, [cameraStream]);
+  }, []);
 
   // Manage Camera on open/close
   useEffect(() => {
-    if (isOpen && inputMode === 'camera' && !capturedImage) {
-      startCamera();
-    } else {
-      stopCamera();
-    }
-
     return () => {
       stopCamera();
     };
-  }, [isOpen, inputMode, capturedImage]);
+  }, [isOpen, stopCamera]);
+
+  useEffect(() => {
+    if (!cameraStream || !videoRef.current) return;
+    videoRef.current.srcObject = cameraStream;
+    void videoRef.current.play().catch(() => setCameraError('The camera started but the preview could not play. Please try again or upload a photo.'));
+  }, [cameraStream, isCameraActive]);
 
   // Capture Snapshot from Camera
-  const handleSnapPhoto = () => {
-    if (!videoRef.current) return;
+  const handleSnapPhoto = async () => {
+    if (!videoRef.current || videoRef.current.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !videoRef.current.videoWidth) {
+      setCameraError('The camera preview is not ready yet. Wait a moment and try again.');
+      return;
+    }
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
     canvas.width = video.videoWidth || 1280;
@@ -171,24 +208,39 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
 
     // Draw video frame to canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-    setCapturedImage(dataUrl);
-    stopCamera();
+    try {
+      const dataUrl = await compressDataUrl(canvas.toDataURL('image/jpeg', 0.92));
+      setCapturedImage(dataUrl); setUploadState('idle'); setUploadedScanId(null); stopCamera();
+    } catch (error: any) { setErrorMessage(error.message || 'Could not prepare the camera photo.'); }
   };
 
   // Handle File Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
+    e.target.value = '';
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setErrorMessage('Please select a JPG, PNG, or WebP image.'); return; }
+    if (file.size > MAX_SOURCE_BYTES) { setErrorMessage('That image is larger than 15 MB. Please choose a smaller photo.'); return; }
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       if (typeof event.target?.result === 'string') {
-        setCapturedImage(event.target.result);
-        stopCamera();
+        try { setCapturedImage(await compressDataUrl(event.target.result)); setUploadState('idle'); setUploadedScanId(null); stopCamera(); }
+        catch (error: any) { setErrorMessage(error.message || 'Could not prepare that image.'); }
       }
     };
+    reader.onerror = () => setErrorMessage('The selected image could not be read. Please try another file.');
     reader.readAsDataURL(file);
+  };
+
+  const handleConfirmUpload = async () => {
+    if (!capturedImage) return;
+    setUploadState('uploading'); setErrorMessage(null);
+    try {
+      const response = await authenticatedFetch('/api/schedule-scans', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image: capturedImage, weekStart: selectedWeekDateStr }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload?.scan?.id) throw new Error(payload?.error || 'The schedule image could not be saved.');
+      setUploadedScanId(payload.scan.id); setUploadState('uploaded');
+    } catch (error: any) { setUploadState('error'); setErrorMessage(error.message || 'The schedule image could not be uploaded.'); }
   };
 
   // Handle Sample Preset Image selection
@@ -463,12 +515,11 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
   // Reset and retake photo
   const handleReset = () => {
     setCapturedImage(null);
+    setUploadedScanId(null);
+    setUploadState('idle');
     setExtractedShifts([]);
     setErrorMessage(null);
     setStep('capture');
-    if (inputMode === 'camera') {
-      startCamera();
-    }
   };
 
   if (!isOpen) return null;
@@ -531,7 +582,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
               <div className="flex items-center justify-between flex-wrap gap-3 bg-white p-2 rounded-2xl border border-slate-200 shadow-xs">
                 <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => { setInputMode('camera'); setCapturedImage(null); }}
+                    onClick={() => { setInputMode('camera'); setCapturedImage(null); setUploadState('idle'); }}
                     className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                       inputMode === 'camera'
                         ? 'bg-sky-600 text-white shadow-xs'
@@ -539,7 +590,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                     }`}
                   >
                     <Camera className="w-4 h-4" />
-                    <span>Take Picture (Live Camera)</span>
+                    <span>Take Photo</span>
                   </button>
 
                   <button
@@ -626,7 +677,8 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                           id="camera-shutter-snap-btn"
                           onClick={handleSnapPhoto}
                           className="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 border-4 border-white shadow-2xl flex items-center justify-center text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
-                          title="Snap Photo"
+                          aria-label="Take photo"
+                          title="Take Photo"
                         >
                           <Camera className="w-7 h-7" />
                         </button>
@@ -635,16 +687,17 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                   ) : (
                     <div className="p-8 text-center max-w-md">
                       <Camera className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                      <h4 className="text-white font-bold text-base mb-1">Camera Initializing...</h4>
+                      <h4 className="text-white font-bold text-base mb-1">{isStartingCamera ? 'Starting Camera…' : 'Ready to take a schedule photo?'}</h4>
                       <p className="text-xs text-slate-400 mb-5">
                         {cameraError || 'Please allow browser camera permissions when prompted to snap paper schedule pictures directly.'}
                       </p>
                       <div className="flex gap-2 justify-center">
                         <button
-                          onClick={startCamera}
+                          onClick={() => void startCamera()}
+                          disabled={isStartingCamera}
                           className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-xl cursor-pointer"
                         >
-                          Retry Camera
+                          {isStartingCamera ? 'Starting…' : cameraError ? 'Retry Camera' : 'Open Camera'}
                         </button>
                         <button
                           onClick={() => setInputMode('upload')}
@@ -667,7 +720,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*,.heic,.pdf"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -675,10 +728,10 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                     <Upload className="w-8 h-8" />
                   </div>
                   <h4 className="text-base font-bold text-slate-800 mb-1">
-                    Drag & Drop paper schedule photo here
+                    Upload a paper schedule photo
                   </h4>
                   <p className="text-xs text-slate-500 max-w-sm mb-4">
-                    Supports high-resolution photos (JPG, PNG, WebP) taken on iPhone, Android, or scanned office timetables.
+                    JPG, PNG, and WebP up to 15 MB. Images are resized securely before upload.
                   </p>
                   <button
                     type="button"
@@ -774,7 +827,14 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                         className="p-2 bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
                       >
                         <RefreshCw className="w-4 h-4" />
-                        <span>Retake / Change Photo</span>
+                        <span>Retake</span>
+                      </button>
+                      <button
+                        onClick={() => { setCapturedImage(null); setUploadedScanId(null); setUploadState('idle'); }}
+                        className="p-2 bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Remove</span>
                       </button>
                     </div>
                   </div>
@@ -796,13 +856,23 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
                       <span>Gemini will recognize staff names, match existing hourly wages, and map shifts automatically.</span>
                     </div>
 
+                    {uploadState !== 'uploaded' ? <button
+                      type="button"
+                      onClick={() => void handleConfirmUpload()}
+                      disabled={uploadState === 'uploading'}
+                      className="flex items-center gap-2 px-4 py-3 text-xs font-bold text-sky-800 bg-sky-100 hover:bg-sky-200 disabled:opacity-60 rounded-2xl transition-all cursor-pointer"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>{uploadState === 'uploading' ? 'Uploading…' : 'Confirm & Upload'}</span>
+                    </button> : <span className="text-xs font-bold text-emerald-700 flex items-center gap-1"><CheckCircle2 className="w-4 h-4" /> Image saved</span>}
                     <button
                       id="ai-start-scan-process-btn"
                       onClick={handleAnalyzeWithAI}
-                      className="flex items-center gap-2 px-6 py-3 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 rounded-2xl shadow-lg shadow-sky-500/25 transition-all transform hover:scale-[1.02] cursor-pointer"
+                      disabled={!uploadedScanId || uploadState === 'uploading'}
+                      className="flex items-center gap-2 px-6 py-3 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 disabled:from-slate-400 disabled:to-slate-500 disabled:cursor-not-allowed rounded-2xl shadow-lg shadow-sky-500/25 transition-all transform hover:scale-[1.02] cursor-pointer"
                     >
                       <Sparkles className="w-4 h-4 animate-spin" style={{ animationDuration: '6s' }} />
-                      <span>Process & Extract Shifts with AI</span>
+                      <span>{uploadedScanId ? 'Process & Extract Shifts with AI' : 'Upload the image before processing'}</span>
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </button>
                   </div>
