@@ -1,6 +1,6 @@
 // Workqora Offline Service Worker (Cache & Background Sync Engine)
-const CACHE_NAME = 'shiftsky-cache-v1';
-const ROSTER_CACHE_NAME = 'shiftsky-roster-cache-v1';
+const CACHE_NAME = 'workqora-cache-v1';
+const ROSTER_CACHE_NAME = 'workqora-roster-cache-v1';
 
 // Static assets to pre-cache
 const STATIC_ASSETS = [

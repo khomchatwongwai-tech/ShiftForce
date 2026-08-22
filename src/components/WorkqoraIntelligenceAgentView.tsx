@@ -182,7 +182,7 @@ export const WorkqoraIntelligenceAgentView: React.FC<WorkqoraIntelligenceAgentVi
   }, [insights, selectedCategory, searchQuery]);
 
   return (
-    <div className="space-y-6 pb-12" id="shiftsky-intelligence-agent-view">
+    <div className="space-y-6 pb-12" id="workqora-intelligence-agent-view">
       {/* Executive Command & Telemetry Header */}
       <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">

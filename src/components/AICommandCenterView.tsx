@@ -355,7 +355,7 @@ export const AICommandCenterView: React.FC<AICommandCenterViewProps> = ({
   }, [rescueEvents, activeRescueEventId]);
 
   return (
-    <div className="space-y-6 pb-12" id="shift-sky-ai-command-center">
+    <div className="space-y-6 pb-12" id="workqora-ai-command-center">
       {/* Top Header & Autonomous Swarm Pill */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-xl border border-indigo-500/20 relative overflow-hidden" id="command-center-header">
         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />

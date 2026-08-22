@@ -48,7 +48,7 @@ test('i18n language detection & fallback defaults', () => {
   assert.ok(contextContent.includes("navLang.startsWith('ko')"), 'Missing Korean locale detection');
   assert.ok(contextContent.includes("navLang.startsWith('vi')"), 'Missing Vietnamese locale detection');
   assert.ok(contextContent.includes("navLang.startsWith('fr')"), 'Missing French locale detection');
-  assert.ok(contextContent.includes("localStorage.setItem('shiftforce_language'"), 'Missing localStorage persistence');
+  assert.ok(contextContent.includes("localStorage.setItem('workqora_language'"), 'Missing localStorage persistence');
   assert.ok(contextContent.includes("document.documentElement.lang ="), 'Missing html lang tag update');
 });
 

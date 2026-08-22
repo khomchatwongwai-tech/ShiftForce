@@ -171,7 +171,7 @@ export const InventoryItemCatalog: React.FC = () => {
       });
     } else {
       await addItem({
-        organizationId: 'org-shiftforce-corp',
+        organizationId: 'org-workqora-corp',
         locationId: 'loc-01',
         ...formData,
         packCost: formData.unitCost * formData.conversionRatio,

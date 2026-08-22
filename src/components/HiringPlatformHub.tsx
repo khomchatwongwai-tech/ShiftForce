@@ -1310,7 +1310,7 @@ In this role, you will be a core contributor to our daily service, ensuring seam
                   type="url"
                   value={editWebhook}
                   onChange={(e) => setEditWebhook(e.target.value)}
-                  placeholder="https://api.shift-sky.com/webhooks/..."
+                  placeholder="https://api.workqora.com/webhooks/..."
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-hidden font-mono text-[11px]"
                 />
               </div>
@@ -1397,13 +1397,13 @@ In this role, you will be a core contributor to our daily service, ensuring seam
             </div>
 
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-700 truncate">
-              https://shiftsky.app/apply/{qrCodeModalJob.directApplyCode}
+              https://workqora.com/apply/{qrCodeModalJob.directApplyCode}
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(`https://shiftsky.app/apply/${qrCodeModalJob.directApplyCode}`);
+                  navigator.clipboard.writeText(`https://workqora.com/apply/${qrCodeModalJob.directApplyCode}`);
                   setSyncSuccessToast('Direct application link copied to clipboard!');
                   setTimeout(() => setSyncSuccessToast(null), 3000);
                 }}

@@ -766,7 +766,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="elena@shift-sky.com"
+                    placeholder="elena@workqora.com"
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
                   />
                 </div>

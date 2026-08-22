@@ -158,9 +158,9 @@ export const InventoryCountSheet: React.FC = () => {
     setIsSubmitting(true);
     try {
       await submitCountSession({
-        organizationId: 'org-shiftforce-corp',
+        organizationId: 'org-workqora-corp',
         locationId: 'loc-01',
-        locationName: 'SF Flagship Downtown #101',
+        locationName: 'Workqora Flagship Downtown #101',
         countType,
         periodType,
         periodLabel,

@@ -18,7 +18,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'li_sec_9938••••••••••••412',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/linkedin',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/linkedin',
     syncFrequency: 'instant_webhook',
     lastSyncedAt: '2026-08-14 08:30',
     activePostingsCount: 4,
@@ -41,7 +41,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'ind_tok_8410••••••••••••773',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/indeed',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/indeed',
     syncFrequency: 'instant_webhook',
     lastSyncedAt: '2026-08-14 08:24',
     activePostingsCount: 5,
@@ -64,7 +64,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'cl_relay_sf_bay•••••••••091',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/craigslist-inbox',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/craigslist-inbox',
     syncFrequency: 'every_15m',
     lastSyncedAt: '2026-08-14 08:15',
     activePostingsCount: 3,
@@ -86,7 +86,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'fb_graph_v19_••••••••••552',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/meta-jobs',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/meta-jobs',
     syncFrequency: 'instant_webhook',
     lastSyncedAt: '2026-08-14 08:05',
     activePostingsCount: 3,
@@ -109,7 +109,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'zr_live_key_••••••••••••331',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/ziprecruiter',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/ziprecruiter',
     syncFrequency: 'every_15m',
     lastSyncedAt: '2026-08-14 07:50',
     activePostingsCount: 4,
@@ -131,7 +131,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'snag_rest_api_••••••••••782',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/snagajob',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/snagajob',
     syncFrequency: 'instant_webhook',
     lastSyncedAt: '2026-08-14 08:20',
     activePostingsCount: 4,
@@ -153,7 +153,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'ca_culinary_•••••••••••661',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/culinary-agents',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/culinary-agents',
     syncFrequency: 'hourly',
     lastSyncedAt: '2026-08-14 07:00',
     activePostingsCount: 2,
@@ -175,7 +175,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'gd_emp_feed_•••••••••••812',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/glassdoor',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/glassdoor',
     syncFrequency: 'hourly',
     lastSyncedAt: '2026-08-14 07:30',
     activePostingsCount: 3,
@@ -197,7 +197,7 @@ export const INITIAL_HIRING_PLATFORMS: HiringPlatformConnection[] = [
     status: 'connected',
     apiKeyConfigured: true,
     apiKeyMasked: 'g_indexing_api_••••••••901',
-    webhookEndpoint: 'https://api.shift-sky.com/webhooks/hiring/google-jobs-index',
+    webhookEndpoint: 'https://api.workqora.com/webhooks/hiring/google-jobs-index',
     syncFrequency: 'instant_webhook',
     lastSyncedAt: '2026-08-14 08:35',
     activePostingsCount: 5,
@@ -607,7 +607,7 @@ export const INITIAL_MULTI_SOURCE_APPLICANTS: OnboardingCandidate[] = [
     certificationsSummary: ['California RBS (Valid)', 'Wine & Food Pairing Basics'],
     aiMatchScore: 92,
     hourlyWageExpectation: 21.0,
-    externalProfileUrl: 'https://shiftsky.app/careers/apply/carlos-mendoza',
+    externalProfileUrl: 'https://workqora.com/careers/apply/carlos-mendoza',
     documents: {
       i9Verified: false,
       foodHandlerCertified: true,
@@ -711,7 +711,7 @@ ${job.benefits.map(b => `* ${b}`).join('\n')}
 
 >>> HOW TO APPLY (FAST MOBILE INTAKE):
 Apply online in 60 seconds with no clunky account creation:
-https://shiftsky.app/apply/${job.directApplyCode}
+https://workqora.com/apply/${job.directApplyCode}
 
 Or reply directly to this posting with your phone number, availability, and brief work history.
 We review applications within 24 hours!
@@ -732,7 +732,7 @@ export function generateGoogleJobsJsonLd(job: JobOpening): string {
     "hiringOrganization": {
       "@type": "Organization",
       "name": "Workqora Flagship Hospitality",
-      "sameAs": "https://shiftsky.app",
+      "sameAs": "https://workqora.com",
       "logo": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=150"
     },
     "jobLocation": {

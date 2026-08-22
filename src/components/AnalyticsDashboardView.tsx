@@ -87,6 +87,7 @@ import { INITIAL_POS_DEPARTMENT_MAPPINGS } from '../data/posMappingData';
 import { POSDepartmentMappingModal } from './POSDepartmentMappingModal';
 import { POSLaborSalesLiveTracker } from './POSLaborSalesLiveTracker';
 import { POSLaborAlertSystem } from './POSLaborAlertSystem';
+import { CertificationComplianceWidget } from './CertificationComplianceWidget';
 
 interface AnalyticsDashboardViewProps {
   shifts: Shift[];
@@ -104,6 +105,7 @@ interface AnalyticsDashboardViewProps {
   onOpenPOSMappingModal?: () => void;
   departmentBudgets?: DepartmentBudgetsMap;
   onDispatchPOSLaborAlert?: (alert: POSLaborAlert) => void;
+  onUpdateEmployee?: (updatedEmployee: Employee) => void;
 }
 
 // Helpers for time calculation
@@ -171,6 +173,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
   onOpenPOSMappingModal,
   departmentBudgets,
   onDispatchPOSLaborAlert,
+  onUpdateEmployee,
 }) => {
   const t = translations[currentLanguage];
 
@@ -973,7 +976,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `shiftsky-analytics-report-${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `workqora-analytics-report-${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -2926,6 +2929,13 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         </div>
 
       </div>
+
+      {/* 6.5 VISUAL COMPLIANCE WIDGET: ALCOHOL HANDLER & FOOD SAFETY CERTIFICATION TRACKER */}
+      <CertificationComplianceWidget
+        employees={employees}
+        onUpdateEmployee={onUpdateEmployee}
+        currentLanguage={currentLanguage}
+      />
 
       {/* 7. VISUALIZATION: DEPARTMENT TARDINESS FREQUENCY & STAFFING RELIABILITY ANALYTICS */}
       <div className="bg-white rounded-2xl p-5 shadow-xs border border-sky-100 space-y-6">

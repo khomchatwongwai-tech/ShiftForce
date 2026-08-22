@@ -31,8 +31,10 @@ export interface OfflineRosterSnapshot {
   version: string;
 }
 
-const ROSTER_STORAGE_KEY = 'shiftsky_offline_roster_snapshot_v1';
-const CLOCKIN_QUEUE_KEY = 'shiftsky_offline_clockin_queue_v1';
+const ROSTER_STORAGE_KEY = 'workqora_offline_roster_snapshot_v1';
+const LEGACY_ROSTER_STORAGE_KEY = 'shiftsky_offline_roster_snapshot_v1';
+const CLOCKIN_QUEUE_KEY = 'workqora_offline_clockin_queue_v1';
+const LEGACY_CLOCKIN_QUEUE_KEY = 'shiftsky_offline_clockin_queue_v1';
 
 /**
  * Register Service Worker for offline asset & data caching
@@ -75,7 +77,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 export function saveRosterToOfflineStorage(
   employees: Employee[],
   shifts: Shift[],
-  locationName: string = 'SF Flagship Bistro #104'
+  locationName: string = 'Workqora Flagship Bistro #104'
 ): OfflineRosterSnapshot {
   const snapshot: OfflineRosterSnapshot = {
     timestamp: new Date().toISOString(),
@@ -110,7 +112,7 @@ export function saveRosterToOfflineStorage(
  */
 export function loadRosterFromOfflineStorage(): OfflineRosterSnapshot | null {
   try {
-    const raw = localStorage.getItem(ROSTER_STORAGE_KEY);
+    const raw = localStorage.getItem(ROSTER_STORAGE_KEY) ?? localStorage.getItem(LEGACY_ROSTER_STORAGE_KEY);
     if (raw) {
       return JSON.parse(raw) as OfflineRosterSnapshot;
     }
@@ -147,7 +149,7 @@ export function queueOfflineClockIn(punch: Omit<OfflineClockInRecord, 'id' | 'sy
  */
 export function getOfflineClockInQueue(): OfflineClockInRecord[] {
   try {
-    const raw = localStorage.getItem(CLOCKIN_QUEUE_KEY);
+    const raw = localStorage.getItem(CLOCKIN_QUEUE_KEY) ?? localStorage.getItem(LEGACY_CLOCKIN_QUEUE_KEY);
     if (raw) {
       return JSON.parse(raw) as OfflineClockInRecord[];
     }

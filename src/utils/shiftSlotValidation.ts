@@ -310,7 +310,7 @@ export function generateContentionNotificationDispatch(
     recipientEmployeeId: 'admin',
     recipientName: 'General Manager / Admin',
     recipientPhone: '+1 (555) 000-0001',
-    recipientEmail: 'admin@shiftsky.com',
+    recipientEmail: 'admin@workqora.com',
     type: 'shift_slot_contention',
     title: `⚡ Shift Contention: ${contention.contenderEmployeeNames.join(' & ')} requested same slot`,
     message: `Validation Alert: Multiple staff requested ${targetDay}, ${contention.date} (${contention.startTime} - ${contention.endTime}) ${contention.role}.\n\n⭐ Recommended Priority: ${contention.recommendedCandidateName} based on availability history & attendance score.\n\nClick to review and resolve in 1 click.`,

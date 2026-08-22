@@ -12,7 +12,7 @@ function sub<T>(table:string,org:string,cb:(x:T[])=>void,order='updated_at'):Uns
   const sb=getSupabase(); let dead=false;
   const refresh=async()=>{try{const x=await list<T>(table,org,order); if(!dead) cb(x);}catch(e){console.error('[Supabase]',table,e)}};
   void refresh();
-  const ch=sb.channel(`sf:${table}:${org}`).on('postgres_changes',{event:'*',schema:'public',table,filter:`organization_id=eq.${org}`},()=>void refresh()).subscribe();
+  const ch=sb.channel(`wq:${table}:${org}`).on('postgres_changes',{event:'*',schema:'public',table,filter:`organization_id=eq.${org}`},()=>void refresh()).subscribe();
   return ()=>{dead=true; void sb.removeChannel(ch);};
 }
 async function up(table:string,item:any,extra:any={}){
@@ -33,7 +33,7 @@ export const firestoreService={
   saveTrade:(x:ShiftTradeRequest)=>up('shift_trades',x,{employee_id:(x as any).employeeId??(x as any).requesterId??null,status:(x as any).status??'pending'}),
   getUserProfile:async(uid:string)=>{const {data,error}=await getSupabase().from('users').select('*').eq('firebase_uid',uid).maybeSingle(); if(error) throw error; return data?{...(data.payload??{}),...data,userId:data.firebase_uid,organizationId:data.organization_id}:null;},
   saveUserProfile:async(p:any)=>{const {error}=await getSupabase().from('users').upsert({firebase_uid:p.userId,organization_id:p.organizationId,email:p.email,display_name:p.displayName,role:p.role,employee_id:p.employeeId??null,payload:p,updated_at:new Date().toISOString()},{onConflict:'firebase_uid'}); if(error) throw error;},
-  subscribeUserProfile:(uid:string,cb:(p:any)=>void)=>{const sb=getSupabase();let dead=false;const r=async()=>{const {data}=await sb.from('users').select('*').eq('firebase_uid',uid).maybeSingle();if(!dead&&data)cb({...(data.payload??{}),...data,userId:data.firebase_uid,organizationId:data.organization_id});};void r();const ch=sb.channel(`sf:user:${uid}`).on('postgres_changes',{event:'*',schema:'public',table:'users',filter:`firebase_uid=eq.${uid}`},()=>void r()).subscribe();return()=>{dead=true;void sb.removeChannel(ch)};},
+  subscribeUserProfile:(uid:string,cb:(p:any)=>void)=>{const sb=getSupabase();let dead=false;const r=async()=>{const {data}=await sb.from('users').select('*').eq('firebase_uid',uid).maybeSingle();if(!dead&&data)cb({...(data.payload??{}),...data,userId:data.firebase_uid,organizationId:data.organization_id});};void r();const ch=sb.channel(`wq:user:${uid}`).on('postgres_changes',{event:'*',schema:'public',table:'users',filter:`firebase_uid=eq.${uid}`},()=>void r()).subscribe();return()=>{dead=true;void sb.removeChannel(ch)};},
   subscribeTimeOffRequests:(o:string,c:(x:TimeOffRequest[])=>void)=>sub<TimeOffRequest>('time_off_requests',o,c),
   saveTimeOffRequest:(x:TimeOffRequest)=>up('time_off_requests',x,{employee_id:(x as any).employeeId??null,status:(x as any).status??'pending'}),
   subscribeShiftSwapRequests:(o:string,c:(x:ShiftSwapRequest[])=>void)=>sub<ShiftSwapRequest>('shift_swap_requests',o,c),

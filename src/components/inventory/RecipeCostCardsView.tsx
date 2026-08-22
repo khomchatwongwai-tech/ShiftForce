@@ -173,7 +173,7 @@ export const RecipeCostCardsView: React.FC = () => {
 
     await saveRecipe(
       {
-        organizationId: 'org-shiftforce-corp',
+        organizationId: 'org-workqora-corp',
         locationId: 'loc-01',
         name: formData.name,
         category: formData.category,

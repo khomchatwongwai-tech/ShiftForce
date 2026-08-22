@@ -268,7 +268,7 @@ export const AIPaperScheduleScannerModal: React.FC<AIPaperScheduleScannerModalPr
     ctx.font = 'bold 28px sans-serif';
     ctx.fillText(
       presetType === 'weekly_grid'
-        ? 'SHIFTSKY BISTRO & GRILL — WEEKLY STAFF SCHEDULE'
+        ? 'WORKQORA BISTRO & GRILL — WEEKLY STAFF SCHEDULE'
         : presetType === 'handwritten'
         ? 'WEEKEND DINNER FLOOR & BAR ROSTER'
         : 'KITCHEN PREP & BOH LINE TIMETABLE',

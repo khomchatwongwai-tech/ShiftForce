@@ -96,9 +96,9 @@ export const WasteManagementView: React.FC = () => {
     const totalWasteCost = Number((formData.quantityWasted * unitCost).toFixed(2));
 
     await logWasteRecord({
-      organizationId: 'org-shiftforce-corp',
+      organizationId: 'org-workqora-corp',
       locationId: 'loc-01',
-      locationName: 'SF Flagship Downtown #101',
+      locationName: 'Workqora Flagship Downtown #101',
       department: selectedItem.department,
       itemId: selectedItem.id,
       itemName: selectedItem.name,

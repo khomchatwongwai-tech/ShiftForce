@@ -377,7 +377,7 @@ export function DualLoginModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <button
                     type="button"
-                    onClick={() => handleQuickAdminPreset('role-super-admin', 'corp.exec@shiftsky.com')}
+                    onClick={() => handleQuickAdminPreset('role-super-admin', 'corp.exec@workqora.com')}
                     className="p-3 rounded-2xl border border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100 text-left transition-all cursor-pointer group shadow-2xs"
                   >
                     <div className="flex items-center justify-between">
@@ -389,7 +389,7 @@ export function DualLoginModal({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-1 truncate">
-                      corp.exec@shiftsky.com
+                      corp.exec@workqora.com
                     </p>
                     <span className="text-[10px] text-indigo-700 font-semibold mt-1 block">
                       📍 Global Hospitality Org Scope
@@ -398,7 +398,7 @@ export function DualLoginModal({
 
                   <button
                     type="button"
-                    onClick={() => handleQuickAdminPreset('role-restaurant-host', 'host.owner@shiftsky.com')}
+                    onClick={() => handleQuickAdminPreset('role-restaurant-host', 'host.owner@workqora.com')}
                     className="p-3 rounded-2xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100 text-left transition-all cursor-pointer group shadow-2xs"
                   >
                     <div className="flex items-center justify-between">
@@ -410,7 +410,7 @@ export function DualLoginModal({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-1 truncate">
-                      host.owner@shiftsky.com
+                      host.owner@workqora.com
                     </p>
                     <span className="text-[10px] text-amber-800 font-semibold mt-1 block">
                       📍 Franchise &amp; Store Payer
@@ -419,7 +419,7 @@ export function DualLoginModal({
 
                   <button
                     type="button"
-                    onClick={() => handleQuickAdminPreset('role-general-manager', 'gm.downtown@shiftsky.com')}
+                    onClick={() => handleQuickAdminPreset('role-general-manager', 'gm.downtown@workqora.com')}
                     className="p-3 rounded-2xl border border-sky-200 bg-sky-50/50 hover:bg-sky-100 text-left transition-all cursor-pointer group shadow-2xs"
                   >
                     <div className="flex items-center justify-between">
@@ -431,7 +431,7 @@ export function DualLoginModal({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-1 truncate">
-                      gm.downtown@shiftsky.com
+                      gm.downtown@workqora.com
                     </p>
                     <span className="text-[10px] text-sky-700 font-semibold mt-1 block">
                       📍 Downtown Flagship #101
@@ -440,7 +440,7 @@ export function DualLoginModal({
 
                   <button
                     type="button"
-                    onClick={() => handleQuickAdminPreset('role-regional-auditor', 'auditor.pacific@shiftsky.com')}
+                    onClick={() => handleQuickAdminPreset('role-regional-auditor', 'auditor.pacific@workqora.com')}
                     className="p-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100 text-left transition-all cursor-pointer group shadow-2xs"
                   >
                     <div className="flex items-center justify-between">
@@ -452,7 +452,7 @@ export function DualLoginModal({
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-600 mt-1 truncate">
-                      auditor.pacific@shiftsky.com
+                      auditor.pacific@workqora.com
                     </p>
                     <span className="text-[10px] text-emerald-700 font-semibold mt-1 block">
                       📍 Pacific Coast (142 Units)

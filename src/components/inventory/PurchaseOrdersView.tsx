@@ -155,9 +155,9 @@ export const PurchaseOrdersView: React.FC = () => {
     const totalAmount = subtotal + formData.taxAmount + formData.freightShippingAmount;
 
     await recordPurchaseOrder({
-      organizationId: 'org-shiftforce-corp',
+      organizationId: 'org-workqora-corp',
       locationId: 'loc-01',
-      locationName: 'SF Flagship Downtown #101',
+      locationName: 'Workqora Flagship Downtown #101',
       poNumber: formData.poNumber,
       invoiceNumber: formData.invoiceNumber,
       supplierName: formData.supplierName,

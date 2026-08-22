@@ -15,7 +15,8 @@ import {
   UserPlus,
   CreditCard,
   ShieldCheck,
-  Bot
+  Bot,
+  Wrench
 } from 'lucide-react';
 import { PluginDefinition, EnterpriseFeatureManagerState } from './types';
 
@@ -451,6 +452,40 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
       value: '6 in Pipeline',
       trend: '2 Ready to Hire'
     }
+  },
+  {
+    id: 'equipment',
+    name: 'Equipment & Facilities Manager',
+    shortCode: 'EQUIP',
+    tagline: '22-Module Commercial Restaurant Equipment & CMMS Suite',
+    description: 'Comprehensive preventive maintenance, IoT temperature sensors, breakdown dispatch, QR lookup, warranties, spare parts, and CapEx analytics.',
+    version: '3.1.0',
+    category: 'operations',
+    icon: Wrench,
+    badge: '22 Sub-Tabs',
+    tabId: 'equipment',
+    isCore: false,
+    enabledByDefault: true,
+    licenseStatus: 'included_in_plan',
+    monthlyAddonPrice: 0,
+    author: 'Workqora Facility Systems',
+    minTierRequired: 'starter',
+    features: [
+      '22 dedicated operational sub-sections from QR scanner to IoT',
+      'Automated PM scheduling & checklist audits',
+      'Instant breakdown dispatch & contractor SLA tracking',
+      'Lifecycle depreciation & CapEx repair ROI analytics'
+    ],
+    capabilities: {
+      realtimeSync: true,
+      exportableReports: true,
+      mobileOptimized: true
+    },
+    metrics: {
+      label: 'Monitored Assets',
+      value: '48 Active Machines',
+      trend: '99.4% Uptime'
+    }
   }
 ];
 
@@ -458,6 +493,7 @@ export const INITIAL_FEATURE_MANAGER_STATE: EnterpriseFeatureManagerState = {
   enabledPluginIds: [
     'core_scheduling',
     'employees',
+    'equipment',
     'payroll',
     'learn',
     'intelligence_agent',
@@ -473,6 +509,7 @@ export const INITIAL_FEATURE_MANAGER_STATE: EnterpriseFeatureManagerState = {
   purchasedPluginIds: [
     'core_scheduling',
     'employees',
+    'equipment',
     'payroll',
     'learn',
     'intelligence_agent',

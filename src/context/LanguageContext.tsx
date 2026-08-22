@@ -13,7 +13,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function detectInitialLanguage(): SupportedLanguage {
   try {
-    const saved = localStorage.getItem('shiftforce_language');
+    const saved = localStorage.getItem('workqora_language') ?? localStorage.getItem('shiftforce_language');
     if (saved && ['en', 'es', 'zh', 'th', 'ko', 'ja', 'vi', 'fr'].includes(saved)) {
       return saved as SupportedLanguage;
     }
@@ -46,7 +46,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLang?: Sup
   const setLanguage = (lang: SupportedLanguage) => {
     setCurrentLanguageState(lang);
     try {
-      localStorage.setItem('shiftforce_language', lang);
+      localStorage.setItem('workqora_language', lang);
     } catch {}
     if (typeof document !== 'undefined') {
       document.documentElement.lang = lang;
@@ -58,7 +58,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode; initialLang?: Sup
       document.documentElement.lang = currentLanguage;
     }
     try {
-      localStorage.setItem('shiftforce_language', currentLanguage);
+      localStorage.setItem('workqora_language', currentLanguage);
     } catch {}
   }, [currentLanguage]);
 

@@ -625,9 +625,9 @@ export const WasteLogger: React.FC<WasteLoggerProps> = ({
     try {
       const now = new Date().toISOString();
       const newRecordData = {
-        organizationId: 'org-shiftforce-corp',
+        organizationId: 'org-workqora-corp',
         locationId: selectedItem.locationId || 'loc-01',
-        locationName: 'SF Flagship Downtown #101',
+        locationName: 'Workqora Flagship Downtown #101',
         department: selectedItem.department,
         itemId: selectedItem.id,
         itemName: selectedItem.name,

@@ -234,7 +234,7 @@ export const EnterpriseCommandHubView: React.FC = () => {
         })}
       </div>
 
-      {/* ---------------- SUB-TAB 1: SHIFTSKY INTELLIGENCE TELEMETRY ---------------- */}
+      {/* ---------------- SUB-TAB 1: WORKQORA INTELLIGENCE TELEMETRY ---------------- */}
       {activeEnterpriseTab === 'intelligence' && (
         <div className="space-y-6" id="section-intelligence">
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">

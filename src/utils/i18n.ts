@@ -75,6 +75,7 @@ export interface TranslationDictionary {
   intelligenceAgent: string;
   enterpriseHub: string;
   learn: string;
+  equipment: string;
 
   // --- Schedule & Shifts ---
   publishSchedule: string;
@@ -399,6 +400,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Workqora Intelligence Agent",
     enterpriseHub: "Enterprise Multi-Store Hub",
     learn: "Workqora Learn Academy",
+    equipment: "Equipment & Facilities",
 
     publishSchedule: "Publish 7-Day Schedule",
     publishAndNotifyAll: "Publish & Notify All Staff",
@@ -705,6 +707,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Agente Inteligente Workqora",
     enterpriseHub: "Centro Multitienda Empresarial",
     learn: "Academia Workqora Learn",
+    equipment: "Equipos e Instalaciones",
 
     publishSchedule: "Publicar Horario de 7 Días",
     publishAndNotifyAll: "Publicar y Notificar a Todo el Personal",
@@ -1011,6 +1014,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Workqora 智能决策Agent",
     enterpriseHub: "集团多门店管理中心",
     learn: "Workqora 餐饮商学院",
+    equipment: "设备与设施管理",
 
     publishSchedule: "发布7日班表",
     publishAndNotifyAll: "发布并通知全体员工",
@@ -1317,6 +1321,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "เอเจนต์วิเคราะห์อัจฉริยะ",
     enterpriseHub: "ศูนย์บริหารหลายสาขา",
     learn: "Workqora สถาบันฝึกอบรม",
+    equipment: "อุปกรณ์และสิ่งอำนวยความสะดวก",
 
     publishSchedule: "เผยแพร่ตารางงาน 7 วัน",
     publishAndNotifyAll: "เผยแพร่และแจ้งเตือนพนักงานทุกคน",
@@ -1623,6 +1628,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Workqora 지능형 에이전트",
     enterpriseHub: "다중 매장 엔터프라이즈 허브",
     learn: "Workqora 교육 아카데미",
+    equipment: "장비 및 시설 관리",
 
     publishSchedule: "7일 근무표 게시",
     publishAndNotifyAll: "게시 및 전 직원 알림 발송",
@@ -1929,6 +1935,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Workqora インテリジェンスAgent",
     enterpriseHub: "複数店舗本部ハブ",
     learn: "Workqora アカデミー",
+    equipment: "設備・厨房機器管理",
 
     publishSchedule: "7日間シフト公開",
     publishAndNotifyAll: "公開して全スタッフに通知",
@@ -2235,6 +2242,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Trợ Lý Thông Minh Workqora",
     enterpriseHub: "Trung Tâm Đa Chi Nhánh",
     learn: "Học Viện Workqora",
+    equipment: "Thiết bị & Cơ sở vật chất",
 
     publishSchedule: "Xuất Bản Lịch 7 Ngày",
     publishAndNotifyAll: "Xuất Bản & Gửi Thông Báo Cho Toàn Bộ Nhân Viên",
@@ -2541,6 +2549,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     intelligenceAgent: "Agent Intelligent Workqora",
     enterpriseHub: "Hub Multi-Établissements",
     learn: "Académie Workqora",
+    equipment: "Équipements & Installations",
 
     publishSchedule: "Publier le Planning 7 Jours",
     publishAndNotifyAll: "Publier et Notifier Tout le Personnel",

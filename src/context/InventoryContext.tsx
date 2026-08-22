@@ -56,36 +56,37 @@ interface InventoryContextType {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_PREFIX = 'shiftforce_inventory_v1_';
+const LOCAL_STORAGE_PREFIX = 'workqora_inventory_v1_';
+const LEGACY_STORAGE_PREFIX = 'shiftforce_inventory_v1_';
 
 export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<InventoryItem[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}items`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}items`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}items`);
     return saved ? JSON.parse(saved) : INITIAL_INVENTORY_ITEMS;
   });
 
   const [counts, setCounts] = useState<InventoryCountSession[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}counts`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}counts`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}counts`);
     return saved ? JSON.parse(saved) : INITIAL_COUNT_SESSIONS;
   });
 
   const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}waste`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}waste`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}waste`);
     return saved ? JSON.parse(saved) : INITIAL_WASTE_RECORDS;
   });
 
   const [invoices, setInvoices] = useState<PurchaseOrderInvoice[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}invoices`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}invoices`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}invoices`);
     return saved ? JSON.parse(saved) : INITIAL_PURCHASE_INVOICES;
   });
 
   const [recipes, setRecipes] = useState<RecipeCostCard[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}recipes`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}recipes`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}recipes`);
     return saved ? JSON.parse(saved) : INITIAL_RECIPE_COST_CARDS;
   });
 
   const [aiInsights, setAiInsights] = useState<AIInventoryInsight[]>(() => {
-    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}ai_insights`);
+    const saved = localStorage.getItem(`${LOCAL_STORAGE_PREFIX}ai_insights`) ?? localStorage.getItem(`${LEGACY_STORAGE_PREFIX}ai_insights`);
     return saved ? JSON.parse(saved) : INITIAL_AI_INSIGHTS;
   });
 
@@ -136,7 +137,7 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
       periodType: selectedPeriod,
       startDate: selectedPeriod === 'day' ? '2026-08-21' : selectedPeriod === 'week' ? '2026-08-15' : selectedPeriod === 'month' ? '2026-08-01' : '2026-01-01',
       endDate: '2026-08-21',
-      organizationId: 'org-shiftforce-corp',
+      organizationId: 'org-workqora-corp',
       locationId: selectedLocationId,
       items: items.filter(i => !selectedLocationId || i.locationId === selectedLocationId),
       wasteRecords: wasteRecords.filter(w => !selectedLocationId || w.locationId === selectedLocationId),
@@ -494,9 +495,9 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
       const targetItem = items.find(i => i.id === data.itemId || i.sku === data.itemId);
       if (targetItem) {
         await createPurchaseInvoice({
-          organizationId: 'org-shiftforce-corp',
+          organizationId: 'org-workqora-corp',
           locationId: targetItem.locationId,
-          locationName: 'SF Flagship Downtown #101',
+          locationName: 'Workqora Flagship Downtown #101',
           vendorName: data.vendorName || targetItem.supplierName,
           invoiceNumber: `PO-AUTO-${Date.now().toString().slice(-6)}`,
           orderDate: new Date().toISOString().slice(0, 10),

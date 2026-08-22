@@ -22,8 +22,10 @@ import {
 import { INITIAL_CUSTOM_ROLES, INITIAL_RBAC_STATE } from '../data/rbacData';
 import { INITIAL_EMPLOYEES } from '../data/mockData';
 
-const SESSION_STORAGE_KEY = 'shiftsky_firebase_session_v2';
-const EMPLOYEE_SESSION_KEY = 'shiftsky_employee_active_session_v2';
+const SESSION_STORAGE_KEY = 'workqora_firebase_session_v2';
+const LEGACY_SESSION_STORAGE_KEY = 'shiftsky_firebase_session_v2';
+const EMPLOYEE_SESSION_KEY = 'workqora_employee_active_session_v2';
+const LEGACY_EMPLOYEE_SESSION_KEY = 'shiftsky_employee_active_session_v2';
 
 export interface UserProfileDoc {
   userId: string;
@@ -63,7 +65,7 @@ const defaultAdminRole = INITIAL_RBAC_STATE.roles[0];
 const loadPersistedSession = (): AuthUserSession => {
   if (typeof window !== 'undefined') {
     try {
-      const saved = localStorage.getItem(SESSION_STORAGE_KEY);
+      const saved = localStorage.getItem(SESSION_STORAGE_KEY) ?? localStorage.getItem(LEGACY_SESSION_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved) as AuthUserSession;
         // Only retain employee demo/PIN sessions when explicit demo auth is enabled.
@@ -334,7 +336,7 @@ export const FirebaseProvider: React.FC<{
         userType: profile.userType === 'admin' && isPayer ? 'admin' : 'employee',
         adminRole: profile.userType === 'admin' && isPayer ? assignedRole : undefined,
         displayName: fbUser.displayName || assignedRole.name.split('(')[0].trim(),
-        displayEmail: fbUser.email || 'admin@shiftsky.com',
+        displayEmail: fbUser.email || 'admin@workqora.com',
         avatarUrl: fbUser.photoURL || undefined,
         loginTimestamp: new Date().toISOString(),
         sessionToken: `token-fb-google-${fbUser.uid}`,

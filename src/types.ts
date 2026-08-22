@@ -330,6 +330,7 @@ export type ActiveTab =
   | 'enterprise'
   | 'schedule'
   | 'employees'
+  | 'equipment'
   | 'payroll'
   | 'learn'
   | 'performance'
@@ -1539,4 +1540,98 @@ export interface OrganizationMembership {
   authorizedLocationIds: string[] | ['*'];
   canViewAllLocations: boolean;
   active: boolean;
+}
+
+// --- Equipment Management System (22 Sub-Sections) ---
+export type EquipmentSubTab =
+  | 'dashboard'
+  | 'all_equipment'
+  | 'qr_scanner'
+  | 'preventive_maintenance'
+  | 'work_orders'
+  | 'breakdown_reports'
+  | 'vendors_technicians'
+  | 'spare_parts'
+  | 'warranties_contracts'
+  | 'inspections_checklists'
+  | 'iot_temperature'
+  | 'safety_compliance'
+  | 'lifecycle_depreciation'
+  | 'service_history'
+  | 'energy_utilities'
+  | 'smallwares_tools'
+  | 'pos_hardware'
+  | 'refrigeration_hvac'
+  | 'sanitation_dishwashers'
+  | 'disposal_salvage'
+  | 'manuals_training'
+  | 'cost_analytics_capex';
+
+export type EquipmentStatus = 'operational' | 'warning' | 'in_repair' | 'critical' | 'decommissioned';
+export type EquipmentCategory =
+  | 'cooking'
+  | 'refrigeration'
+  | 'dishwashing'
+  | 'beverage_bar'
+  | 'hvac_facility'
+  | 'pos_it'
+  | 'smallwares'
+  | 'safety_fire';
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  modelNumber: string;
+  serialNumber: string;
+  manufacturer: string;
+  category: EquipmentCategory;
+  station: string;
+  department: Department;
+  locationId?: string;
+  status: EquipmentStatus;
+  purchaseDate: string;
+  purchaseCost: number;
+  currentValue: number;
+  warrantyExpiry: string;
+  nextPmDate: string;
+  assignedTechnician?: string;
+  vendorName: string;
+  vendorPhone: string;
+  qrCodeUrl?: string;
+  tempReading?: number;
+  tempTarget?: string;
+  powerRating?: string;
+  notes?: string;
+}
+
+export interface EquipmentWorkOrder {
+  id: string;
+  equipmentId: string;
+  equipmentName: string;
+  title: string;
+  description: string;
+  priority: 'low' | 'medium' | 'high' | 'critical_emergency';
+  status: 'open' | 'assigned' | 'in_progress' | 'waiting_parts' | 'completed';
+  reportedBy: string;
+  assignedVendor?: string;
+  assignedTech?: string;
+  createdAt: string;
+  dueDate: string;
+  estimatedCost: number;
+  actualCost?: number;
+  notes?: string;
+  resolutionNotes?: string;
+}
+
+export interface PreventiveMaintenanceTask {
+  id: string;
+  equipmentId: string;
+  equipmentName: string;
+  taskTitle: string;
+  frequency: 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'quarterly' | 'biannual' | 'annual';
+  lastCompletedDate?: string;
+  nextDueDate: string;
+  assignedRole: string;
+  checklistItems: string[];
+  status: 'pending' | 'due_today' | 'overdue' | 'completed';
 }

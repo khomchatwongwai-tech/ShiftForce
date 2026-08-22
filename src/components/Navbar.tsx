@@ -36,7 +36,8 @@ import {
   Menu,
   X,
   SlidersHorizontal,
-  ChevronRight
+  ChevronRight,
+  Wrench
 } from 'lucide-react';
 import {
   Employee,
@@ -142,6 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'enterprise', label: 'Enterprise Hub', icon: Building2, pluginId: 'enterprise' },
     { id: 'schedule', label: t.schedule, icon: Calendar, pluginId: 'core_scheduling' },
     { id: 'employees', label: `${t.employees} (${totalEmployees.toLocaleString()})`, icon: Users, pluginId: 'employees' },
+    { id: 'equipment', label: t.equipment || 'Equipment & Facilities', icon: Wrench, pluginId: 'equipment' },
     { id: 'payroll', label: 'Workqora Payroll', icon: DollarSign, pluginId: 'payroll' },
     { id: 'learn', label: 'Workqora Learn', icon: GraduationCap, pluginId: 'learn' },
     { id: 'performance', label: t.performance || 'Restaurant Score & Reviews', icon: Star, pluginId: 'performance' },

@@ -80,6 +80,9 @@ import {
   DualLoginModal
 } from './components/DualLoginModal';
 import {
+  EquipmentManagerView
+} from './components/EquipmentManagerView';
+import {
   FirebaseProvider,
   useFirebase
 } from './firebase/FirebaseContext';
@@ -1568,6 +1571,13 @@ export function App() {
           />
         )}
 
+        {/* Equipment & Facilities Suite */}
+        {activeTab === 'equipment' && (
+          <EquipmentManagerView
+            currentLanguage={currentLanguage}
+          />
+        )}
+
         {/* 3. Analytics Dashboard (Admin) */}
         {activeTab === 'analytics' && portal === 'admin' && (
           <AnalyticsDashboardView
@@ -1582,13 +1592,14 @@ export function App() {
             activePOSId={activePOSId}
             onSelectActivePOS={setActivePOSId}
             departmentBudgets={departmentBudgets}
+            onUpdateEmployee={(updatedEmp) => setEmployees(prev => prev.map(e => e.id === updatedEmp.id ? updatedEmp : e))}
             onDispatchPOSLaborAlert={(alert) => {
               const newDispatch: NotificationDispatch = {
                 id: `dispatch-pos-${Date.now()}`,
                 recipientEmployeeId: 'all-managers',
                 recipientName: 'All Floor Managers',
                 recipientPhone: '+1-555-0199',
-                recipientEmail: 'managers@shiftsky.com',
+                recipientEmail: 'managers@workqora.com',
                 type: 'tardiness_alert',
                 title: `🚨 POS Labor Breach: ${alert.department} (${alert.liveLaborPct}%)`,
                 message: alert.message + ' ' + alert.recommendedAction,

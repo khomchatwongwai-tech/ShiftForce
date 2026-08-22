@@ -11,7 +11,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   // MEATS & POULTRY
   {
     id: 'inv-item-01',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'USDA Prime Center-Cut Ribeye 14oz',
     sku: 'BEEF-RIBEYE-14OZ',
@@ -58,7 +58,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-02',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Fresh Atlantic Salmon Filet (Skin-On)',
     sku: 'FISH-SALMON-ATL',
@@ -105,7 +105,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-03',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Organic Hass Avocados (Size 48s)',
     sku: 'PROD-AVOCADO-48',
@@ -152,7 +152,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-04',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Whole Milk Mozzarella Fresh Curd / Loaf',
     sku: 'DAIRY-MOZZ-5LB',
@@ -199,7 +199,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-05',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Extra Virgin Olive Oil (Cold Pressed 5L)',
     sku: 'OIL-EVOO-5L',
@@ -248,7 +248,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   // BEVERAGE & BAR
   {
     id: 'inv-item-06',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Lagunitas IPA (1/2 Barrel Full Keg)',
     sku: 'BAR-KEG-LAG-IPA',
@@ -295,7 +295,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-07',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Casamigos Reposado Tequila 750ml',
     sku: 'BAR-TEQ-CASA-REP',
@@ -341,7 +341,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-08',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Duckhorn Napa Valley Cabernet Sauvignon 750ml',
     sku: 'BAR-WINE-DUCK-CAB',
@@ -389,7 +389,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   // OPERATING SUPPLIES
   {
     id: 'inv-item-09',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Kraft Compostable Takeout Boxes 9x9 (3-Comp)',
     sku: 'SUP-BOX-KRAFT-9X9',
@@ -434,7 +434,7 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
   },
   {
     id: 'inv-item-10',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Ecolab Oasis 146 Multi-Quat Sanitizer 2.5 Gal',
     sku: 'CHEM-SANI-QUAT-2.5G',
@@ -482,9 +482,9 @@ export const INITIAL_INVENTORY_ITEMS: InventoryItem[] = [
 export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   {
     id: 'waste-rec-01',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-01',
     itemName: 'USDA Prime Center-Cut Ribeye 14oz',
@@ -514,9 +514,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-02',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-02',
     itemName: 'Fresh Atlantic Salmon Filet (Skin-On)',
@@ -546,9 +546,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-03',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Kitchen Prep & Dish',
     itemId: 'inv-item-03',
     itemName: 'Organic Hass Avocados (Size 48s)',
@@ -576,9 +576,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-04',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Bar & Beverage',
     itemId: 'inv-item-07',
     itemName: 'Casamigos Reposado Tequila 750ml',
@@ -606,9 +606,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-05',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-04',
     itemName: 'Whole Milk Mozzarella Fresh Curd / Loaf',
@@ -634,9 +634,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-06',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-01',
     itemName: 'USDA Prime Center-Cut Ribeye 14oz',
@@ -664,9 +664,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-07',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-04',
     itemName: 'Whole Milk Mozzarella Fresh Curd / Loaf',
@@ -694,9 +694,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-08',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Kitchen Prep & Dish',
     itemId: 'inv-item-03',
     itemName: 'Organic Hass Avocados (Size 48s)',
@@ -724,9 +724,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-09',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-01',
     itemName: 'USDA Prime Center-Cut Ribeye 14oz',
@@ -754,9 +754,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-10',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Kitchen Prep & Dish',
     itemId: 'inv-item-03',
     itemName: 'Organic Hass Avocados (Size 48s)',
@@ -784,9 +784,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-11',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Bar & Beverage',
     itemId: 'inv-item-05',
     itemName: 'Sculpin IPA Craft Beer 1/2 BBL Keg',
@@ -814,9 +814,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-12',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Back of House',
     itemId: 'inv-item-02',
     itemName: 'Fresh Atlantic Salmon Filet (Skin-On)',
@@ -844,9 +844,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
   },
   {
     id: 'waste-rec-13',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     department: 'Kitchen Prep & Dish',
     itemId: 'inv-item-03',
     itemName: 'Organic Hass Avocados (Size 48s)',
@@ -877,9 +877,9 @@ export const INITIAL_WASTE_RECORDS: WasteRecord[] = [
 export const INITIAL_PURCHASE_INVOICES: PurchaseOrderInvoice[] = [
   {
     id: 'po-inv-101',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     vendorName: 'Sysco Premium Foods & Meats',
     vendorContact: 'accounts@syscosf.com / (415) 882-9900',
     vendorAccountNumber: 'SYS-SF-904128',
@@ -935,9 +935,9 @@ export const INITIAL_PURCHASE_INVOICES: PurchaseOrderInvoice[] = [
   },
   {
     id: 'po-inv-102',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     vendorName: "Southern Glazer's Wine & Spirits",
     vendorContact: 'orders@sgws-ca.com / (800) 555-7497',
     vendorAccountNumber: 'SGWS-REST-40192',
@@ -996,7 +996,7 @@ export const INITIAL_PURCHASE_INVOICES: PurchaseOrderInvoice[] = [
 export const INITIAL_RECIPE_COST_CARDS: RecipeCostCard[] = [
   {
     id: 'recipe-01',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Prime Grilled 14oz Ribeye Steak with Truffle Butter',
     category: 'Steaks & Chops',
@@ -1058,7 +1058,7 @@ export const INITIAL_RECIPE_COST_CARDS: RecipeCostCard[] = [
   },
   {
     id: 'recipe-02',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Pan-Seared Atlantic Salmon with Citrus Beurre Blanc',
     category: 'Seafood',
@@ -1120,7 +1120,7 @@ export const INITIAL_RECIPE_COST_CARDS: RecipeCostCard[] = [
   },
   {
     id: 'recipe-03',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
     name: 'Smoked Jalapeño Reposado Craft Margarita',
     category: 'Craft Cocktails',
@@ -1175,9 +1175,9 @@ export const INITIAL_RECIPE_COST_CARDS: RecipeCostCard[] = [
 export const INITIAL_COUNT_SESSIONS: InventoryCountSession[] = [
   {
     id: 'count-sess-01',
-    organizationId: 'org-shiftforce-corp',
+    organizationId: 'org-workqora-corp',
     locationId: 'loc-01',
-    locationName: 'SF Flagship Downtown #101',
+    locationName: 'Workqora Flagship Downtown #101',
     countType: 'full_inventory',
     periodType: 'week',
     periodLabel: 'Week 33 Full Store Count',
