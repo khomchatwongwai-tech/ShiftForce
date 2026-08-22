@@ -23,10 +23,12 @@ import {
   Award,
   Star,
   Wine,
-  FileCheck
+  FileCheck,
+  User
 } from 'lucide-react';
 import { Employee, Department, RestaurantRole, SupportedLanguage, AlcoholHandlerCard, FoodHandlerCard } from '../types';
 import { EMPLOYEE_COLORS, generateLargeEmployeePool } from '../data/mockData';
+import { EmployeeProfileModal } from './profile/EmployeeProfileModal';
 
 interface EmployeeManagementViewProps {
   employees: Employee[];
@@ -58,6 +60,7 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
   // Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [profileModalEmployee, setProfileModalEmployee] = useState<Employee | null>(null);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -592,6 +595,13 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
 
               <div className="flex items-center gap-1">
                 <button
+                  onClick={() => setProfileModalEmployee(emp)}
+                  className="p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
+                  title="View Full Profile & Identity"
+                >
+                  <User className="w-3.5 h-3.5" />
+                </button>
+                <button
                   onClick={() => handleOpenEditModal(emp)}
                   className="p-1 text-slate-400 hover:text-sky-600 rounded-md hover:bg-sky-50 transition-colors"
                   title="Edit Employee"
@@ -1002,6 +1012,20 @@ export const EmployeeManagementView: React.FC<EmployeeManagementViewProps> = ({
             </form>
           </div>
         </div>
+      )}
+
+      {/* Employee Profile & Identity Modal */}
+      {profileModalEmployee && (
+        <EmployeeProfileModal
+          isOpen={true}
+          onClose={() => setProfileModalEmployee(null)}
+          employee={profileModalEmployee}
+          onSave={(updated) => {
+            onUpdateEmployee(updated);
+            setProfileModalEmployee(null);
+          }}
+          isManagerOrAdmin={true}
+        />
       )}
 
     </div>

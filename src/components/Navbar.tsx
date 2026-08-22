@@ -48,10 +48,13 @@ import {
   UserSubscriptionState,
   RBACManagerState,
   AuthUserSession,
-  AuthPortalMode
+  AuthPortalMode,
+  LocationProfile,
+  OrganizationProfile
 } from '../types';
 import { EnterpriseFeatureManagerState } from '../plugins/types';
 import { translations } from '../utils/i18n';
+import { LocationSelectorDropdown } from './organization/LocationSelectorDropdown';
 
 interface TabItem {
   id: ActiveTab;
@@ -87,6 +90,10 @@ interface NavbarProps {
   authSession?: AuthUserSession | null;
   onOpenLoginModal?: (mode?: AuthPortalMode) => void;
   onLogout?: () => void;
+  locations?: LocationProfile[];
+  currentLocationId?: string;
+  onSelectLocation?: (locId: string) => void;
+  organization?: OrganizationProfile;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -115,6 +122,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   authSession,
   onOpenLoginModal,
   onLogout,
+  locations = [],
+  currentLocationId,
+  onSelectLocation,
+  organization
 }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -141,7 +152,10 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'command_center', label: 'AI Command Center', icon: Zap, pluginId: 'ai_command_center' },
     { id: 'intelligence_agent', label: 'Intelligence Agent', icon: Sparkles, pluginId: 'intelligence_agent' },
     { id: 'enterprise', label: 'Enterprise Hub', icon: Building2, pluginId: 'enterprise' },
+    { id: 'corporate_locations', label: 'Locations Directory', icon: Building2, pluginId: 'enterprise' },
+    { id: 'compliance', label: 'Compliance & Credentials', icon: ShieldCheck, pluginId: 'compliance' },
     { id: 'schedule', label: t.schedule, icon: Calendar, pluginId: 'core_scheduling' },
+    { id: 'email', label: t.emailIntegrations || 'Business Email', icon: Mail, pluginId: 'email' },
     { id: 'employees', label: `${t.employees} (${totalEmployees.toLocaleString()})`, icon: Users, pluginId: 'employees' },
     { id: 'equipment', label: t.equipment || 'Equipment & Facilities', icon: Wrench, pluginId: 'equipment' },
     { id: 'payroll', label: 'Workqora Payroll', icon: DollarSign, pluginId: 'payroll' },
@@ -157,6 +171,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const allEmployeeTabs: TabItem[] = [
     { id: 'schedule', label: t.mySchedule, icon: Calendar, pluginId: 'core_scheduling' },
+    { id: 'my_profile', label: 'My Profile & Credentials', icon: User, pluginId: 'my_profile' },
+    { id: 'compliance', label: 'My Compliance Status', icon: ShieldCheck, pluginId: 'compliance' },
+    { id: 'email', label: t.emailIntegrations || 'Business Email', icon: Mail, pluginId: 'email' },
     { id: 'learn', label: 'Academy & Certifications', icon: GraduationCap, pluginId: 'learn' },
     { id: 'performance', label: 'Score, Reviews & Kudos', icon: Award, pluginId: 'performance' },
     { id: 'requests', label: t.requests, icon: FileText, pluginId: 'requests' },
@@ -195,7 +212,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-900 truncate">
-                  Shift<span className="text-sky-600">Force</span>
+                  Work<span className="text-sky-600">qora</span>
                 </span>
                 <span className="hidden lg:inline-flex px-2 py-0.5 text-[11px] font-semibold bg-sky-100 text-sky-700 rounded-full border border-sky-200 shrink-0">
                   Restaurant Edition
@@ -209,6 +226,16 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* DESKTOP CONTROLS (Visible on >= 1024px) */}
           <div className="hidden lg:flex items-center gap-2 sm:gap-3">
+
+            {/* Location Selector Dropdown */}
+            {locations && locations.length > 0 && currentLocationId && onSelectLocation && (
+              <LocationSelectorDropdown
+                locations={locations}
+                currentLocationId={currentLocationId}
+                onSelectLocation={onSelectLocation}
+                organization={organization}
+              />
+            )}
 
             {/* Role & Access (RBAC) Selector */}
             {portal === 'admin' && activeRole && (

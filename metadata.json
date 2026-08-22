@@ -1,6 +1,6 @@
 {
-  "name": "Workqora - Intelligent Workforce & Operations Platform",
-  "description": "Smarter Work. Better Operations. Comprehensive workforce management with realtime sync, offline support, AI scheduling, hiring integrations, and intelligent operations tools.",
+  "name": "Workqora Restaurant Workforce & Smart Schedule",
+  "description": "Workqora Restaurant Workforce & Smart Schedule - Smarter Work. Better Operations. Comprehensive workforce management with realtime sync, offline support, AI scheduling, hiring integrations, and intelligent operations tools.",
   "requestFramePermissions": [
     "camera"
   ],

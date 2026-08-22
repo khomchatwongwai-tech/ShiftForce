@@ -50,8 +50,16 @@ export const EMPLOYEE_COLORS = [
 export const INITIAL_EMPLOYEES: Employee[] = [
   {
     id: 'emp-1',
+    employeeId: 'WQ-104-00101',
     name: 'Elena Rostova',
+    firstName: 'Elena',
+    middleName: 'Sofia',
+    lastName: 'Rostova',
+    preferredName: 'Elena',
+    jobTitle: 'Head Server & Sommelier Lead',
+    profession: 'Hospitality Professional & Certified Sommelier',
     email: 'elena.rostova@workqora.com',
+    personalEmail: 'elena.rostova.private@gmail.com',
     phone: '+1 (555) 234-8901',
     department: 'Front of House',
     role: 'Head Server',
@@ -59,8 +67,17 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     maxHoursPerWeek: 38,
     color: '#0284c7',
     status: 'active',
+    employmentStatus: 'full_time',
     hireDate: '2023-04-12',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    address: {
+      addressLine1: '420 King Street',
+      addressLine2: 'Apt 4B',
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94158',
+      country: 'United States'
+    },
     alcoholHandlerCard: {
       cardNumber: 'RBS-CA-2024-88421',
       issuingAuthority: 'California RBS (ABC Certified)',
@@ -81,13 +98,20 @@ export const INITIAL_EMPLOYEES: Employee[] = [
     kudosPoints: 340,
     adpEmployeeId: 'ADP_EMP_0109',
     posServerId: 'TOAST_SRV_101',
-    emergencyContact: { name: 'Dmitri Rostova', phone: '+1 (555) 234-8902', relationship: 'Spouse' },
+    emergencyContact: {
+      name: 'Dmitri Rostova',
+      phone: '+1 (555) 234-8902',
+      relationship: 'Spouse',
+      email: 'dmitri.rostova@outlook.com'
+    },
     notes: 'Sommelier level 1 certified. Lead trainer for FOH floor.',
-    organizationId: 'org-workqora-global',
-    hierarchyPath: 'Workqora Global > North America > Pacific Coast > Bay Area District > SF Flagship Bistro #104',
-    locationId: 'loc-sf-flagship-104',
-    districtId: 'dist-bay-area-01',
-    regionId: 'reg-pacific-coast-01',
+    organizationId: 'org-kura-usa',
+    hierarchyPath: 'Kura Sushi USA > West Region > Southern California District > Kura Sushi #104',
+    locationId: 'loc-kura-104',
+    primaryLocationId: 'loc-kura-104',
+    additionalLocationIds: ['loc-kura-001'],
+    districtId: 'dist-socal',
+    regionId: 'reg-west',
   },
   {
     id: 'emp-2',
@@ -599,8 +623,15 @@ export function generateLargeEmployeePool(targetCount: number): Employee[] {
 
     pool.push({
       id: `emp-${currentIdx}`,
+      employeeId: `WQ-104-${String(10000 + currentIdx).padStart(5, '0')}`,
       name: `${fName} ${lName}`,
+      firstName: fName,
+      lastName: lName,
+      preferredName: fName,
+      jobTitle: `${role} - ${deptInfo.dept}`,
+      profession: `${role} & Food Service Specialist`,
       email: `${fName.toLowerCase()}.${lName.toLowerCase()}${currentIdx}@workqora.com`,
+      personalEmail: `${fName.toLowerCase()}.${lName.toLowerCase()}@example.com`,
       phone: `+1 (555) ${String(100 + (i % 899)).padStart(3, '0')}-${String(1000 + (i % 8999)).padStart(4, '0')}`,
       department: deptInfo.dept,
       role: role,
@@ -608,7 +639,20 @@ export function generateLargeEmployeePool(targetCount: number): Employee[] {
       maxHoursPerWeek: (i % 3 === 0) ? 25 : 40,
       color: color,
       status: (i % 25 === 0) ? 'on_leave' : 'active',
+      employmentStatus: (i % 3 === 0) ? 'part_time' : 'full_time',
       hireDate: `202${2 + (i % 3)}-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`,
+      address: {
+        addressLine1: `${100 + (i * 7) % 9000} Main Blvd`,
+        city: 'San Francisco',
+        state: loc.state,
+        zipCode: `94${100 + (i % 80)}`,
+        country: 'United States'
+      },
+      emergencyContact: {
+        name: `Contact for ${fName}`,
+        phone: `+1 (555) 999-${String(1000 + (i % 8999)).padStart(4, '0')}`,
+        relationship: 'Family Member'
+      },
       alcoholHandlerCard: needsAlcoholCard ? (isAlcoholCertified ? {
         cardNumber: `RBS-${loc.state}-2024-${10000 + currentIdx}`,
         issuingAuthority: `${loc.state} ABC RBS Certified`,
@@ -637,9 +681,10 @@ export function generateLargeEmployeePool(targetCount: number): Employee[] {
       kudosPoints: 50 + (i % 350),
       adpEmployeeId: `ADP_EMP_${String(currentIdx).padStart(6, '0')}`,
       posServerId: deptInfo.dept === 'Front of House' || deptInfo.dept === 'Bar & Beverage' ? `TOAST_POS_${currentIdx}` : undefined,
-      organizationId: 'org-workqora-global',
+      organizationId: 'org-kura-usa',
       hierarchyPath: loc.path,
       locationId: loc.locId,
+      primaryLocationId: loc.locId,
       districtId: loc.distId,
       regionId: loc.regId,
     });

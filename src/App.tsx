@@ -1,5 +1,6 @@
 import { useLanguage } from './context/LanguageContext';
 import React, { useState, useMemo, useEffect } from 'react';
+import { Mail, X } from 'lucide-react';
 import {
   Navbar
 } from './components/Navbar';
@@ -83,6 +84,19 @@ import {
   EquipmentManagerView
 } from './components/EquipmentManagerView';
 import {
+  UnifiedEmailInboxView
+} from './components/email/UnifiedEmailInboxView';
+import {
+  EmailIntegrationCenterView
+} from './components/email/EmailIntegrationCenterView';
+import {
+  INITIAL_EMAIL_CONNECTIONS,
+  INITIAL_EMAIL_MESSAGES,
+  INITIAL_EMAIL_TEMPLATES,
+  INITIAL_EMAIL_SIGNATURES,
+  INITIAL_EMAIL_AUDIT_LOGS
+} from './utils/emailSyncEngine';
+import {
   FirebaseProvider,
   useFirebase
 } from './firebase/FirebaseContext';
@@ -153,6 +167,8 @@ import {
   ActiveTab,
   SupportedLanguage,
   Employee,
+  Department,
+  RestaurantRole,
   Shift,
   Announcement,
   TimeOffRequest,
@@ -173,7 +189,13 @@ import {
   RBACManagerState,
   CustomRole,
   AuthUserSession,
-  AuthPortalMode
+  AuthPortalMode,
+  BusinessEmailConnection,
+  EmailMessage,
+  EmailTemplate,
+  EmailSignature,
+  EmailAuditEvent,
+  Location
 } from './types';
 import { INITIAL_POS_DEPARTMENT_MAPPINGS } from './data/posMappingData';
 import {
@@ -275,6 +297,80 @@ export function App() {
   const [isFeatureManagerOpen, setIsFeatureManagerOpen] = useState(false);
   const [isPaymentPortalOpen, setIsPaymentPortalOpen] = useState(false);
   const [paymentPortalItem, setPaymentPortalItem] = useState<PaymentPortalItem | undefined>(undefined);
+
+  // Business Email Integration Suite State
+  const [emailConnections, setEmailConnections] = useState<BusinessEmailConnection[]>(() => {
+    try {
+      const saved = localStorage.getItem('workqora_email_connections');
+      return saved ? JSON.parse(saved) : INITIAL_EMAIL_CONNECTIONS;
+    } catch {
+      return INITIAL_EMAIL_CONNECTIONS;
+    }
+  });
+
+  const [emailMessages, setEmailMessages] = useState<EmailMessage[]>(() => {
+    try {
+      const saved = localStorage.getItem('workqora_email_messages');
+      return saved ? JSON.parse(saved) : INITIAL_EMAIL_MESSAGES;
+    } catch {
+      return INITIAL_EMAIL_MESSAGES;
+    }
+  });
+
+  const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>(() => {
+    try {
+      const saved = localStorage.getItem('workqora_email_templates');
+      return saved ? JSON.parse(saved) : INITIAL_EMAIL_TEMPLATES;
+    } catch {
+      return INITIAL_EMAIL_TEMPLATES;
+    }
+  });
+
+  const [emailSignatures, setEmailSignatures] = useState<EmailSignature[]>(() => {
+    try {
+      const saved = localStorage.getItem('workqora_email_signatures');
+      return saved ? JSON.parse(saved) : INITIAL_EMAIL_SIGNATURES;
+    } catch {
+      return INITIAL_EMAIL_SIGNATURES;
+    }
+  });
+
+  const [emailAuditLogs, setEmailAuditLogs] = useState<EmailAuditEvent[]>(() => {
+    try {
+      const saved = localStorage.getItem('workqora_email_audit_logs');
+      return saved ? JSON.parse(saved) : INITIAL_EMAIL_AUDIT_LOGS;
+    } catch {
+      return INITIAL_EMAIL_AUDIT_LOGS;
+    }
+  });
+
+  const [isEmailSettingsModalOpen, setIsEmailSettingsModalOpen] = useState(false);
+
+  const companyLocations = useMemo<Location[]>(() => [
+    { id: 'loc-dtla-main', name: 'Downtown Flagship #101 (Los Angeles)', code: 'DTLA-101', city: 'Los Angeles', state: 'CA' },
+    { id: 'loc-sf-flagship', name: 'SF Flagship Bistro #104', code: 'SF-104', city: 'San Francisco', state: 'CA' },
+    { id: 'loc-nyc-soho', name: 'NYC SoHo Dining Room #201', code: 'NYC-201', city: 'New York', state: 'NY' },
+    { id: 'loc-austin-301', name: 'Austin South Congress #301', code: 'ATX-301', city: 'Austin', state: 'TX' },
+  ], []);
+
+  // Sync email to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('workqora_email_connections', JSON.stringify(emailConnections));
+    } catch { /* noop */ }
+  }, [emailConnections]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('workqora_email_messages', JSON.stringify(emailMessages));
+    } catch { /* noop */ }
+  }, [emailMessages]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('workqora_email_audit_logs', JSON.stringify(emailAuditLogs));
+    } catch { /* noop */ }
+  }, [emailAuditLogs]);
 
   // Firebase Authentication & Persistent User Session Context
   const {
@@ -1329,6 +1425,220 @@ export function App() {
     setNotificationDispatches(prev => [dispatch, ...prev]);
   };
 
+  // Business Email Integration Handlers
+  const handleSendEmailMessage = async (msgData: Partial<EmailMessage>) => {
+    const newMsg: EmailMessage = {
+      id: `msg-sent-${Date.now()}`,
+      organizationId: userProfile?.organizationId || 'org-workqora-primary',
+      locationId: msgData.locationId || 'loc-sf-flagship',
+      connectionId: msgData.connectionId || emailConnections[0]?.id || 'conn-org-google',
+      threadId: msgData.threadId || `thread-${Date.now()}`,
+      providerMessageId: `prov-msg-sent-${Date.now()}`,
+      from: msgData.from || { name: 'Workqora Operations', email: 'operations@workqora-hospitality.com' },
+      to: msgData.to || [],
+      cc: msgData.cc,
+      bcc: msgData.bcc,
+      subject: msgData.subject || 'No Subject',
+      snippet: (msgData.bodyText || '').slice(0, 120),
+      bodyText: msgData.bodyText || '',
+      bodyHtml: msgData.bodyHtml,
+      date: new Date().toISOString(),
+      isRead: true,
+      isStarred: false,
+      isArchived: false,
+      isDraft: msgData.isDraft || false,
+      isSent: !msgData.isDraft,
+      folder: msgData.isDraft ? 'drafts' : 'sent',
+      category: msgData.category || 'operations',
+      labels: msgData.labels || ['Sent'],
+      attachments: msgData.attachments || []
+    };
+
+    setEmailMessages(prev => [newMsg, ...prev]);
+
+    const auditEvent: EmailAuditEvent = {
+      id: `audit-em-${Date.now()}`,
+      organizationId: newMsg.organizationId,
+      locationId: newMsg.locationId,
+      actorName: userProfile?.displayName || currentEmployee?.name || 'Administrator',
+      actorRole: userProfile?.role || 'Operations Manager',
+      action: msgData.isDraft ? 'Draft Saved' : 'Email Sent',
+      details: `${msgData.isDraft ? 'Saved draft' : 'Dispatched email'} "${newMsg.subject}" to ${newMsg.to.map(t => t.email).join(', ')}`,
+      timestamp: new Date().toISOString(),
+      status: 'success'
+    };
+    setEmailAuditLogs(prev => [auditEvent, ...prev]);
+
+    try {
+      await fetch('/api/email/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMsg)
+      });
+    } catch (e) {
+      console.warn('Backend email send fallback:', e);
+    }
+  };
+
+  const handleUpdateEmailMessage = async (id: string, updates: Partial<EmailMessage>) => {
+    setEmailMessages(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+    try {
+      await fetch(`/api/email/messages/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+    } catch (e) {
+      console.warn('Backend email update fallback:', e);
+    }
+  };
+
+  const handleDeleteEmailMessage = async (id: string) => {
+    setEmailMessages(prev => prev.map(m => m.id === id ? { ...m, folder: 'trash' } : m));
+    try {
+      await fetch(`/api/email/messages/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('Backend email delete fallback:', e);
+    }
+  };
+
+  const handleAddEmailConnection = async (connData: Partial<BusinessEmailConnection>) => {
+    const newConn: BusinessEmailConnection = {
+      id: `conn-${Date.now()}`,
+      organizationId: userProfile?.organizationId || 'org-workqora-primary',
+      locationId: connData.locationId,
+      departmentId: connData.departmentId,
+      scopeLevel: connData.scopeLevel || 'location',
+      provider: connData.provider || 'google',
+      emailAddress: connData.emailAddress || 'mailbox@workqora-hospitality.com',
+      displayName: connData.displayName || 'Business Mailbox',
+      category: connData.category || 'general',
+      connectionStatus: 'connected',
+      scopes: connData.scopes || ['Mail.Read', 'Mail.Send'],
+      isDefaultOrgSender: connData.isDefaultOrgSender,
+      isDefaultLocationSender: connData.isDefaultLocationSender,
+      autoSyncIntervalMinutes: connData.autoSyncIntervalMinutes || 15,
+      lastSyncedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      imapHost: connData.imapHost,
+      imapPort: connData.imapPort,
+      smtpHost: connData.smtpHost,
+      smtpPort: connData.smtpPort
+    };
+
+    setEmailConnections(prev => [...prev, newConn]);
+
+    const auditEvent: EmailAuditEvent = {
+      id: `audit-conn-${Date.now()}`,
+      organizationId: newConn.organizationId,
+      locationId: newConn.locationId,
+      actorName: userProfile?.displayName || 'Administrator',
+      actorRole: userProfile?.role || 'Super Admin',
+      action: 'Account Connected',
+      details: `Connected ${newConn.provider.toUpperCase()} mailbox: ${newConn.emailAddress} (${newConn.scopeLevel})`,
+      timestamp: new Date().toISOString(),
+      status: 'success'
+    };
+    setEmailAuditLogs(prev => [auditEvent, ...prev]);
+
+    try {
+      await fetch('/api/email/connections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newConn)
+      });
+    } catch (e) {
+      console.warn('Backend add connection fallback:', e);
+    }
+  };
+
+  const handleUpdateEmailConnection = async (id: string, updates: Partial<BusinessEmailConnection>) => {
+    setEmailConnections(prev => prev.map(c => c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c));
+    try {
+      await fetch(`/api/email/connections/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+    } catch (e) {
+      console.warn('Backend update connection fallback:', e);
+    }
+  };
+
+  const handleDeleteEmailConnection = async (id: string) => {
+    setEmailConnections(prev => prev.filter(c => c.id !== id));
+    try {
+      await fetch(`/api/email/connections/${id}`, { method: 'DELETE' });
+    } catch (e) {
+      console.warn('Backend delete connection fallback:', e);
+    }
+  };
+
+  const handleSyncEmailConnection = async (id: string) => {
+    setEmailConnections(prev => prev.map(c => c.id === id ? { ...c, lastSyncedAt: new Date().toISOString() } : c));
+    const auditEvent: EmailAuditEvent = {
+      id: `audit-sync-${Date.now()}`,
+      organizationId: userProfile?.organizationId || 'org-workqora-primary',
+      actorName: userProfile?.displayName || 'Administrator',
+      actorRole: userProfile?.role || 'Super Admin',
+      action: 'Sync Triggered',
+      details: `Manual sync completed for mailbox ${id}`,
+      timestamp: new Date().toISOString(),
+      status: 'success'
+    };
+    setEmailAuditLogs(prev => [auditEvent, ...prev]);
+    try {
+      await fetch(`/api/email/connections/${id}/sync`, { method: 'POST' });
+    } catch (e) {
+      console.warn('Backend sync connection fallback:', e);
+    }
+  };
+
+  const handleConvertEmailAction = (actionPayload: any) => {
+    if (actionPayload.actionType === 'task') {
+      const newAnn: Announcement = {
+        id: `ann-email-${Date.now()}`,
+        title: actionPayload.title,
+        content: actionPayload.description,
+        authorName: 'Email Dispatch Assistant',
+        authorRole: 'Automated Operations',
+        targetDepartment: 'all',
+        priority: 'urgent',
+        channels: ['app', 'sms'],
+        publishedAt: new Date().toISOString()
+      };
+      setAnnouncements(prev => [newAnn, ...prev]);
+      setActiveTab('announcements');
+    } else if (actionPayload.actionType === 'shift' || actionPayload.actionType === 'meeting') {
+      setActiveTab('schedule');
+    } else if (actionPayload.actionType === 'hiring') {
+      if (actionPayload.prefilledData?.name) {
+        const newCandidate: OnboardingCandidate = {
+          id: `cand-email-${Date.now()}`,
+          name: actionPayload.prefilledData.name,
+          role: (actionPayload.prefilledData.role as RestaurantRole) || 'Server',
+          department: (actionPayload.prefilledData.department as Department) || 'Front of House',
+          email: actionPayload.prefilledData.email || 'candidate@example.com',
+          phone: actionPayload.prefilledData.phone || '(555) 010-9988',
+          stage: 'applied',
+          appliedAt: new Date().toISOString(),
+          documents: {
+            i9Verified: false,
+            foodHandlerCertified: false,
+            alcoholCardCertified: false,
+            directDeposit: false,
+            uniformAssigned: false
+          },
+          interviewScore: 85,
+          interviewNotes: 'Imported from incoming email application'
+        };
+        setCandidates(prev => [newCandidate, ...prev]);
+      }
+      setActiveTab('hr_payroll');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/70 text-slate-800 flex flex-col antialiased selection:bg-sky-200 selection:text-sky-900 font-sans max-w-full overflow-x-hidden">
 
@@ -1733,6 +2043,23 @@ export function App() {
           />
         )}
 
+        {/* 11. Business Email Integration & Unified Mailbox Hub */}
+        {activeTab === 'email' && (
+          <UnifiedEmailInboxView
+            connections={emailConnections}
+            messages={emailMessages}
+            templates={emailTemplates}
+            signatures={emailSignatures}
+            currentEmployee={currentEmployee}
+            locations={companyLocations}
+            onSendMessage={handleSendEmailMessage}
+            onUpdateMessage={handleUpdateEmailMessage}
+            onDeleteMessage={handleDeleteEmailMessage}
+            onOpenSettings={() => setIsEmailSettingsModalOpen(true)}
+            onConvertAction={handleConvertEmailAction}
+          />
+        )}
+
       </main>
 
       {/* Footer */}
@@ -1884,6 +2211,42 @@ export function App() {
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
       />
+
+      {/* Business Email Integration Settings & Account Manager Modal */}
+      {isEmailSettingsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-6xl max-h-[92vh] overflow-y-auto shadow-2xl animate-in zoom-in-95">
+            <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-sky-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Business Email Integration Center</h2>
+                  <p className="text-xs text-slate-400">Manage multi-tenant corporate, regional, and location business mailboxes</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsEmailSettingsModalOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <EmailIntegrationCenterView
+                connections={emailConnections}
+                locations={companyLocations}
+                auditLogs={emailAuditLogs}
+                onAddConnection={handleAddEmailConnection}
+                onUpdateConnection={handleUpdateEmailConnection}
+                onDeleteConnection={handleDeleteEmailConnection}
+                onSyncConnection={handleSyncEmailConnection}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

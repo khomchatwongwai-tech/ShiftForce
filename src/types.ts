@@ -47,10 +47,34 @@ export interface FoodHandlerCard {
   status: 'valid' | 'expiring_soon' | 'expired' | 'missing' | 'pending_verification';
 }
 
+export interface EmployeeAddress {
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface EmployeeEmergencyContact {
+  name: string;
+  phone: string;
+  relationship: string;
+  email?: string;
+}
+
 export interface Employee {
   id: string;
+  employeeId?: string; // e.g. "WQ-104-00238" unique within organization scope
   name: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+  preferredName?: string;
+  jobTitle?: string;
+  profession?: string;
   email: string;
+  personalEmail?: string;
   phone: string;
   department: Department;
   role: RestaurantRole;
@@ -58,24 +82,26 @@ export interface Employee {
   maxHoursPerWeek: number;
   color: string; // Distinctive color for calendar schedule display
   status: 'active' | 'on_leave' | 'inactive';
+  employmentStatus?: 'active' | 'on_leave' | 'part_time' | 'full_time' | 'contractor' | 'terminated' | 'inactive';
   avatarUrl?: string;
   hireDate: string;
+  address?: EmployeeAddress;
   alcoholHandlerCard?: AlcoholHandlerCard;
   foodHandlerCard?: FoodHandlerCard;
+  certifications?: EmployeeCertificationRecord[];
+  documents?: EmployeeDocumentRecord[];
   kudosPoints?: number;
   fiveStarMentionCount?: number;
   adpEmployeeId?: string;
   posServerId?: string;
   posServerCode?: string;
-  emergencyContact?: {
-    name: string;
-    phone: string;
-    relationship: string;
-  };
+  emergencyContact?: EmployeeEmergencyContact;
   notes?: string;
   organizationId?: string;
-  hierarchyPath?: string; // e.g. "Workqora Corp > North America > Pacific Coast > Bay Area District > SF Flagship #104"
+  hierarchyPath?: string; // e.g. "Kura Sushi USA > West Region > Southern California District > Kura Sushi #104"
   locationId?: string;
+  primaryLocationId?: string;
+  additionalLocationIds?: string[];
   districtId?: string;
   regionId?: string;
 }
@@ -329,7 +355,10 @@ export type ActiveTab =
   | 'intelligence_agent'
   | 'enterprise'
   | 'schedule'
+  | 'email'
   | 'employees'
+  | 'my_profile'
+  | 'compliance'
   | 'equipment'
   | 'payroll'
   | 'learn'
@@ -339,7 +368,9 @@ export type ActiveTab =
   | 'requests'
   | 'tardiness'
   | 'announcements'
-  | 'hr_payroll';
+  | 'hr_payroll'
+  | 'organization_profile'
+  | 'corporate_locations';
 
 export interface Announcement {
   id: string;
@@ -1494,6 +1525,8 @@ export interface CompanyLocation {
   createdAt: string;
 }
 
+export type Location = CompanyLocation;
+
 export interface CompanyRegion {
   id: string;
   organizationId: string;
@@ -1635,3 +1668,532 @@ export interface PreventiveMaintenanceTask {
   checklistItems: string[];
   status: 'pending' | 'due_today' | 'overdue' | 'completed';
 }
+
+// ----------------------------------------------------
+// CALENDAR & EXTERNAL SYNCHRONIZATION SYSTEM TYPES
+// ----------------------------------------------------
+
+export type CalendarViewMode = 'day' | 'week' | 'month' | 'agenda';
+
+export type CalendarDensity = 'comfortable' | 'compact' | 'detailed';
+
+export type CalendarProvider = 'google' | 'microsoft' | 'apple_caldav' | 'ics_webcal';
+
+export type CalendarSyncDirection = 'two_way' | 'workqora_to_external' | 'external_to_workqora';
+
+export type CalendarPrivacyLevel = 'full_details' | 'free_busy_only' | 'work_hours_only';
+
+export type CalendarExternalEventType =
+  | 'catering_event'
+  | 'restaurant_buyout'
+  | 'vip_reservation'
+  | 'maintenance'
+  | 'holiday'
+  | 'payday'
+  | 'employee_ooo'
+  | 'personal_busy'
+  | 'delivery_window'
+  | 'custom';
+
+export interface CalendarConnection {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  employeeId?: string;
+  provider: CalendarProvider;
+  accountEmail: string;
+  calendarName: string;
+  externalCalendarId?: string;
+  connectionType: 'organization' | 'location' | 'employee';
+  syncDirection: CalendarSyncDirection;
+  privacyLevel: CalendarPrivacyLevel;
+  color: string;
+  isActive: boolean;
+  autoSyncIntervalMinutes: number;
+  lastSyncedAt?: string;
+  syncStatus: 'synced' | 'syncing' | 'error' | 'pending';
+  errorMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ExternalCalendarEvent {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  employeeId?: string;
+  employeeName?: string;
+  connectionId?: string;
+  provider: CalendarProvider;
+  externalEventId?: string;
+  title: string;
+  description?: string;
+  location?: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime: string; // HH:MM
+  isAllDay: boolean;
+  isBusy: boolean;
+  privacyLevel: CalendarPrivacyLevel;
+  eventType: CalendarExternalEventType;
+  color?: string;
+  attendeesCount?: number;
+  revenueForecast?: number;
+  isManagerOnly?: boolean;
+  createdAt: string;
+}
+
+export interface CalendarConflict {
+  id: string;
+  shiftId: string;
+  shiftTitle: string;
+  shiftDate: string;
+  shiftStartTime: string;
+  shiftEndTime: string;
+  employeeId: string;
+  employeeName: string;
+  externalEventId: string;
+  externalEventTitle: string;
+  provider: CalendarProvider;
+  conflictType: 'overlap' | 'insufficient_rest' | 'ooo_block';
+  severity: 'blocking' | 'warning';
+  details: string;
+  isOverridden?: boolean;
+  overriddenBy?: string;
+  overriddenReason?: string;
+}
+
+export interface CalendarFeedSubscription {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  employeeId?: string;
+  feedType: 'employee_personal' | 'location_all_staff' | 'department_schedule';
+  department?: Department;
+  token: string;
+  name: string;
+  webcalUrl: string;
+  icsUrl: string;
+  isActive: boolean;
+  createdAt: string;
+  lastAccessedAt?: string;
+}
+
+export interface CalendarSyncLog {
+  id: string;
+  connectionId?: string;
+  provider: CalendarProvider;
+  accountEmail: string;
+  direction: CalendarSyncDirection;
+  timestamp: string;
+  status: 'success' | 'warning' | 'error';
+  eventsImported: number;
+  eventsExported: number;
+  conflictsFound: number;
+  details: string;
+}
+
+// ----------------------------------------------------
+// BUSINESS EMAIL INTEGRATION SYSTEM TYPES
+// ----------------------------------------------------
+
+export type EmailProvider = 'google' | 'microsoft' | 'imap_smtp' | 'enterprise_custom';
+
+export type EmailAccountScope = 'organization' | 'region' | 'district' | 'location' | 'department';
+
+export type EmailAccountCategory =
+  | 'general'
+  | 'operations'
+  | 'manager'
+  | 'hiring'
+  | 'inventory'
+  | 'foh'
+  | 'kitchen'
+  | 'billing';
+
+export type EmailConnectionStatus =
+  | 'connected'
+  | 'syncing'
+  | 'needs_reauthorization'
+  | 'permission_changed'
+  | 'error'
+  | 'disconnected';
+
+export type EmailFolder = 'inbox' | 'sent' | 'drafts' | 'starred' | 'archived' | 'trash';
+
+export type EmailCategory = 'operations' | 'schedules' | 'maintenance' | 'hiring' | 'inventory' | 'vendor' | 'general';
+
+export interface EmailAttachment {
+  id: string;
+  filename: string;
+  contentType: string;
+  sizeBytes: number;
+  url?: string;
+  isSafe: boolean;
+}
+
+export interface BusinessEmailConnection {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  regionId?: string;
+  districtId?: string;
+  departmentId?: Department;
+  scopeLevel: EmailAccountScope;
+  provider: EmailProvider;
+  emailAddress: string;
+  displayName: string;
+  category: EmailAccountCategory;
+  connectionStatus: EmailConnectionStatus;
+  scopes: string[];
+  isDefaultOrgSender?: boolean;
+  isDefaultLocationSender?: boolean;
+  autoSyncIntervalMinutes: number;
+  lastSyncedAt?: string;
+  errorMessage?: string;
+  smtpHost?: string;
+  smtpPort?: number;
+  imapHost?: string;
+  imapPort?: number;
+  signature?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EmailAddressEntity {
+  name: string;
+  email: string;
+}
+
+export interface EmailMessage {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  connectionId: string;
+  threadId: string;
+  providerMessageId: string;
+  from: EmailAddressEntity;
+  to: EmailAddressEntity[];
+  cc?: EmailAddressEntity[];
+  bcc?: EmailAddressEntity[];
+  replyTo?: string;
+  subject: string;
+  snippet: string;
+  bodyText: string;
+  bodyHtml?: string;
+  date: string;
+  isRead: boolean;
+  isStarred: boolean;
+  isArchived: boolean;
+  isDraft: boolean;
+  isSent: boolean;
+  folder: EmailFolder;
+  category: EmailCategory;
+  labels: string[];
+  attachments: EmailAttachment[];
+  aiSummary?: string;
+  aiActionItems?: string[];
+  aiSuggestedAction?: {
+    actionType: 'task' | 'meeting' | 'maintenance' | 'hiring' | 'inventory';
+    title: string;
+    description: string;
+    prefilledData?: any;
+  };
+  hasConvertedAction?: boolean;
+  convertedActionDetails?: string;
+}
+
+export interface EmailTemplate {
+  id: string;
+  organizationId: string;
+  name: string;
+  category: 'scheduling' | 'hr' | 'operations' | 'maintenance' | 'attendance' | 'general';
+  subject: string;
+  body: string;
+  variables: string[];
+  isSystem: boolean;
+  updatedAt: string;
+}
+
+export interface EmailSignature {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  title: string;
+  content: string;
+  isDefault: boolean;
+}
+
+export interface EmailAuditEvent {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  actorName: string;
+  actorRole: string;
+  action: string;
+  details: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'denied';
+}
+
+export interface EmailSyncLog {
+  id: string;
+  connectionId?: string;
+  provider: EmailProvider;
+  accountEmail: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'error';
+  messagesImported: number;
+  messagesExported: number;
+  details: string;
+}
+
+// ----------------------------------------------------
+// PROFESSIONAL CREDENTIALS, CERTIFICATIONS & LICENSES
+// ----------------------------------------------------
+
+export type CertificationStatus =
+  | 'valid'
+  | 'expiring_soon'
+  | 'expired'
+  | 'pending_verification'
+  | 'rejected'
+  | 'missing';
+
+export type CertificationCategory =
+  | 'food_safety'
+  | 'alcohol_beverage'
+  | 'safety_health'
+  | 'management_leadership'
+  | 'trades_licensing'
+  | 'medical_nursing'
+  | 'driver_equipment'
+  | 'security'
+  | 'custom';
+
+export interface CertificationType {
+  id: string;
+  organizationId: string;
+  name: string;
+  category: CertificationCategory;
+  description?: string;
+  isExpirationRequired: boolean;
+  defaultValidityMonths?: number;
+  requiredRoles: string[]; // RestaurantRole[] or generic job positions e.g. "Server", "Nurse", "Forklift Operator"
+  requiredLocationIds?: string[];
+  reminderScheduleDays: number[]; // e.g. [90, 60, 30, 14, 7]
+  schedulingPolicy: 'warn_only' | 'block_assignment' | 'require_manager_override';
+  trainingCourseId?: string;
+  trainingCourseTitle?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CertificateHistoryRecord {
+  id: string;
+  certificateNumber: string;
+  issueDate: string;
+  expirationDate: string;
+  status: CertificationStatus;
+  documentUrl?: string;
+  documentFileName?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  verificationNotes?: string;
+  archivedAt: string;
+}
+
+export interface EmployeeCertificationRecord {
+  id: string;
+  organizationId: string;
+  employeeId: string;
+  employeeName?: string;
+  employeeRole?: string;
+  department?: Department;
+  locationId?: string;
+  certificationTypeId: string;
+  certificateType: string; // e.g. "Food Handler", "Alcohol Server / RBS", "ServSafe Manager", "Forklift"
+  certificateName: string; // Specific credential title
+  certificateNumber: string;
+  issuedBy: string; // e.g. "ServSafe", "California ABC", "American Red Cross", "State Health Dept"
+  issueDate: string; // YYYY-MM-DD
+  expirationDate: string; // YYYY-MM-DD
+  stateJurisdiction?: string; // e.g. "CA", "TX", "NY", "Federal"
+  status: CertificationStatus;
+  documentUrl?: string;
+  documentFileName?: string;
+  documentMimeType?: string;
+  documentSizeBytes?: number;
+  isCameraUpload?: boolean;
+  verifiedBy?: string;
+  verifiedByName?: string;
+  verifiedAt?: string;
+  verificationResult?: 'approved' | 'rejected' | 'request_new_document';
+  verificationNotes?: string;
+  notes?: string;
+  history?: CertificateHistoryRecord[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CertificationRequirement {
+  id: string;
+  organizationId: string;
+  role: string;
+  department?: Department | string;
+  certificationTypeId: string;
+  certificationTypeName: string;
+  isRequired: boolean;
+  gracePeriodDays: number;
+  schedulingPolicy: 'warn_only' | 'block_assignment' | 'require_manager_override';
+}
+
+// ----------------------------------------------------
+// EMPLOYEE DOCUMENT CENTER
+// ----------------------------------------------------
+
+export type EmployeeDocumentCategory =
+  | 'certifications'
+  | 'licenses'
+  | 'training'
+  | 'employment_documents'
+  | 'other_documents';
+
+export interface EmployeeDocumentRecord {
+  id: string;
+  employeeId: string;
+  organizationId: string;
+  locationId?: string;
+  category: EmployeeDocumentCategory;
+  title: string;
+  fileName: string;
+  fileMimeType: string;
+  fileSizeBytes: number;
+  documentUrl: string;
+  isPrivate: boolean; // e.g. sensitive HR/tax documents vs general certificates
+  uploadedAt: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  expirationDate?: string;
+  notes?: string;
+}
+
+// ----------------------------------------------------
+// ORGANIZATION & LOCATION IDENTITY SYSTEM
+// ----------------------------------------------------
+
+export interface OrganizationProfile {
+  id: string;
+  legalName: string; // e.g. "Kura Sushi USA, Inc."
+  displayName: string; // e.g. "Kura Sushi"
+  organizationCode: string; // e.g. "KURA"
+  businessType: string; // e.g. "Restaurant Group", "Hospitality & Resort", "Healthcare", "Contracting"
+  industry: string;
+  mainPhone: string;
+  mainEmail: string;
+  website: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  logoUrl?: string;
+  timeZone: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type LocationStatus =
+  | 'active'
+  | 'opening_soon'
+  | 'temporarily_closed'
+  | 'inactive'
+  | 'closed';
+
+export interface LocationProfile {
+  id: string;
+  organizationId: string;
+  locationName: string; // e.g. "Kura Sushi #104" or "Kura Sushi Irvine"
+  displayName: string; // Visible display name e.g. "Kura Sushi #104 (Irvine Flagship)"
+  storeNumber: string; // e.g. "104", "001", "201"
+  locationCode: string; // e.g. "SF-104", "IRV-104", "DTLA-001"
+  regionId?: string;
+  regionName?: string;
+  districtId?: string;
+  districtName?: string;
+  departmentGroup?: string;
+  status: LocationStatus;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  email: string;
+  timeZone: string;
+  managerEmployeeId?: string;
+  managerName?: string;
+  openingDate?: string;
+  logoUrl?: string;
+  useCustomLogo: boolean;
+  activeStaffCount: number;
+  compliancePercentage: number;
+  laborTargetPct: number;
+  actualLaborPct: number;
+  wastePct: number;
+  isFavorite?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LocationHierarchyNode {
+  id: string;
+  name: string;
+  code: string;
+  level: 'organization' | 'region' | 'district' | 'location' | 'department';
+  parentId?: string;
+  locationsCount: number;
+  activeHeadcount: number;
+  children?: LocationHierarchyNode[];
+}
+
+export interface ProfileAuditLogRecord {
+  id: string;
+  organizationId: string;
+  locationId?: string;
+  employeeId?: string;
+  actorId: string;
+  actorName: string;
+  actorRole: string;
+  action:
+    | 'profile_updated'
+    | 'address_updated'
+    | 'emergency_contact_updated'
+    | 'photo_uploaded'
+    | 'photo_removed'
+    | 'certificate_uploaded'
+    | 'certificate_replaced'
+    | 'certificate_approved'
+    | 'certificate_rejected'
+    | 'certificate_downloaded'
+    | 'certificate_expired'
+    | 'certificate_requirement_changed'
+    | 'organization_renamed'
+    | 'location_renamed'
+    | 'location_number_changed'
+    | 'location_address_changed'
+    | 'location_manager_changed'
+    | 'location_created'
+    | 'location_duplicated'
+    | 'location_archived'
+    | 'location_restored';
+  details: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'denied';
+}
+
+
+

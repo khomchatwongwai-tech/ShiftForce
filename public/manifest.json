@@ -1,11 +1,11 @@
 {
-  "name": "Workqora — Intelligent Workforce & Operations Platform",
+  "name": "Workqora",
   "short_name": "Workqora",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0284c7",
-  "description": "Smarter Work. Better Operations.",
+  "description": "Workqora Restaurant Workforce & Smart Schedule — Smarter Work. Better Operations.",
   "icons": [
     {
       "src": "/favicon-32x32.png",

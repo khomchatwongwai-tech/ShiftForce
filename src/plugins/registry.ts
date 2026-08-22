@@ -16,7 +16,8 @@ import {
   CreditCard,
   ShieldCheck,
   Bot,
-  Wrench
+  Wrench,
+  Mail
 } from 'lucide-react';
 import { PluginDefinition, EnterpriseFeatureManagerState } from './types';
 
@@ -486,12 +487,47 @@ export const ALL_SYSTEM_PLUGINS: PluginDefinition[] = [
       value: '48 Active Machines',
       trend: '99.4% Uptime'
     }
+  },
+  {
+    id: 'email',
+    name: 'Business Email Integration Suite',
+    shortCode: 'EMAIL',
+    tagline: 'Multi-Tenant Unified Email Inbox & AI Workflow Center',
+    description: 'Enterprise email connectivity for Google Workspace, Microsoft 365, and IMAP/SMTP with AI-powered summaries, smart drafting, and 1-click email-to-task conversion.',
+    version: '2.0.0',
+    category: 'operations',
+    icon: Mail,
+    badge: 'Enterprise Ready',
+    tabId: 'email',
+    isCore: true,
+    enabledByDefault: true,
+    licenseStatus: 'included_in_plan',
+    monthlyAddonPrice: 0,
+    author: 'Workqora Communications',
+    minTierRequired: 'starter',
+    features: [
+      'Multi-tenant Google Workspace, M365 & IMAP/SMTP mailboxes',
+      'Unified multi-mailbox inbox with instant search and filtering',
+      'AI-powered action item detection and smart draft responses',
+      '1-Click Email-to-Task / Work Order / Schedule Event conversion'
+    ],
+    capabilities: {
+      realtimeSync: true,
+      exportableReports: true,
+      mobileOptimized: true
+    },
+    metrics: {
+      label: 'Mailbox Accounts',
+      value: '6 Connected',
+      trend: 'Real-time sync'
+    }
   }
 ];
 
 export const INITIAL_FEATURE_MANAGER_STATE: EnterpriseFeatureManagerState = {
   enabledPluginIds: [
     'core_scheduling',
+    'email',
     'employees',
     'equipment',
     'payroll',
@@ -508,6 +544,7 @@ export const INITIAL_FEATURE_MANAGER_STATE: EnterpriseFeatureManagerState = {
   ],
   purchasedPluginIds: [
     'core_scheduling',
+    'email',
     'employees',
     'equipment',
     'payroll',

@@ -76,6 +76,8 @@ export interface TranslationDictionary {
   enterpriseHub: string;
   learn: string;
   equipment: string;
+  email: string;
+  emailIntegrations: string;
 
   // --- Schedule & Shifts ---
   publishSchedule: string;
@@ -401,6 +403,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "Enterprise Multi-Store Hub",
     learn: "Workqora Learn Academy",
     equipment: "Equipment & Facilities",
+    email: "Business Email",
+    emailIntegrations: "Business Email Integrations",
 
     publishSchedule: "Publish 7-Day Schedule",
     publishAndNotifyAll: "Publish & Notify All Staff",
@@ -708,6 +712,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "Centro Multitienda Empresarial",
     learn: "Academia Workqora Learn",
     equipment: "Equipos e Instalaciones",
+    email: "Correo Electrónico",
+    emailIntegrations: "Integraciones de Correo Empresarial",
 
     publishSchedule: "Publicar Horario de 7 Días",
     publishAndNotifyAll: "Publicar y Notificar a Todo el Personal",
@@ -1015,6 +1021,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "集团多门店管理中心",
     learn: "Workqora 餐饮商学院",
     equipment: "设备与设施管理",
+    email: "企业电子邮箱",
+    emailIntegrations: "企业邮箱集成",
 
     publishSchedule: "发布7日班表",
     publishAndNotifyAll: "发布并通知全体员工",
@@ -1322,6 +1330,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "ศูนย์บริหารหลายสาขา",
     learn: "Workqora สถาบันฝึกอบรม",
     equipment: "อุปกรณ์และสิ่งอำนวยความสะดวก",
+    email: "อีเมลธุรกิจ",
+    emailIntegrations: "การผสานรวมอีเมลธุรกิจ",
 
     publishSchedule: "เผยแพร่ตารางงาน 7 วัน",
     publishAndNotifyAll: "เผยแพร่และแจ้งเตือนพนักงานทุกคน",
@@ -1629,6 +1639,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "다중 매장 엔터프라이즈 허브",
     learn: "Workqora 교육 아카데미",
     equipment: "장비 및 시설 관리",
+    email: "비즈니스 이메일",
+    emailIntegrations: "비즈니스 이메일 연동",
 
     publishSchedule: "7일 근무표 게시",
     publishAndNotifyAll: "게시 및 전 직원 알림 발송",
@@ -1936,6 +1948,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "複数店舗本部ハブ",
     learn: "Workqora アカデミー",
     equipment: "設備・厨房機器管理",
+    email: "ビジネスメール",
+    emailIntegrations: "ビジネスメール連携",
 
     publishSchedule: "7日間シフト公開",
     publishAndNotifyAll: "公開して全スタッフに通知",
@@ -2243,6 +2257,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "Trung Tâm Đa Chi Nhánh",
     learn: "Học Viện Workqora",
     equipment: "Thiết bị & Cơ sở vật chất",
+    email: "Email Doanh nghiệp",
+    emailIntegrations: "Tích hợp Email Doanh nghiệp",
 
     publishSchedule: "Xuất Bản Lịch 7 Ngày",
     publishAndNotifyAll: "Xuất Bản & Gửi Thông Báo Cho Toàn Bộ Nhân Viên",
@@ -2550,6 +2566,8 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     enterpriseHub: "Hub Multi-Établissements",
     learn: "Académie Workqora",
     equipment: "Équipements & Installations",
+    email: "Courriel Professionnel",
+    emailIntegrations: "Intégrations de Messagerie Professionnelle",
 
     publishSchedule: "Publier le Planning 7 Jours",
     publishAndNotifyAll: "Publier et Notifier Tout le Personnel",

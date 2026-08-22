@@ -32,9 +32,33 @@ import {
   ShieldAlert,
   Shield,
   AlertOctagon,
-  FileText
+  FileText,
+  Palette,
+  RotateCcw,
+  CalendarDays,
+  Globe,
+  RefreshCw,
+  Grid,
+  List
 } from 'lucide-react';
-import { Shift, Employee, Department, RestaurantRole, SupportedLanguage, ShiftTemplate, ShiftPatternTag, DepartmentBudgetsMap, AvailabilityRequest, TimeOffRequest } from '../types';
+import { 
+  Shift, 
+  Employee, 
+  Department, 
+  RestaurantRole, 
+  SupportedLanguage, 
+  ShiftTemplate, 
+  ShiftPatternTag, 
+  DepartmentBudgetsMap, 
+  AvailabilityRequest, 
+  TimeOffRequest,
+  CalendarViewMode,
+  CalendarConnection,
+  ExternalCalendarEvent,
+  CalendarFeedSubscription,
+  CalendarSyncLog,
+  CalendarConflict
+} from '../types';
 import { translations } from '../utils/i18n';
 import { ShiftTemplatesModal } from './ShiftTemplatesModal';
 import { DepartmentBudgetModal } from './DepartmentBudgetModal';
@@ -42,12 +66,55 @@ import { SmartAutoFillModal } from './SmartAutoFillModal';
 import { AIPaperScheduleScannerModal } from './AIPaperScheduleScannerModal';
 import { OvertimePublishConfirmationModal, OvertimeItemSummary } from './OvertimePublishConfirmationModal';
 import { INITIAL_DEPARTMENT_BUDGETS } from '../data/mockData';
+import { 
+  INITIAL_CALENDAR_CONNECTIONS, 
+  INITIAL_EXTERNAL_EVENTS, 
+  INITIAL_FEED_SUBSCRIPTIONS, 
+  INITIAL_CALENDAR_SYNC_LOGS 
+} from '../data/calendarSyncData';
+import { detectCalendarConflicts } from '../utils/calendarSyncEngine';
+import { MonthlyScheduleGridView } from './MonthlyScheduleGridView';
+import { DayScheduleTimelineView } from './DayScheduleTimelineView';
+import { AgendaScheduleListView } from './AgendaScheduleListView';
+import { CalendarSyncManagerModal } from './CalendarSyncManagerModal';
+import { DayDetailsModal } from './DayDetailsModal';
+
 
 const parseTimeToMinutes = (timeStr: string): number => {
   if (!timeStr) return 0;
   const [h, m] = timeStr.split(':').map(Number);
   return (h || 0) * 60 + (m || 0);
 };
+
+export const SHIFT_COLOR_PALETTES = [
+  { name: 'Sky Blue (FOH / Standard)', value: '#0284c7', category: 'Standard' },
+  { name: 'Indigo (Management / Lead)', value: '#4f46e5', category: 'Lead' },
+  { name: 'Violet (Bar & Lounge)', value: '#7c3aed', category: 'Bar' },
+  { name: 'Purple (Host / VIP)', value: '#9333ea', category: 'VIP' },
+  { name: 'Rose (Overtime / Event)', value: '#e11d48', category: 'Event' },
+  { name: 'Crimson (Peak Rush)', value: '#dc2626', category: 'Rush' },
+  { name: 'Flame Orange (Kitchen / Grill)', value: '#ea580c', category: 'Grill' },
+  { name: 'Amber Gold (Bistro Service)', value: '#d97706', category: 'Service' },
+  { name: 'Yellow (Mid-Day / Patio)', value: '#ca8a04', category: 'Patio' },
+  { name: 'Emerald (Prep & Fresh)', value: '#16a34a', category: 'Prep' },
+  { name: 'Forest Green (BOH Line)', value: '#059669', category: 'Line' },
+  { name: 'Teal (Dish & Clean Station)', value: '#0d9488', category: 'Dish' },
+  { name: 'Cyan (Floor Runner)', value: '#0891b2', category: 'Runner' },
+  { name: 'Slate Steel (Support / Overnight)', value: '#475569', category: 'Support' },
+  { name: 'Dark Navy (Audit & Security)', value: '#1e293b', category: 'Audit' },
+  { name: 'Warm Mocha (Coffee & Pastry)', value: '#854d0e', category: 'Cafe' },
+];
+
+export const SHIFT_ROLE_COLOR_PRESETS = [
+  { label: '🌅 Opening', color: '#0284c7', tag: 'Opening' },
+  { label: '☀️ Lunch/Mid', color: '#16a34a', tag: 'Mid' },
+  { label: '⚡ Peak Rush', color: '#dc2626', tag: 'Rush' },
+  { label: '🌙 Closing', color: '#7c3aed', tag: 'Closing' },
+  { label: '🍸 Bar Duty', color: '#d97706', tag: 'Bar' },
+  { label: '🍳 Hot Line', color: '#ea580c', tag: 'Kitchen' },
+  { label: '👑 Supervisor', color: '#4f46e5', tag: 'Lead' },
+  { label: '🧼 Prep & Dish', color: '#0d9488', tag: 'Sanitation' },
+];
 
 interface ScheduleCalendarViewProps {
   shifts: Shift[];
@@ -106,6 +173,19 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   onUpdateDepartmentBudgets,
 }) => {
   const t = translations[currentLanguage];
+  
+  // Calendar Multi-View Modes: Day | Week | Month | Agenda
+  const [calendarViewMode, setCalendarViewMode] = useState<CalendarViewMode>('week');
+
+  // External Calendar Synchronization Hub States
+  const [connections, setConnections] = useState<CalendarConnection[]>(INITIAL_CALENDAR_CONNECTIONS);
+  const [externalEvents, setExternalEvents] = useState<ExternalCalendarEvent[]>(INITIAL_EXTERNAL_EVENTS);
+  const [feedSubscriptions, setFeedSubscriptions] = useState<CalendarFeedSubscription[]>(INITIAL_FEED_SUBSCRIPTIONS);
+  const [syncLogs, setSyncLogs] = useState<CalendarSyncLog[]>(INITIAL_CALENDAR_SYNC_LOGS);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [isCalendarSyncModalOpen, setIsCalendarSyncModalOpen] = useState<boolean>(false);
+  const [selectedDayDetailsDate, setSelectedDayDetailsDate] = useState<string | null>(null);
+
   const [selectedDepartment, setSelectedDepartment] = useState<Department | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [editingShift, setEditingShift] = useState<Shift | null>(null);
@@ -117,6 +197,42 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   const [isQuickShelfExpanded, setIsQuickShelfExpanded] = useState(true);
   const [isWarningDetailsExpanded, setIsWarningDetailsExpanded] = useState(false);
   const [warningFilter, setWarningFilter] = useState<'all' | 'daily_8h' | 'weekly_40h' | 'none'>('none');
+
+  // Multi-tenant Conflict Detection between Workqora shifts and External Events
+  const calendarConflicts = useMemo(() => {
+    return detectCalendarConflicts(shifts, externalEvents, employees);
+  }, [shifts, externalEvents, employees]);
+
+  // Handler for live sync with external calendar feeds
+  const handleTriggerSync = async () => {
+    setIsSyncing(true);
+    try {
+      await new Promise(r => setTimeout(r, 800));
+      const nowIso = new Date().toISOString();
+      setConnections(prev => prev.map(c => ({
+        ...c,
+        lastSyncAt: nowIso,
+        status: 'active'
+      })));
+      setSyncLogs(prev => [
+        {
+          id: `log-${Date.now()}`,
+          connectionId: connections[0]?.id || 'conn-1',
+          timestamp: nowIso,
+          status: 'success',
+          eventsPulledCount: externalEvents.length,
+          eventsPushedCount: shifts.length,
+          conflictsDetectedCount: calendarConflicts.length,
+          details: 'Live bi-directional sync finished across Google Calendar & Microsoft 365 Outlook feeds.'
+        },
+        ...prev
+      ]);
+    } catch (err) {
+      console.error('Failed to sync calendar feeds:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Real-time Labor Cost Guard State & Auto-Dismiss Reference
   const [laborCostGuardToast, setLaborCostGuardToast] = useState<LaborCostGuardToastData | null>(null);
@@ -133,6 +249,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
   const [formBreakMinutes, setFormBreakMinutes] = useState<number>(30);
   const [formNotes, setFormNotes] = useState<string>('Dinner rush coverage');
   const [formManagerNotes, setFormManagerNotes] = useState<string>('');
+  const [formColor, setFormColor] = useState<string>(employees[0]?.color || '#0284c7');
+  const [isCustomColorOverride, setIsCustomColorOverride] = useState<boolean>(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
   // "Save as template" form fields
@@ -504,15 +622,26 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       setFormManagerNotes(prefillTemplate.managerNotes || '');
       // Try to find matching employee
       const match = employees.find(e => e.role === prefillTemplate.role) || employees.find(e => e.department === prefillTemplate.department) || employees[0];
-      setFormEmployeeId(match?.id || employees[0]?.id || '');
+      const chosenEmp = match || employees[0];
+      setFormEmployeeId(chosenEmp?.id || '');
+      if (prefillTemplate.color) {
+        setFormColor(prefillTemplate.color);
+        setIsCustomColorOverride(true);
+      } else {
+        setFormColor(chosenEmp?.color || '#0284c7');
+        setIsCustomColorOverride(false);
+      }
     } else {
       setSelectedTemplateId('');
-      setFormEmployeeId(employees[0]?.id || '');
+      const defaultEmp = employees[0];
+      setFormEmployeeId(defaultEmp?.id || '');
       setFormStartTime('16:00');
       setFormEndTime('23:30');
       setFormBreakMinutes(30);
       setFormNotes('Dinner rush table station');
       setFormManagerNotes('');
+      setFormColor(defaultEmp?.color || '#0284c7');
+      setIsCustomColorOverride(false);
     }
     setIsAddingShift(true);
   };
@@ -531,11 +660,46 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     
     // Auto-select staff member with matching role or department if current employee does not match
     const currentEmp = employees.find(e => e.id === formEmployeeId);
+    let matchedEmp = currentEmp;
     if (currentEmp && currentEmp.role !== tmpl.role) {
       const match = employees.find(e => e.role === tmpl.role) || employees.find(e => e.department === tmpl.department);
       if (match) {
         setFormEmployeeId(match.id);
+        matchedEmp = match;
       }
+    }
+
+    if (tmpl.color) {
+      setFormColor(tmpl.color);
+      setIsCustomColorOverride(true);
+    } else if (matchedEmp && !isCustomColorOverride) {
+      setFormColor(matchedEmp.color || '#0284c7');
+    }
+  };
+
+  const handleEmployeeChange = (newEmpId: string) => {
+    setFormEmployeeId(newEmpId);
+    const newEmp = employees.find(e => e.id === newEmpId);
+    if (newEmp && !isCustomColorOverride) {
+      setFormColor(newEmp.color || '#0284c7');
+    }
+  };
+
+  const handleSelectCustomColor = (colorHex: string) => {
+    setFormColor(colorHex);
+    const currentEmp = employees.find(e => e.id === formEmployeeId);
+    if (currentEmp && colorHex.toLowerCase() !== currentEmp.color?.toLowerCase()) {
+      setIsCustomColorOverride(true);
+    } else {
+      setIsCustomColorOverride(false);
+    }
+  };
+
+  const handleResetToEmployeeColor = () => {
+    const currentEmp = employees.find(e => e.id === formEmployeeId) || employees[0];
+    if (currentEmp?.color) {
+      setFormColor(currentEmp.color);
+      setIsCustomColorOverride(false);
     }
   };
 
@@ -559,6 +723,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       'add_shift'
     );
 
+    const finalColor = formColor || emp.color || '#0284c7';
+
     onAddShift({
       employeeId: emp.id,
       employeeName: emp.name,
@@ -570,7 +736,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       breakMinutes: formBreakMinutes,
       hourlyWage: emp.hourlyWage,
       status: 'draft',
-      color: emp.color,
+      color: finalColor,
       notes: formNotes,
       managerNotes: formManagerNotes.trim() || undefined,
     });
@@ -588,7 +754,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         breakMinutes: formBreakMinutes,
         notes: formNotes.trim(),
         managerNotes: formManagerNotes.trim() || undefined,
-        color: emp.color,
+        color: finalColor,
         isFavorite: true,
       };
       onSaveTemplate(createdTmpl);
@@ -609,6 +775,10 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
     setSaveAsTemplateChecked(false);
     setNewTemplateName(`${shift.role} ${shift.startTime}-${shift.endTime}`);
     setNewTemplateTag('Mid');
+    const currentEmp = employees.find(e => e.id === shift.employeeId);
+    const colorToUse = shift.color || currentEmp?.color || '#0284c7';
+    setFormColor(colorToUse);
+    setIsCustomColorOverride(Boolean(shift.color && currentEmp?.color && shift.color.toLowerCase() !== currentEmp.color.toLowerCase()));
   };
 
   const handleSaveEditShift = (e: React.FormEvent) => {
@@ -647,6 +817,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       );
     }
 
+    const finalColor = formColor || emp.color || '#0284c7';
+
     onUpdateShift({
       ...editingShift,
       employeeId: emp.id,
@@ -657,7 +829,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
       endTime: formEndTime,
       breakMinutes: formBreakMinutes,
       hourlyWage: emp.hourlyWage,
-      color: emp.color,
+      color: finalColor,
       notes: formNotes,
       managerNotes: formManagerNotes.trim() || undefined,
     });
@@ -675,7 +847,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         breakMinutes: formBreakMinutes,
         notes: formNotes.trim(),
         managerNotes: formManagerNotes.trim() || undefined,
-        color: emp.color,
+        color: finalColor,
         isFavorite: true,
       };
       onSaveTemplate(createdTmpl);
@@ -799,6 +971,92 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
           </div>
         </div>
       )}
+      
+      {/* Primary Calendar View Mode Switcher: Day | Week | Month | Agenda + External Sync Hub Trigger */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-sky-100 shadow-2xs">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+          <button
+            onClick={() => setCalendarViewMode('day')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              calendarViewMode === 'day'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            <span>Day</span>
+          </button>
+          
+          <button
+            onClick={() => setCalendarViewMode('week')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              calendarViewMode === 'week'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <CalendarDays className="w-3.5 h-3.5" />
+            <span>7-Day Week</span>
+          </button>
+
+          <button
+            onClick={() => setCalendarViewMode('month')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              calendarViewMode === 'month'
+                ? 'bg-sky-600 text-white shadow-xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <CalendarIcon className="w-3.5 h-3.5" />
+            <span>Month</span>
+            <span className="px-1.5 py-0.2 bg-white/20 text-[10px] rounded-full">31d</span>
+          </button>
+
+          <button
+            onClick={() => setCalendarViewMode('agenda')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              calendarViewMode === 'agenda'
+                ? 'bg-white text-slate-900 shadow-2xs'
+                : 'text-slate-500 hover:text-slate-900'
+            }`}
+          >
+            <List className="w-3.5 h-3.5" />
+            <span>Agenda</span>
+          </button>
+        </div>
+
+        {/* Right side: External sync indicator, Conflicts count & Calendar Sync Hub modal trigger */}
+        <div className="flex items-center gap-2">
+          {calendarConflicts.length > 0 && (
+            <button
+              onClick={() => setIsCalendarSyncModalOpen(true)}
+              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer animate-pulse"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+              <span>{calendarConflicts.length} Conflicts</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleTriggerSync}
+            disabled={isSyncing}
+            className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+            title="Trigger Bi-directional sync with Google & Outlook"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-sky-600 ${isSyncing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isSyncing ? 'Syncing...' : 'Sync Feeds'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsCalendarSyncModalOpen(true)}
+            className="px-3 py-1.5 bg-gradient-to-r from-sky-900 to-indigo-950 hover:from-sky-800 hover:to-indigo-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+          >
+            <Globe className="w-3.5 h-3.5 text-sky-400" />
+            <span>Calendar Hub</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          </button>
+        </div>
+      </div>
       
       {/* Top Controls: Filter Pills, Search, Shift Templates Button, AI Optimizer, Publish */}
       <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-sky-100 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
@@ -982,8 +1240,57 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
 
       </div>
 
-      {/* QUICK SHIFT TEMPLATES SHELF (Accelerates schedule building) */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 rounded-2xl p-3.5 sm:p-4 text-white shadow-md border border-slate-700/60">
+      {/* RENDER VIEW ACCORDING TO ACTIVE MODE (Month | Day | Agenda | Week) */}
+      {calendarViewMode === 'month' && (
+        <MonthlyScheduleGridView
+          shifts={shifts}
+          employees={employees}
+          templates={templates}
+          selectedDepartment={selectedDepartment}
+          searchQuery={searchQuery}
+          externalEvents={externalEvents}
+          connections={connections}
+          conflicts={calendarConflicts}
+          onOpenAddShift={(dateStr, template) => handleOpenAddModal(dateStr, template)}
+          onOpenEditShift={(shift) => handleOpenEditModal(shift)}
+          onOpenCalendarSyncHub={() => setIsCalendarSyncModalOpen(true)}
+          onTriggerSync={handleTriggerSync}
+          isSyncing={isSyncing}
+          onSelectDay={(dateStr) => setSelectedDayDetailsDate(dateStr)}
+        />
+      )}
+
+      {calendarViewMode === 'day' && (
+        <DayScheduleTimelineView
+          shifts={shifts}
+          employees={employees}
+          templates={templates}
+          selectedDepartment={selectedDepartment}
+          searchQuery={searchQuery}
+          externalEvents={externalEvents}
+          onOpenAddShift={(dateStr, template) => handleOpenAddModal(dateStr, template)}
+          onOpenEditShift={(shift) => handleOpenEditModal(shift)}
+        />
+      )}
+
+      {calendarViewMode === 'agenda' && (
+        <AgendaScheduleListView
+          shifts={shifts}
+          employees={employees}
+          templates={templates}
+          selectedDepartment={selectedDepartment}
+          searchQuery={searchQuery}
+          externalEvents={externalEvents}
+          onOpenAddShift={(dateStr, template) => handleOpenAddModal(dateStr, template)}
+          onOpenEditShift={(shift) => handleOpenEditModal(shift)}
+          onDeleteShift={onDeleteShift}
+        />
+      )}
+
+      {calendarViewMode === 'week' && (
+        <>
+          {/* QUICK SHIFT TEMPLATES SHELF (Accelerates schedule building) */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 rounded-2xl p-3.5 sm:p-4 text-white shadow-md border border-slate-700/60">
         <div className="flex items-center justify-between gap-3 mb-2.5">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-lg bg-amber-400/20 text-amber-400 flex items-center justify-center">
@@ -1584,6 +1891,13 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                             <span className={`font-bold text-xs truncate ${hasWarning ? 'text-amber-950 font-black' : 'text-slate-900'}`}>
                               {shift.employeeName}
                             </span>
+                            {shift.color && (
+                              <span 
+                                className="w-2 h-2 rounded-full shrink-0 shadow-2xs border border-black/10 inline-block ml-0.5"
+                                style={{ backgroundColor: shift.color }}
+                                title={`Shift Theme: ${shift.color}`}
+                              />
+                            )}
                           </div>
                           <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
                             isDaily8h
@@ -1923,6 +2237,8 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         </div>
 
       </div>
+        </>
+      )}
 
       {/* Add / Edit Shift Modal with Shift Template Integration */}
       {(isAddingShift || editingShift) && (
@@ -2020,7 +2336,7 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                 </div>
                 <select
                   value={formEmployeeId}
-                  onChange={(e) => setFormEmployeeId(e.target.value)}
+                  onChange={(e) => handleEmployeeChange(e.target.value)}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-medium focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
                 >
                   {employees.slice(0, 300).map((emp) => (
@@ -2098,6 +2414,195 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
                   onChange={(e) => setFormBreakMinutes(Number(e.target.value))}
                   className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
                 />
+              </div>
+
+              {/* SHIFT COLOR CODING & VISUAL THEME */}
+              <div className="p-3.5 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-3" id="shift-modal-color-coding-section">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+                    <Palette className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                    <span>Shift Color Coding & Station Theme:</span>
+                  </label>
+                  {(() => {
+                    const selectedEmp = employees.find(e => e.id === formEmployeeId) || employees[0];
+                    const isDefault = !isCustomColorOverride && (!selectedEmp?.color || formColor.toLowerCase() === selectedEmp.color.toLowerCase());
+                    return (
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                        isDefault
+                          ? 'bg-slate-100 text-slate-700 border-slate-200'
+                          : 'bg-indigo-50 text-indigo-700 border-indigo-200 shadow-2xs'
+                      }`}>
+                        <span
+                          className="w-2 h-2 rounded-full ring-1 ring-white shrink-0"
+                          style={{ backgroundColor: formColor }}
+                        />
+                        {isDefault ? `Standard: ${selectedEmp?.name?.split(' ')[0] || 'Staff'}'s Color` : 'Custom Shift Color'}
+                      </span>
+                    );
+                  })()}
+                </div>
+
+                {/* Quick Duty/Pattern Preset Buttons */}
+                <div className="space-y-1.5">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                    Quick Duty & Shift Tag Presets:
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    {SHIFT_ROLE_COLOR_PRESETS.map((preset) => {
+                      const isSelected = formColor.toLowerCase() === preset.color.toLowerCase();
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => handleSelectCustomColor(preset.color)}
+                          className={`px-2 py-1.5 rounded-xl border text-[11px] font-semibold text-left transition-all flex items-center justify-between cursor-pointer group ${
+                            isSelected
+                              ? 'bg-white border-slate-900 shadow-xs ring-2 ring-slate-900/10 text-slate-900 font-bold'
+                              : 'bg-white/80 border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-white'
+                          }`}
+                        >
+                          <span className="truncate">{preset.label}</span>
+                          <span
+                            className="w-3 h-3 rounded-full shrink-0 ml-1.5 shadow-2xs border border-black/10"
+                            style={{ backgroundColor: preset.color }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Curated 16-Color Palette Grid */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Hospitality Palette Swatches:
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {SHIFT_COLOR_PALETTES.length} Curated Tones
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-8 gap-1.5 sm:gap-2 p-2 bg-white rounded-xl border border-slate-200">
+                    {SHIFT_COLOR_PALETTES.map((swatch) => {
+                      const isSelected = formColor.toLowerCase() === swatch.value.toLowerCase();
+                      return (
+                        <button
+                          key={swatch.value}
+                          type="button"
+                          title={swatch.name}
+                          onClick={() => handleSelectCustomColor(swatch.value)}
+                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg transition-all flex items-center justify-center relative cursor-pointer group hover:scale-105 ${
+                            isSelected ? 'ring-2 ring-offset-2 ring-slate-900 shadow-sm scale-105' : 'hover:shadow-xs opacity-90 hover:opacity-100'
+                          }`}
+                          style={{ backgroundColor: swatch.value }}
+                        >
+                          {isSelected && (
+                            <Check className="w-3.5 h-3.5 text-white drop-shadow-sm stroke-[3]" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Custom Hex Input, Native HTML5 Color Picker & Reset to Employee Default */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-1 border-t border-slate-200">
+                  <div className="flex items-center gap-2">
+                    {/* HTML5 Native Color Picker Trigger */}
+                    <label className="relative flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-slate-300 transition-colors shadow-2xs group">
+                      <input
+                        type="color"
+                        value={formColor.startsWith('#') && formColor.length === 7 ? formColor : '#0284c7'}
+                        onChange={(e) => handleSelectCustomColor(e.target.value)}
+                        className="w-5 h-5 rounded-md border-0 p-0 cursor-pointer opacity-0 absolute inset-0 w-full h-full"
+                      />
+                      <span
+                        className="w-4 h-4 rounded-md shrink-0 border border-black/10 shadow-2xs"
+                        style={{ backgroundColor: formColor }}
+                      />
+                      <span className="text-[11px] font-semibold text-slate-700 group-hover:text-slate-900 flex items-center gap-1">
+                        <Palette className="w-3 h-3 text-slate-500" />
+                        <span>Custom Picker</span>
+                      </span>
+                    </label>
+
+                    {/* Hex text input */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={formColor}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setFormColor(val);
+                          if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                            handleSelectCustomColor(val);
+                          }
+                        }}
+                        placeholder="#0284C7"
+                        maxLength={7}
+                        className="w-24 px-2 py-1.5 bg-white border border-slate-200 rounded-xl font-mono text-xs uppercase focus:ring-2 focus:ring-sky-500 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reset to Employee Default Button */}
+                  {(() => {
+                    const selectedEmp = employees.find(e => e.id === formEmployeeId) || employees[0];
+                    const isCurrentlyEmpColor = selectedEmp?.color && formColor.toLowerCase() === selectedEmp.color.toLowerCase() && !isCustomColorOverride;
+                    return (
+                      <button
+                        type="button"
+                        onClick={handleResetToEmployeeColor}
+                        disabled={isCurrentlyEmpColor}
+                        className={`px-2.5 py-1.5 rounded-xl border text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all ${
+                          isCurrentlyEmpColor
+                            ? 'bg-slate-100/60 border-slate-200 text-slate-400 cursor-not-allowed'
+                            : 'bg-white border-sky-200 text-sky-700 hover:bg-sky-50 hover:border-sky-300 cursor-pointer shadow-2xs'
+                        }`}
+                        title={`Reset color to ${selectedEmp?.name || 'Staff'}'s standard employee color (${selectedEmp?.color || '#0284c7'})`}
+                      >
+                        <RotateCcw className="w-3 h-3 shrink-0" />
+                        <span className="truncate">Use {selectedEmp?.name?.split(' ')[0] || 'Staff'}'s Default ({selectedEmp?.color || 'Color'})</span>
+                      </button>
+                    );
+                  })()}
+                </div>
+
+                {/* Live Shift Card Mini-Preview */}
+                <div className="p-2.5 bg-white rounded-xl border border-slate-200 space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-semibold uppercase tracking-wider">
+                    <span>Live Calendar Tile Preview:</span>
+                    <span className="font-mono text-slate-600">{formColor.toUpperCase()}</span>
+                  </div>
+                  <div
+                    style={{ borderLeftColor: formColor }}
+                    className="p-2.5 bg-slate-50/70 border border-slate-200 border-l-4 rounded-lg flex items-center justify-between text-left"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs text-slate-900 truncate">
+                          {employees.find(e => e.id === formEmployeeId)?.name || 'Elena Rostova'}
+                        </span>
+                        <span
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: formColor }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-slate-600 truncate">
+                        {employees.find(e => e.id === formEmployeeId)?.role || 'Server'} • {formStartTime} - {formEndTime}
+                        {formNotes ? ` (${formNotes})` : ''}
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span
+                        className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded-full text-white shadow-2xs"
+                        style={{ backgroundColor: formColor }}
+                      >
+                        Active Color
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Station Notes */}
@@ -2383,6 +2888,64 @@ export const ScheduleCalendarView: React.FC<ScheduleCalendarViewProps> = ({
         shifts={shifts}
         weeklySalesForecast={weeklySalesForecast}
       />
+
+      {/* CALENDAR SYNC MANAGER MODAL */}
+      <CalendarSyncManagerModal
+        isOpen={isCalendarSyncModalOpen}
+        onClose={() => setIsCalendarSyncModalOpen(false)}
+        connections={connections}
+        onAddConnection={(newConn) => {
+          setConnections(prev => [
+            ...prev,
+            { ...newConn, id: `conn-${Date.now()}`, lastSyncAt: new Date().toISOString() } as CalendarConnection
+          ]);
+        }}
+        onUpdateConnection={(id, patch) => {
+          setConnections(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
+        }}
+        onDeleteConnection={(id) => {
+          setConnections(prev => prev.filter(c => c.id !== id));
+        }}
+        externalEvents={externalEvents}
+        onAddExternalEvent={(evt) => {
+          setExternalEvents(prev => [
+            ...prev,
+            { ...evt, id: `ext-${Date.now()}` } as ExternalCalendarEvent
+          ]);
+        }}
+        onDeleteExternalEvent={(id) => {
+          setExternalEvents(prev => prev.filter(e => e.id !== id));
+        }}
+        feedSubscriptions={feedSubscriptions}
+        syncLogs={syncLogs}
+        conflicts={calendarConflicts}
+        onTriggerSync={handleTriggerSync}
+        isSyncing={isSyncing}
+      />
+
+      {/* DAY DETAILS DRILLDOWN MODAL */}
+      {selectedDayDetailsDate && (
+        <DayDetailsModal
+          isOpen={Boolean(selectedDayDetailsDate)}
+          onClose={() => setSelectedDayDetailsDate(null)}
+          dateStr={selectedDayDetailsDate}
+          shifts={shifts.filter(s => s.date === selectedDayDetailsDate)}
+          externalEvents={externalEvents.filter(e => e.date === selectedDayDetailsDate)}
+          employees={employees}
+          templates={templates}
+          onOpenAddShift={(dateStr, template) => {
+            setSelectedDayDetailsDate(null);
+            handleOpenAddModal(dateStr, template);
+          }}
+          onOpenEditShift={(shift) => {
+            setSelectedDayDetailsDate(null);
+            handleOpenEditModal(shift);
+          }}
+          onDeleteShift={(shiftId) => {
+            onDeleteShift(shiftId);
+          }}
+        />
+      )}
 
     </div>
   );

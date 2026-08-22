@@ -248,7 +248,7 @@ export function DualLoginModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-2xl font-black tracking-tight text-white">
-                  Shift<span className="text-sky-400">Force</span> Authentication
+                  Work<span className="text-sky-400">qora</span> Authentication
                 </h2>
                 <span className="px-2.5 py-0.5 text-[10px] font-bold bg-white/15 text-sky-200 border border-white/20 rounded-full">
                   Secure Access
